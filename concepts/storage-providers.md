@@ -57,10 +57,10 @@ In the indexer-based architecture, storage providers sit at the edge of the netw
 
 From the host’s perspective, the world is simple:
 
-- The indexer inherits the reponsibilty of forms contracts, uploads slabs and sends requests.
+- The indexer inherits the reponsibilty of forming contracts, uploads slabs and sends requests.
 - Data arrives as **encrypted shards**, not files or object keys, and hosts
   never see user or app metadata.
-- Hosts focus on **staying online, serving sectors and submitting storage proofs** 
+- Hosts focus on **staying online, serving sectors and submitting storage proofs**.
 
 ``` mermaid
 flowchart LR
