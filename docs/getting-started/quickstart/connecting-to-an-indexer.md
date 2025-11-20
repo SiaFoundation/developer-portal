@@ -1,4 +1,4 @@
-# Connecting to an indexer
+# **Connecting to an Indexer**
 
 Before your app can upload, download, or share data on Sia, it must first establish a secure identity and connect to an indexer. An indexer acts as your application’s gateway to the Sia network. It handles:
 
