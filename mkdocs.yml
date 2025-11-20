@@ -30,13 +30,14 @@ plugins:
 
 nav:
   - Getting Started:
-      #- Overview: getting-started/README.md
-      - Connecting to an indexer: getting-started/connecting-to-an-indexer.md
+      - Overview: getting-started/README.md
       - Quickstart:
           #- Overview: getting-started/quickstart/README.md
+          - Connecting to an indexer: getting-started/quickstart/connecting-to-an-indexer.md
           - Upload Data: getting-started/quickstart/upload-data.md
           - Download Data: getting-started/quickstart/download-data.md
           - Share Objects: getting-started/quickstart/share-objects.md
+      - Troubleshooting: getting-started/troubleshooting.md
 
   - Core Concepts:
       #- Overview: core-concepts/index.md
