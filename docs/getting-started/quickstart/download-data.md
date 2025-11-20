@@ -50,7 +50,7 @@ Use `offset` and `length` to:
 
     print(data.decode())
     ```
-=== "Javascript"
+=== "JavaScript"
     *🚧 Coming soon*
 === "Rust"
     *🚧 Coming soon*
