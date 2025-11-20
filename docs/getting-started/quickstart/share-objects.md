@@ -48,7 +48,7 @@ sdk.pin_shared(shared)
     shared = await sdk.shared_object(url)
     download = await sdk.download_shared(shared, DownloadOptions())
     ```
-=== "Javascript"
+=== "JavaScript"
     *🚧 Coming soon*
 === "Rust"
     *🚧 Coming soon*
