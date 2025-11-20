@@ -27,7 +27,7 @@ As long as the host meets the contract terms, it receives payments in SC. If it 
 Storage providers can be:
 
 - Individuals running a home server or Network Attached Storage (NAS) 
-- Small operators with a handful of machines in a data centre  
+- Small operators with a handful of machines in a data centre 
 - Companies integrating Sia storage into their own product and reselling it  
 
 On the network, all of these appear simply as “storage” with:
@@ -40,9 +40,9 @@ On the network, all of these appear simply as “storage” with:
 
 ## Why they exist
 
-Storage providers are what make Sia’s decentralised storage model real: instead of trusting a single cloud vendor, the network relies on a permissionless set of independent hosts that turn raw disk and bandwidth into a verifiable storage layer. They exist to:
+Storage providers are what make Sia’s decentralized storage model real: instead of trusting a single cloud vendor, the network relies on a permissions set of independent hosts that turn raw disk and bandwidth into a verifiable storage layer. They exist to:
 
-- **Decentralise control and failure domains** – data is encrypted, erasure-coded, and spread across many unrelated hosts so no single operator or outage can take it offline.  
+- **Decentralize control and failure domains** – data is encrypted, erasure-coded, and spread across many unrelated hosts so no single operator or outage can take it offline.  
 - **Provide economic guarantees on durability** – hosts lock collateral into contracts and must submit proofs; losing data can burn collateral, while honest uptime is rewarded in Siacoin (SC).  
 - **Enable an open storage marketplace** – anyone with excess capacity can join, set prices, and compete for renter demand instead of relying on a single provider’s pricing and policies.
 - **Separate infrastructure from applications** – contracts, pricing, and proofs live at the protocol layer, so apps can change without changing the underlying storage providers.
@@ -57,7 +57,7 @@ In the indexer-based architecture, storage providers sit at the edge of the netw
 
 From the host’s perspective, the world is simple:
 
-- The indexer inherits the reponsibilty of forming contracts, uploads slabs and sends requests.
+- The indexer inherits the responsibility of forming contracts, uploads slabs and sends requests.
 - Data arrives as **encrypted shards**, not files or object keys, and hosts
   never see user or app metadata.
 - Hosts focus on **staying online, serving sectors and submitting storage proofs**.
