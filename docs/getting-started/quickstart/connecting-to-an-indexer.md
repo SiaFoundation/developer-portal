@@ -149,7 +149,7 @@ Returns:
         if not ok:
             raise Exception("User rejected the app")
     ```
-=== "Javascript"
+=== "JavaScript"
     *🚧 Coming soon*
 === "Rust"
     *🚧 Coming soon*
