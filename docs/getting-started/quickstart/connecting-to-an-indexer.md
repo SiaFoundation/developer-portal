@@ -163,4 +163,4 @@ Returns:
     *🚧 Coming soon*
 
 ## Next Step
-[Upload Data →](../quickstart/upload-data.md){ .md-button }
+[Upload Data →](upload-data.md){ .md-button }
