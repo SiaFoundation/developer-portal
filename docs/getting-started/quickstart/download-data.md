@@ -1,4 +1,4 @@
-# **Download Data**
+# Download Data
 
 Downloading is the natural counterpart to uploading. Once an object has been uploaded and pinned in the indexer, your app can retrieve it securely from the Sia network. The SDK handles all of the complexity behind the scenes:
 

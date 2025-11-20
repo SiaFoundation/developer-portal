@@ -1,4 +1,4 @@
-# **Upload Data**
+# Upload Data
 
 Uploading data is the core action your app will perform on the Sia network. When you upload a file through the SDK, the process is secure by design:
 

@@ -1,4 +1,4 @@
-# **Share Objects**
+# Share Objects
 
 Sharing allows you to grant others secure, time-limited access to an object you’ve uploaded. Instead of exposing keys or credentials, the SDK generates a cryptographically signed URL that:
 
