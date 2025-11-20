@@ -8,6 +8,24 @@ Use existing developer portals for inspiration:
 - https://solana.com/developers
 - etc
 
+## Running
+
+### Linux/macOS
+```
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+mkdocs serve
+```
+
+### Windows
+```
+python3 -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+mkdocs serve
+```
+
 ## Getting Started
 
 Provide basic code snippets in various languages. This should realistically be a single page with language tabs.
