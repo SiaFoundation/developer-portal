@@ -61,7 +61,7 @@ You can track:
 
     print("Uploaded object:", pinned.key)
     ```
-=== "Javascript"
+=== "JavaScript"
     *🚧 Coming soon*
 === "Rust"
     *🚧 Coming soon*
