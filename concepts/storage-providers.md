@@ -40,7 +40,7 @@ On the network, all of these appear simply as “storage” with:
 
 ## Why they exist
 
-Storage providers are what make Sia’s decentralized storage model real: instead of trusting a single cloud vendor, the network relies on a permissions set of independent hosts that turn raw disk and bandwidth into a verifiable storage layer. They exist to:
+Storage providers are what make Sia’s decentralized storage model real: instead of trusting a single cloud vendor, the network relies on a permissionless set of independent hosts that turn raw disk and bandwidth into a verifiable storage layer. They exist to:
 
 - **Decentralize control and failure domains** – data is encrypted, erasure-coded, and spread across many unrelated hosts so no single operator or outage can take it offline.  
 - **Provide economic guarantees on durability** – hosts lock collateral into contracts and must submit proofs; losing data can burn collateral, while honest uptime is rewarded in Siacoin (SC).  
