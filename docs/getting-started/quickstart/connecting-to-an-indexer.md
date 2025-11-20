@@ -53,7 +53,7 @@ The SDK provides:
     key = AppKey(phrase, app_id)
     print("Your app key:", key.export())
     ```
-=== "Javascript"
+=== "JavaScript"
     *🚧 Coming soon*
 === "Rust"
     *🚧 Coming soon*
