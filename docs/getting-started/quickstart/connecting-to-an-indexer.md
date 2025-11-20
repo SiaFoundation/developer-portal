@@ -88,7 +88,6 @@ Next, bind your app key to an indexer. This creates an authenticated SDK instanc
     *🚧 Coming soon*
 === "Kotlin"
     *🚧 Coming soon*
----
 
 ## **Check Connection & Request Approval**
 
