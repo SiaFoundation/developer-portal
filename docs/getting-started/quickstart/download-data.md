@@ -64,4 +64,4 @@ Use `offset` and `length` to:
     *🚧 Coming soon*
 
 ## Next Step
-[Share Objects →](../quickstart/share-objects.md){ .md-button }
+[Share Objects →](share-objects.md){ .md-button }
