@@ -21,15 +21,12 @@ theme:
 
 plugins:
   - search
-  - awesome-pages
-  - minify
   - git-revision-date-localized:
       type: date
       fallback_to_build_date: true
-  - glightbox
   - literate-nav
-  - section-index
-  - redirects
+  # - section-index
+  # - redirects
 
 nav:
   - Getting Started: 
