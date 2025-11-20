@@ -67,7 +67,7 @@ The Python SDK is currently distributed via source builds from the indexd_ffi Ru
         cargo run -p indexd_ffi --bin uniffi-bindgen generate --library target/release/libindexd_ffi.dylib --language python --out-dir ../
         mv target/release/libindexd_ffi.dylib ../
         ```
-=== "Javascript"
+=== "JavaScript"
     *🚧 Coming soon*
 === "Rust"
     *🚧 Coming soon*
