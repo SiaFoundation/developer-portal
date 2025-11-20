@@ -6,7 +6,7 @@ theme:
   features:
     - content.tabs.link
     - navigation.instant
-    # - navigation.tabs 
+    # - navigation.tabs
     - navigation.sections
     - navigation.expand
     - navigation.top
@@ -29,7 +29,7 @@ plugins:
   # - redirects
 
 nav:
-  - Getting Started: 
+  - Getting Started:
       #- Overview: getting-started/README.md
       - Connecting to an indexer: getting-started/connecting-to-an-indexer.md
       - Quickstart:
@@ -59,7 +59,6 @@ nav:
       - Rust: tutorials/rust/README.md
       - Swift: tutorials/swift/README.md
 
-
 markdown_extensions:
   - admonition
   - attr_list
@@ -84,5 +83,5 @@ markdown_extensions:
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      emoji_index: !!python/name:pymdownx.emoji.twemoji
+      emoji_generator: !!python/name:pymdownx.emoji.to_svg
