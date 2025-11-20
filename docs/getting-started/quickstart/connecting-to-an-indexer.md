@@ -76,7 +76,7 @@ Next, bind your app key to an indexer. This creates an authenticated SDK instanc
     ```python
     sdk = Sdk("https://app.sia.storage", key)
     ```
-=== "Javascript"
+=== "JavaScript"
     *🚧 Coming soon*
 === "Rust"
     *🚧 Coming soon*
