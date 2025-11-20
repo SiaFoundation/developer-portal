@@ -1,0 +1,91 @@
+site_name: Sia Developer Portal
+site_url: ""
+
+theme:
+  name: material
+  features:
+    - content.tabs.link
+    - navigation.instant
+    # - navigation.tabs 
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - toc.integrate
+    - content.code.copy
+    - content.action.edit
+    - content.action.view
+    - content.tooltips
+    - announce.dismiss
+
+plugins:
+  - search
+  - awesome-pages
+  - minify
+  - git-revision-date-localized:
+      type: date
+      fallback_to_build_date: true
+  - glightbox
+  - literate-nav
+  - section-index
+  - redirects
+
+nav:
+  - Getting Started: 
+      #- Overview: getting-started/README.md
+      - Connecting to an indexer: getting-started/connecting-to-an-indexer.md
+      - Quickstart:
+          #- Overview: getting-started/quickstart/README.md
+          - Upload Data: getting-started/quickstart/upload-data.md
+          - Download Data: getting-started/quickstart/download-data.md
+          - Share Objects: getting-started/quickstart/share-objects.md
+
+  - Core Concepts:
+      #- Overview: core-concepts/index.md
+      - Apps: core-concepts/apps.md
+      - Indexers: core-concepts/indexers.md
+      - Pinning: core-concepts/pinning.md
+      - Events: core-concepts/events.md
+      - Storage Providers: core-concepts/storage-providers.md
+      - Objects: core-concepts/objects.md
+      - Advanced:
+          - Redundancy: core-concepts/advanced/redundancy.md
+          - Slabs: core-concepts/advanced/slabs.md
+
+  - Tutorials:
+      #- Overview: tutorials/README.md
+      - Go: tutorials/go/README.md
+      - Kotlin: tutorials/kotlin/README.md
+      - Python: tutorials/python/README.md
+      - React Native: tutorials/react-native/README.md
+      - Rust: tutorials/rust/README.md
+      - Swift: tutorials/swift/README.md
+
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - abbr
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.details
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.keys
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
