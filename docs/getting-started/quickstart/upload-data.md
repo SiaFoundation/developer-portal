@@ -75,4 +75,4 @@ You can track:
     *🚧 Coming soon*
 
 ## Next Step
-[Download Data →](../quickstart/download-data.md){ .md-button }
+[Download Data →](download-data.md){ .md-button }
