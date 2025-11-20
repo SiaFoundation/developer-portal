@@ -1,4 +1,4 @@
-# **Connecting to an Indexer**
+# Connecting to an Indexer
 
 Before your app can upload, download, or share data on Sia, it must first establish a secure identity and connect to an indexer. An indexer acts as your application’s gateway to the Sia network. It handles:
 
@@ -22,7 +22,7 @@ Connecting your app involves three steps:
 
 Once these steps are complete, your application is authorized and can begin interacting with the network.
 
-## **Create an App Key**
+## Create an App Key
 
 Each app instance has an App Key, derived from:
 
@@ -66,7 +66,7 @@ The SDK provides:
 === "Kotlin"
     *🚧 Coming soon*
 
-## **Initialize the SDK**
+## Initialize the SDK
 
 Next, bind your app key to an indexer. This creates an authenticated SDK instance but does **not** confirm whether your app is approved yet.
 
@@ -89,7 +89,7 @@ Next, bind your app key to an indexer. This creates an authenticated SDK instanc
 === "Kotlin"
     *🚧 Coming soon*
 
-## **Check Connection & Request Approval**
+## Check Connection & Request Approval
 
 The first time an app attempts to connect, the user must approve it. After approval, the SDK auto-reconnects on future runs.
 
