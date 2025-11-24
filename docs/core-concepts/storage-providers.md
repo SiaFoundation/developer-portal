@@ -12,11 +12,11 @@ Storage providers physically store data on the Sia network by running Sia’s ho
 
 A storage provider:
 
-- Runs `hostd` on a machine with stable storage, power, and connectivity  
-- Announces available capacity, pricing, and collateral to the network  
+- Runs `hostd` on a machine with stable storage, power, and connectivity
+- Announces available capacity, pricing, and collateral to the network
 - Accepts storage contracts from renters (usually indexers acting on behalf of users)
-- Stores encrypted shards of user data for the contract duration  
-- Submits storage proofs to show the data is still available  
+- Stores encrypted shards of user data for the contract duration
+- Submits storage proofs to show the data is still available
 
 As long as the host meets the contract terms, it receives payments in SC. If it fails, it risks losing revenue and the **collateral** it locked into the contract.
 
@@ -26,14 +26,14 @@ As long as the host meets the contract terms, it receives payments in SC. If it 
 
 Storage providers can be:
 
-- Individuals running a home server or Network Attached Storage (NAS) 
-- Small operators with a handful of machines in a data centre 
-- Companies integrating Sia storage into their own product and reselling it  
+- Individuals running a home server or Network Attached Storage (NAS)
+- Small operators with a handful of machines in a data center
+- Companies integrating Sia storage into their own product and reselling it
 
 On the network, all of these appear simply as “storage” with:
 
-- Capacity and bandwidth offers  
-- A pricing configuration (storage, egress, contract fees)  
+- Capacity and bandwidth offers
+- A pricing configuration (storage, egress, contract fees)
 - A track record of uptime and responsiveness that renters can score
 
 ---
@@ -58,12 +58,10 @@ In the indexer-based architecture, storage providers sit at the edge of the netw
 From the host’s perspective, the world is simple:
 
 - The indexer inherits the responsibility of forming contracts, uploading slabs and sending requests.
-- Data arrives as **encrypted shards**, not files or object keys, and hosts
-  never see user or app metadata.
+- Data arrives as **encrypted shards**, not files or object keys, and hosts never see user or app metadata.
 - Hosts focus on **staying online, serving sectors and submitting storage proofs**.
 
 ``` mermaid
-flowchart LR
 flowchart LR
     %% === Hosts on the right ===
     subgraph HOSTS[ ]
