@@ -14,7 +14,7 @@ A storage provider:
 
 - Runs `hostd` on a machine with stable storage, power, and connectivity  
 - Announces available capacity, pricing, and collateral to the network  
-- Accepts storage contracts from renters (usually indexers acting on behalf of users).
+- Accepts storage contracts from renters (usually indexers acting on behalf of users)
 - Stores encrypted shards of user data for the contract duration  
 - Submits storage proofs to show the data is still available  
 
@@ -57,12 +57,13 @@ In the indexer-based architecture, storage providers sit at the edge of the netw
 
 From the host’s perspective, the world is simple:
 
-- The indexer inherits the responsibility of forming contracts, uploads slabs and sends requests.
+- The indexer inherits the responsibility of forming contracts, uploading slabs and sending requests.
 - Data arrives as **encrypted shards**, not files or object keys, and hosts
   never see user or app metadata.
 - Hosts focus on **staying online, serving sectors and submitting storage proofs**.
 
 ``` mermaid
+flowchart LR
 flowchart LR
     %% === Hosts on the right ===
     subgraph HOSTS[ ]
@@ -73,13 +74,11 @@ flowchart LR
     end
 
     %% === Apps in the middle (grey box) ===
-    %% Note: G is an invisible anchor node to connect the whole box to I
     subgraph APPS[ ]
         direction TB
         F["fsd"]
         S["S3"]
         D["Sia Drive"]
-        G[" "]:::appAnchor
     end
 
     %% === User on the left ===
@@ -95,20 +94,24 @@ flowchart LR
     U <--> D
     U <--> I
 
-    %% Grey box (via invisible anchor) -> Indexer
-    G <--> I
+    %% Apps <-> Indexer
+    F <--> I
+    S <--> I
+    D <--> I
 
     %% Indexer <-> Hosts
     I <--> H1
     I <--> H2
     I <--> H3
 
+    %% Apps box <-> Hosts box
+    APPS <--> HOSTS
+
     %% === Styling ===
     classDef user fill:#e1bee7,stroke:#b39ddb,stroke-width:2px,color:#000;
     classDef apps fill:#ffe0b2,stroke:#ffb74d,stroke-width:2px,color:#000;
     classDef indexer fill:#ffccbc,stroke:#ef9a9a,stroke-width:2px,color:#000;
     classDef hosts fill:#bbdefb,stroke:#64b5f6,stroke-width:2px,color:#000;
-    classDef appAnchor fill:transparent,stroke-width:0;
 
     class U user;
     class F,S,D apps;
@@ -118,4 +121,6 @@ flowchart LR
 
 ## Who pays them in the indexer model?
 
-Storage providers are still paid by **users (or apps) that fund storage**, not by the indexer itself. The indexer manages wallets, contracts, and accounting on their behalf, and uses those funds to pay providers as they submit valid storage proofs.
+In the indexer model, **the indexer is the one that pays storage providers**, but it does so using funds that come from users (or apps). Users deposit funds with the indexer, and the indexer uses that money to fund payment accounts on hosts.
+
+Users then interact directly with hosts using those accounts, while hosts are paid from the indexer-funded accounts as they broadcast valid storage proofs.
