@@ -53,7 +53,7 @@ In short, storage providers exist so that Sia’s storage layer is **owned by th
 
 ## How do they fit?
 
-In the indexer-based architecture, storage providers sit at the edge of the network and only care about storing slabs and honouring contracts. Apps and users never talk to them directly.
+In the indexer-based architecture, storage providers sit at the edge of the network and only care about storing slabs and honoring contracts. Apps and users never talk to them directly.
 
 From the host’s perspective, the world is simple:
 
@@ -121,4 +121,4 @@ flowchart LR
 
 In the indexer model, **the indexer is the one that pays storage providers**, but it does so using funds that come from users (or apps). Users deposit funds with the indexer, and the indexer uses that money to fund payment accounts on hosts.
 
-Users then interact directly with hosts using those accounts, while hosts are paid from the indexer-funded accounts as they broadcast valid storage proofs.
+Users and apps never talk to hosts directly; the indexer mediates all operations, manages host payment accounts, and pays hosts for valid storage proofs using user or app funds. Any future model that allows limited direct user–host interaction after account setup will be documented as an explicit exception.
