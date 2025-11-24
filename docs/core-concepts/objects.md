@@ -4,10 +4,7 @@ title: Objects
 
 # Objects
 
-Objects are the primary unit of data you read and write through Sia’s
-application interfaces (fsd, S3, Sia Drive). An object bundles your raw
-bytes together with metadata and a key (path) inside a bucket, while hiding the
-underlying slabs, sectors, and hosts that actually store the data.
+Objects are the primary unit of data you read and write through Sia’s application interfaces (fsd, S3, Sia Drive). An object bundles your raw bytes together with metadata and a key (path) inside a bucket, while hiding the underlying slabs, sectors, and hosts that actually store the data.
 
 ---
 
@@ -23,9 +20,7 @@ At the app layer an object has:
 - **System metadata** 
 - **User-defined metadata** (arbitrary key–value pairs you attach)
 
-Internally, the indexer maps each object to one or more **slabs**, and each
-slab is split into encrypted shards stored on many hosts. The object abstraction
-hides this layout - meaning you work with one logical object, not individual storage provider pieces.
+Internally, the indexer maps each object to one or more **slabs**, and each slab is split into encrypted shards stored on many hosts. The object abstraction hides this layout - meaning you work with one logical object, not individual storage provider pieces.
 
 ## Differences from a file system
 
