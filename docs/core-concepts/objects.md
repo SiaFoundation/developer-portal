@@ -25,7 +25,7 @@ At the app layer an object has:
 
 Internally, the indexer maps each object to one or more **slabs**, and each
 slab is split into encrypted shards stored on many hosts. The object abstraction
-hides this layout - meaning you work with one logical object, not per storage providers pieces.
+hides this layout - meaning you work with one logical object, not individual storage provider pieces.
 
 ## Differences from a file system
 
@@ -34,7 +34,7 @@ Sia’s object model differs from a traditional file system in several important
 ### Namespace
 - File System: Hierarchical directories `/home/user/photos/2025...`
 - Sia object storage: Flat keys inside buckets
-    - `photo/2025/hello.png` is a key; whereas "directories" are a naming convention, not the real folders.
+    - `photo/2025/hello.png` is a key, where "directories" are a naming convention, not the real folders.
 
 ### Access Model
 
@@ -57,7 +57,7 @@ Conceptually, Sia objects are immutable:
     - Re-encoding it into slabs and sectors
     - Updating the object metadata to point to the new layout
 
-Older data may be retained can as historical versions or garbage collected later, but the storage layer treats each layout as a new immutable backing for that object key.
+Older data may be retained as historical versions or garbage collected later, but the storage layer treats each layout as a new immutable backing for that object key.
 
 For app developers, this means you should think in terms of overwriting or versioning whole objects, not editing bytes inside them.
 
@@ -83,7 +83,7 @@ Arbitrary key–value pairs attached by the application.
 ## Internal layout metadata (not exposed to apps)
 Inside indexers, additional metadata is tracked so Sia can rebuild any object:
 - Which **slabs** back the object
-- Which **storage provider** currently hold shards for each slab
+- Which **storage providers** currently hold shards for each slab
 - Associated **contracts**, repair status, and accounting information
 
 Applications never see this; they interact with Sia purely through the object abstraction, while the network handles durability and distribution behind the scenes.
