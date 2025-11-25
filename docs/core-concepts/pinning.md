@@ -11,8 +11,8 @@ When you upload an object through the SDK, the result is a `PinnedObject`.
 
 This means:
 
-* The object’s encrypted metadata is stored in the indexer
-* The indexer maintains a reference to its slabs (the erasure-coded data stored on hosts)
+* The object’s encrypted metadata is stored in the indexer.
+* The indexer maintains a reference to its slabs (the erasure-coded data stored on hosts).
 * The object will appear in:
 
     * `sdk.objects(...)` listings
