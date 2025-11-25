@@ -111,7 +111,27 @@ The SDK currently treats “delete” and “unpin” as the same operation—re
 
 Pinning is the foundation of Sia’s object sync model.
 
-Every pinned object contributes to an event stream. These events are returned via:
+Every pinned object contributes to an event stream:
+
+```mermaid
+stateDiagram-v2
+    [*] --> Uploaded
+
+    Uploaded: SDK upload() + finalize()
+    Uploaded --> Pinned: Indexer registers object
+
+    Pinned --> Shared: sdk.share_object()
+    Shared --> Resolved: sdk.shared_object(url)
+    Resolved --> PinnedByRecipient: sdk.pin_shared()
+
+    Pinned --> Deleted: sdk.delete_object() or unpin
+    Deleted --> [*]
+
+    PinnedByRecipient --> DeletedByRecipient: sdk.delete_object()
+    DeletedByRecipient --> [*]
+```
+
+These events are returned via:
 
 ```plaintext
 sdk.objects(AppObjectsQuery { cursor, ... })
