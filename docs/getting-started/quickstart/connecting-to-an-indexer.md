@@ -24,22 +24,38 @@ Once these steps are complete, your application is authorized and can begin inte
 
 ## Create an App Key
 
-Each app instance has an App Key, derived from:
+Before your app can connect to an indexer, it needs an App Key—a deterministic cryptographic identity derived from:
 
 * A BIP-39 recovery phrase
-* A 32-byte App ID
+* Your app’s 32-byte App ID
 
-Together, they deterministically produce your app’s private key. This allows you to:
+The SDK provides three helpers to make this easy and reliable:
 
-* Restore the same app identity across devices
-* Persist the key securely using `AppKey.export()`
-* Re-derive it later from the same phrase + App ID
+* **`generate_recovery_phrase()`**
 
-The SDK provides:
+    Creates a new human-readable BIP-39 phrase (e.g., “word1 word2 …”).
+    Use this when generating a new application identity. It gives your app (or user) a portable and safe way to back up or restore its identity.
 
-* `generate_recovery_phrase()`
-* `validate_recovery_phrase()`
-* `AppKey(phrase, app_id)`
+* **`validate_recovery_phrase()`**
+
+    Checks whether a given phrase is a valid BIP-39 seed (correct words, checksum, etc.).
+    Use this when restoring an app and you want to catch typos or invalid phrases before deriving a key.
+
+* **`AppKey(phrase, app_id)`**
+
+    Derives the actual app keypair from the provided phrase and App ID.
+    Use this whenever you need to initialize the SDK or re-derive an existing identity.
+
+Because derivation is deterministic, the same phrase + App ID always produces the same App Key. This allows identity sync across devices or reinstalls.
+
+### When to Use Each Helper
+
+| Scenario                       | What You Do                                         | Functions Used                                |
+| ------------------------------ | --------------------------------------------------- | --------------------------------------------- |
+| **First app launch**           | Create a brand-new identity                         | `generate_recovery_phrase()`, then `AppKey()` |
+| **User onboarding**            | Display or store a backup phrase                    | `generate_recovery_phrase()`                  |
+| **Restore on new device**      | User enters phrase → validate → derive the same key | `validate_recovery_phrase()`, then `AppKey()` |
+| **Automated / headless setup** | Load stored phrase → derive key silently            | `AppKey()`                                    |
 
 ### Code Example
 
@@ -51,7 +67,6 @@ The SDK provides:
     app_id = b"your-32-byte-app-id................"
 
     key = AppKey(phrase, app_id)
-    print("Your app key:", key.export())
     ```
 === "JavaScript"
     *🚧 Coming soon*

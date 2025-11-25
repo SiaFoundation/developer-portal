@@ -9,43 +9,9 @@ Uploading data is the core action your app will perform on the Sia network. When
 
 This means that even if some hosts go offline—or malicious parties intercept your data—your content remains private, durable, and recoverable.
 
-Before continuing, make sure you have:
+Before continuing, make sure you have [connected to an indexer and initialized the SDK](./connecting-to-an-indexer.md).
 
-  * Connected to an indexer
-  * An initialized sdk instance
-  * A valid AppKey
-
-With the connection process complete, you’re ready to upload your first object.
-
-### Configure Upload Options
-
-`UploadOptions` fields:
-
-* `data_shards`
-* `parity_shards`
-* `metadata` (bytes; JSON recommended)
-* `max_inflight`
-* `progress_callback` (optional)
-
-### Perform the Upload
-
-1. `upload = sdk.upload(options)`
-2. Write data (stream or full buffer)
-3. `pinned = await upload.finalize()`
-
-A `PinnedObject` includes:
-
-* object key
-* size
-* metadata
-* timestamps
-
-### Progress Callback
-
-You can track:
-
-* Bytes encoded so far
-* Total expected bytes
+Once the connection process complete, you’re ready to upload your first object.
 
 ### Code Example
 
@@ -73,6 +39,23 @@ You can track:
     *🚧 Coming soon*
 === "Kotlin"
     *🚧 Coming soon*
+
+### Upload Options
+
+`UploadOptions` fields:
+
+* `data_shards`
+* `parity_shards`
+* `metadata` (bytes; JSON recommended)
+* `max_inflight`
+* `progress_callback` (optional)
+
+### Progress Callback
+
+You can track:
+
+* Bytes encoded so far
+* Total expected bytes
 
 ## Next Step
 [Download Data →](download-data.md){ .md-button }

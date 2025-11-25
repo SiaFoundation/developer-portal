@@ -11,22 +11,10 @@ This design allows you to download anything from tiny text files to multi-gigaby
 
 Before proceeding, ensure you have:
 
-  * A connected and approved sdk instance
-  * A PinnedObject returned from a successful upload (or retrieved via listing / shared link)
+  * A [connected and approved](./connecting-to-an-indexer.md) sdk instance
+  * A `PinnedObject` returned from a [successful upload](./upload-data.md) or retrieved using a [share URL](./share-objects.md))
 
 Once ready, you can begin streaming the object’s contents.
-
-### Configure Options
-
-`DownloadOptions { offset, length, max_inflight }`
-
-### Download Flow
-
-```plaintext
-download = sdk.download(pinned_object, options)
-while chunk := download.read_chunk():
-    …
-```
 
 ### Partial Downloads
 
@@ -62,6 +50,10 @@ Use `offset` and `length` to:
     *🚧 Coming soon*
 === "Kotlin"
     *🚧 Coming soon*
+
+### Download Options
+
+`DownloadOptions { offset, length, max_inflight }`
 
 ## Next Step
 [Share Objects →](share-objects.md){ .md-button }
