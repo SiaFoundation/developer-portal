@@ -12,29 +12,10 @@ This enables simple one-click sharing workflows—similar to traditional cloud s
 
 Before you begin, you should have:
 
-  * A connected and approved sdk instance
-  * A valid PinnedObject to share
+  * A [connected and approved](./connecting-to-an-indexer.md) sdk instance
+  * A `PinnedObject` returned from a [successful upload](./upload-data.md).
 
 Once you have the object, you can generate a share URL and let another app or device resolve and download it.
-
-## Create a Share URL
-
-```plaintext
-share_url = sdk.share_object(pinned_object, valid_until_timestamp)
-```
-
-## Resolve a Shared Object
-
-```plaintext
-shared = sdk.shared_object(share_url)
-```
-
-## Download or Pin the Shared Object
-
-```plaintext
-sdk.download_shared(shared, options)
-sdk.pin_shared(shared)
-```
 
 ## Code Example
 
