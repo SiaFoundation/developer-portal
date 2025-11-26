@@ -63,54 +63,38 @@ From the host’s perspective, the world is simple:
 
 ``` mermaid
 flowchart LR
-    %% === Hosts on the right ===
-    subgraph HOSTS[ ]
-        direction TB
-        H1["Host 1"]
-        H2["Host 2"]
-        H3["Host 3"]
-    end
-
     %% === Apps in the middle (grey box) ===
     subgraph APPS[ ]
-        direction TB
         F["fsd"]
         S["S3"]
         D["Sia Drive"]
     end
-
+    %% === Hosts on the right ===
+    subgraph HOSTS[ ]
+        H1["Host 1"]
+        H2["Host 2"]
+        H3["Host 3"]
+    end
     %% === User on the left ===
     U["User"]
-
-    %% === Indexer between apps and hosts ===
+    %% === Indexer User and Apps ===
     I["Indexer"]
-
     %% === Flows ===
-    %% User <-> individual apps
-    U <--> F
-    U <--> S
-    U <--> D
+    %% User <-> Indexer <-> Hosts
     U <--> I
-
-    %% Apps <-> Indexer
-    F <--> I
-    S <--> I
-    D <--> I
-
-    %% Indexer <-> Hosts
-    I <--> H1
-    I <--> H2
-    I <--> H3
-
-    %% Apps box <-> Hosts box
+    I <--> HOSTS
+    
+    %% Indexer <-> Apps
+    I <--> APPS
+    %% User <-> Apps
+    U <--> APPS
+    %% Apps <-> Hosts
     APPS <--> HOSTS
-
     %% === Styling ===
     classDef user fill:#e1bee7,stroke:#b39ddb,stroke-width:2px,color:#000;
     classDef apps fill:#ffe0b2,stroke:#ffb74d,stroke-width:2px,color:#000;
     classDef indexer fill:#ffccbc,stroke:#ef9a9a,stroke-width:2px,color:#000;
     classDef hosts fill:#bbdefb,stroke:#64b5f6,stroke-width:2px,color:#000;
-
     class U user;
     class F,S,D apps;
     class I indexer;
