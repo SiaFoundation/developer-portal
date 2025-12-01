@@ -80,7 +80,7 @@ Sia’s object model differs from a traditional filesystem in a few key ways.
 
 ### Access model
 
-- **File system:** Applications open file handles and perform stateful operations (`open`,`read`, `write`, `close`) with POSIX-style permissions.
+- **File system:** Applications open file handles and perform stateful operations (`open`, `read`, `write`, and `close`) with POSIX-style permissions.
 - **Sia objects:** Applications make **stateless SDK calls** to create, read, share, and delete objects. There are no long-lived file handles at the `indexd` layer. Access is controlled by:
   - the **account** you are connected to  
   - the **app key** you are using  
