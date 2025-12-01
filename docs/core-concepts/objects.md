@@ -27,7 +27,6 @@ type Object struct {
     createdAt time.Time
     updatedAt time.Time
 }
-```
 At this level, the SDK gives you:
 
 - a **master key** used to encrypt/decrypt the object’s data and metadata
