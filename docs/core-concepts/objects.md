@@ -36,6 +36,7 @@ immutable.
 
 An object’s data is stored in **slabs** that are erasure-coded into encrypted **shards** and spread across many hosts. `indexd` tracks those shards and repairs slabs in the background, so applications just read and write whole objects via the SDK instead of managing hosts or files directly.
 
+---
 ## Are objects mutable?
 
 At the `indexd` layer, **objects are immutable**:
