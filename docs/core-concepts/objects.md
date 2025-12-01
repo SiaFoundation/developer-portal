@@ -54,10 +54,10 @@ Everything beyond the object ID, slabs, and timestamps—names, logical paths, c
 
 At the `indexd` layer there are four main actors:
 
-- **User:** ultimately owns the data and the account on `indexd`.
-- **Account:** - created and managed via the Admin API; tracks usage, limits, and billing for a user or organization.
-- **App:** - code that talks to `indexd` using an **app key**. Each app has its own key pair and is isolated.
-- **Object:** - encrypted data + metadata that an app stores into an account.
+- **User:** ultimately owns the data and the account on `indexd`
+- **Account:** - created and managed via the Admin API; tracks usage, limits, and billing for a user or organization
+- **App:** - code that talks to `indexd` using an **app key**. Each app has its own key pair and is isolated
+- **Object:** - encrypted data + metadata that an app stores into an account
 
 A typical flow looks like this:
 
