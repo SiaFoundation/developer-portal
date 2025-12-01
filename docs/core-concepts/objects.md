@@ -10,10 +10,10 @@ At the storage layer, the data ultimately lives as encrypted **shards** on hosts
 
 An object carries four pieces of information:
 
-- An **object ID** – a 32-byte content ID derived from the object’s slabs  
-- A set of **slabs** – the pieces of encrypted data that make up the object 
-- **metadata** – opaque, application-defined bytes (often JSON)  
-- **timestamps** – when the object was created and last updated
+- An **object ID** - a 32-byte content ID derived from the object’s slabs  
+- A set of **slabs** - the pieces of encrypted data that make up the object 
+- **metadata** - opaque, application-defined bytes (often JSON)  
+- **timestamps** - when the object was created and last updated
 
 The **object ID** depends only on the content layout. If the data changes and the slabs change, the object ID changes as well.
 
