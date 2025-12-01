@@ -29,6 +29,7 @@ The **object ID** depends only on the content layout. If the data changes and th
 
 `indexd` stores this sealed form keyed by the object ID under a specific account and app key. It doesn’t attach filenames, paths, content types, or other higher-level attributes to an object. If you need those, you store them yourself in the object’s metadata or in your own indexer.
 
+---
 ## Differences from a file system
 
 Traditional file systems identify data by a mutable path like `/home/user/photos/...` and let you edit bytes in place while keeping that path. In `indexd`, an object is identified only by its **object ID**, a hash of its slabs; if the data changes, the slabs and the object ID change, so objects are
