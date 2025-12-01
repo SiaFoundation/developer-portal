@@ -129,20 +129,20 @@ There are no buckets, keys, or paths at this layer. The combination of account a
 
 ### Contents (data)
 
-- **Master key** – secret key the SDK uses to encrypt/decrypt data and metadata. `indexd` only sees the **encrypted** master key (`encryptedMasterKey`).
-- **Slab slices** – references into one or more slabs that hold the encrypted data.
-- **Slabs and shards** – slabs are erasure-coded into encrypted shards stored as sectors on many hosts. `indexd` tracks shard locations and repairs slabs when redundancy drops.
+- **Master key** - secret key the SDK uses to encrypt/decrypt data and metadata. `indexd` only sees the **encrypted** master key (`encryptedMasterKey`).
+- **Slab slices** - references into one or more slabs that hold the encrypted data.
+- **Slabs and shards** - slabs are erasure-coded into encrypted shards stored as sectors on many hosts. `indexd` tracks shard locations and repairs slabs when redundancy drops.
 
 
 ### Metadata
 
-- **Application-defined metadata** – an opaque blob (often JSON) your app controls. In the SDK this is `metadata`; in `indexd` it is `encryptedMetadata`. You might store:
+- **Application-defined metadata** - an opaque blob (often JSON) your app controls. In the SDK this is `metadata`; in `indexd` it is `encryptedMetadata`. You might store:
   - filenames or logical paths
   - content type
   - titles/descriptions
   - checksums, version pointers, or other app fields
 
-- **Timestamps** – `createdAt` and `updatedAt`, tracked by the SDK/`indexd`.
+- **Timestamps** - `createdAt` and `updatedAt`, tracked by the SDK/`indexd`.
 
 There is no separate “system metadata” schema like S3 headers. Size is derivable from slab slices, and health is tracked per slab/host, not as first-class object fields. Everything beyond the object ID, slabs, and timestamps is defined by your application.
 
