@@ -85,7 +85,7 @@ Sia’s object model differs from a traditional filesystem in a few key ways.
   - the **account** you are connected to  
   - the **app key** you are using  
   - optional **share URLs**, which are effectively public (anyone with the link
-    can read that object)
+      can read that object).
 
   Fine-grained ACLs (“user A but not user B”) are implemented by your application, not by `indexd` itself.
 
