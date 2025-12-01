@@ -15,7 +15,7 @@ An object carries four pieces of information:
 - **metadata** – opaque, application-defined bytes (often JSON)  
 - **timestamps** – when the object was created and last updated
 
-The object ID depends only on the content layout. If the data changes and the slabs change, the object ID changes as well.
+The **object ID** depends only on the content layout. If the data changes and the slabs change, the object ID changes as well.
 
 ### Sealed objects (`indexd` view)
 
@@ -27,9 +27,7 @@ The object ID depends only on the content layout. If the data changes and the sl
 - a **signature** over the object ID and encrypted fields
 - **timestamps** (`createdAt`, `updatedAt`) 
 
-`indexd` stores this sealed form keyed by the object ID under a specific account and app key.
-
-`indexd` doesn’t attach filenames, paths, content types, or other higher-level attributes to an object. If you need those, you store them yourself in the object’s metadata or in your own indexes.
+`indexd` stores this sealed form keyed by the object ID under a specific account and app key. It doesn’t attach filenames, paths, content types, or other higher-level attributes to an object. If you need those, you store them yourself in the object’s metadata or in your own indexer.
 
 ## Differences from a file system
 
