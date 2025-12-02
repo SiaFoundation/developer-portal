@@ -19,8 +19,8 @@ In order for your app to establish a connection to an indexer, you will need:
 
 Each new instance of your app will require a unique App Key which is deterministically derived from:
 
-* **A BIP-39 recovery phrase**
-* **Your 32-byte App ID**
+* **A BIP-39 recovery phrase.**
+* **Your 32-byte App ID.**
 
 The resulting App Key is a public/private key pair. The public key is registered with the indexer during onboarding, while the private key should be stored securely by the app.
 
