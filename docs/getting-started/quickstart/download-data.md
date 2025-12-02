@@ -23,7 +23,7 @@ Use `offset` and `length` to:
 * Resume downloads
 * Fetch byte ranges
 
-### Code Example
+## Example
 
 === "Python"
     ```python
