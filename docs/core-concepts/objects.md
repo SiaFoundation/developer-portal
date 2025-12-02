@@ -29,7 +29,6 @@ The **object ID** depends only on the content layout. If the data changes and th
 
 `indexd` stores this sealed form keyed by the object ID under a specific account and app key. It doesn’t attach filenames, paths, content types, or other higher-level attributes to an object. If you need those, you store them yourself in the object’s metadata or in your own indexer.
 
----
 ## Differences from a file system
 
 Traditional file systems identify data by a mutable path like `/home/user/photos/...` and let you edit bytes in place while keeping that path. In `indexd`, an object is identified only by its **object ID**, a hash of its slabs; if the data changes, the slabs and the object ID change, so objects are
@@ -37,7 +36,6 @@ immutable.
 
 An object’s data is stored in **slabs** that are erasure-coded into encrypted **shards** and spread across many hosts. `indexd` tracks those shards and repairs slabs in the background, so applications just read and write whole objects via the SDK instead of managing hosts or files directly.
 
----
 ## Are objects mutable?
 
 At the `indexd` layer, **objects are immutable**:
