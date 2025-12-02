@@ -21,8 +21,8 @@ For examples in this guide, we’ll use `https://app.sia.storage`, but you may s
 
 A unique 32-byte identifier that has been randomly generated for your app.
 
-* Generate it once per app, not per user or per device.
-* Hardcode it into the app so it remains unchanged across updates and installations.
+* Generate it once per app, not per user or per device
+* Hardcode it into the app so it remains unchanged across updates and installations
 
 !!! danger
     
