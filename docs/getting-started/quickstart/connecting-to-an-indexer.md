@@ -46,13 +46,13 @@ The resulting App Key is a public/private key pair. The public key is registered
         # 1. Create an app key
         seed_phrase = generate_recovery_phrase()
         app_id = b"your-32-byte-app-id............."
-        key = AppKey(seed_phrase, app_id)
+        app_key = AppKey(seed_phrase, app_id)
 
         # 2. Initialize the SDK
-        sdk = Sdk("https://app.sia.storage", key)
+        sdk = Sdk("https://app.sia.storage", app_key)
 
         # 3. Connect / request approval
-        if not await(sdk.connected()):
+        if not await sdk.connected():
             meta = AppMeta(
                 name="My App",
                 description="Demo application",
@@ -60,11 +60,11 @@ The resulting App Key is a public/private key pair. The public key is registered
                 logo_url=None,
                 callback_url=None
             )
-            resp = await(sdk.request_app_connection(meta))
+            resp = await sdk.request_app_connection(meta)
 
             print("Open this URL to approve the app:", resp.response_url)
 
-            approved = await(sdk.wait_for_connect(resp))
+            approved = await sdk.wait_for_connect(resp)
             if not approved:
                 raise Exception("User rejected the app")
 
