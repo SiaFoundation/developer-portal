@@ -25,7 +25,7 @@ Each new instance of your app will require a unique App Key which is determinist
 The resulting App Key is a public/private key pair. The public key is registered with the indexer during onboarding, while the private key should be stored securely by the app.
 
 !!! warning
-    **The BIP-39 recovery phrase should be treated as the users master key.**
+    **The BIP-39 recovery phrase should be treated as the user's master key.**
 
     * It should be randomly generated and stored securely by the user, not by the application.
     * It is never sent to the server and should only be used once during onboarding to derive the users App Key.
