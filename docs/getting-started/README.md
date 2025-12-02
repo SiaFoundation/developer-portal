@@ -2,10 +2,10 @@
 
 Welcome to the Sia Developer Quickstart. This guide walks you through the fastest path to building with Sia’s decentralized, privacy-preserving storage network. By the end, you will be able to:
 
-* Create an app key
-* Connect your app to an indexer
-* Upload, download, and share encrypted data
-* Use simple metadata
+* Create an app key.
+* Connect your app to an indexer.
+* Upload, download, and share encrypted data.
+* Use simple metadata.
 
 ## Prerequisites
 
@@ -20,10 +20,10 @@ For examples in this guide, we’ll use `https://app.sia.storage`, but you may s
 
 #### App ID
 
-A unique 32-byte identifier for your app. You can generate this using sample code or any secure random generator.
+A unique 32-byte identifier for your app. The value is not secret, but it should be random and unique to the app.
 
-!!! note
-    Your App ID must remain consistent for your application.
+!!! warning
+    The App ID must remain consistent for your application.
 
     * Generate it once per app, not per user or per device.
     * Keep it stable across updates or installations.
@@ -81,4 +81,4 @@ The Python SDK is currently distributed via source builds from the indexd_ffi Ru
     *🚧 Coming soon*
 
 ## Next Step
-[Connect to an Indexer →](./quickstart/connecting-to-an-indexer.md){ .md-button }
+[Connecting to an Indexer →](./quickstart/connecting-to-an-indexer.md){ .md-button }
