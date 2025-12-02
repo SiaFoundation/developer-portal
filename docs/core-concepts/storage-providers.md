@@ -40,7 +40,7 @@ In an indexer-based architecture, storage providers sit at the edge of the netwo
 
 Apps talk to both:
 
-- to the **indexer** for object metadata, account logic, and slab layout, and  
+- to the **indexer** for object metadata, account logic, and slab layout, and
 - to **storage providers** to upload and download the encrypted shards that make up those slabs.
 
 From the storage provider’s perspective, the world is simple:
