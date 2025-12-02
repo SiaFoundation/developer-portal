@@ -17,7 +17,7 @@ Once you have established a successful connection, you’re ready to upload your
 
 ## Authentication Requirements
 
-Uploading data to the indexer will require the the use of the same App Key created when connecting to an indexer.
+Uploading data requires the use of the same App Key created when connecting to an indexer.
 
 The App Key serves two critical roles during an upload:
 
