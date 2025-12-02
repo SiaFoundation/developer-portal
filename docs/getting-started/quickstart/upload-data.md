@@ -118,5 +118,4 @@ The App Key serves two critical roles during an upload:
     *🚧 Coming soon*
 
 ## Next Step
-[← Connecting to an Indexer](./connecting-to-an-indexer.md){ .md-button }
 [Download Data →](./download-data.md){ .md-button }

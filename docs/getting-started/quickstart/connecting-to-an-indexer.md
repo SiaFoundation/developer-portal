@@ -86,5 +86,4 @@ The resulting App Key is a public/private key pair. The public key is registered
     *🚧 Coming soon*
 
 ## Next Step
-[← Getting Started](../README.md){ .md-button }
 [Upload Data →](upload-data.md){ .md-button }
