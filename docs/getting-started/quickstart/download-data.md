@@ -12,7 +12,7 @@ This design allows you to download anything from tiny text files to multi-gigaby
 Before proceeding, ensure you have:
 
   * A [connected and approved](./connecting-to-an-indexer.md) sdk instance
-  * A `PinnedObject` returned from a [successful upload](./upload-data.md) or retrieved using a [share URL](./share-objects.md))
+  * A `PinnedObject` returned from a [successful upload](./upload-data.md) or retrieved using a [share URL](./share-objects.md)
 
 Once ready, you can begin streaming the object’s contents.
 
