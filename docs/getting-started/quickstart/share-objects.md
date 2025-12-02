@@ -17,7 +17,7 @@ Before you begin, you should have:
 
 Once you have the object, you can generate a share URL and let another app or device resolve and download it.
 
-## Code Example
+## Example
 
 === "Python"
     ```python

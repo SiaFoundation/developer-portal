@@ -30,7 +30,7 @@ The resulting App Key is a public/private key pair. The public key is registered
     * It should be randomly generated and stored securely by the user, not by the application.
     * It is never sent to the server and should only be used once during onboarding to derive the user's App Key.
 
-## Examples
+## Example
 
 === "Python"
     ```python
