@@ -11,7 +11,7 @@ This means that even if some hosts go offline—or malicious parties intercept y
 
 Before continuing, make sure you have [connected to an indexer and initialized the SDK](./connecting-to-an-indexer.md).
 
-Once the connection process complete, you’re ready to upload your first object.
+Once the connection process is complete, you’re ready to upload your first object.
 
 ### Code Example
 
