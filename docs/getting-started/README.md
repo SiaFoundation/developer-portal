@@ -13,25 +13,24 @@ Before starting, you’ll need:
 
 #### Indexer URL
 
-The SDK can connect to any Sia-compatible indexer.
-You are free to run your own indexer, use a community indexer, or point to a hosted service.
+The SDK can connect to any Sia indexer, whether it be your own or a third-party.
 
 For examples in this guide, we’ll use `https://app.sia.storage`, but you may substitute any indexer URL you operate or trust.
 
 #### App ID
 
-A unique 32-byte identifier for your app. The value is not secret, but it should be random and unique to the app.
+A unique 32-byte identifier that has been randomly generated for your app.
 
-!!! warning
-    The App ID must remain consistent for your application.
+* Generate it once per app, not per user or per device.
+* Hardcode it into the app so it remains unchanged across updates and installations.
 
-    * Generate it once per app, not per user or per device.
-    * Keep it stable across updates or installations.
-    * Changing the App ID changes the derived app key.
+!!! danger
+    
+    **Changing the App ID changes your users' derived App Key. This would result in the loss of their data.**
 
-#### SDK installation
+#### Sia SDK
 
-The Python SDK is currently distributed via source builds from the indexd_ffi Rust crate. Prebuilt wheels are coming soon—until then, Python users must generate bindings locally as shown below.
+The Sia SDK is currently distributed via source builds from the [`sia-sdk-rs`](https://github.com/SiaFoundation/sia-sdk-rs) repository.
 
 === "Python"
     === "Windows"
