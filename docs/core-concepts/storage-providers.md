@@ -4,105 +4,78 @@ title: Storage providers
 
 # Storage providers
 
-Storage providers physically store data on the Sia network by running Sia’s hosting software `hostd`, contributing excess storage space and bandwidth and earning Siacoin (SC) in return.
-
----
+Storage providers are nodes that run Sia’s hosting software, `hostd`. They contribute disk space and bandwidth to the Sia network and earn Siacoin (SC) by storing data and proving that it remains available over time.
 
 ## Overview
 
 A storage provider:
 
-- Runs `hostd` on a machine with stable storage, power, and connectivity
-- Announces available capacity, pricing, and collateral to the network
-- Accepts storage contracts from renters (usually indexers acting on behalf of users)
-- Stores encrypted shards of user data for the contract duration
-- Submits storage proofs to show the data is still available
+- runs `hostd` on a machine with stable storage, power, and connectivity
+- announces available capacity, pricing, and collateral settings to the network
+- accepts storage contracts from renters (such as indexers)
+- stores encrypted shards of user data for the duration of those contracts
+- submits storage proofs showing the data is still available
 
-As long as the host meets the contract terms, it receives payments in SC. If it fails, it risks losing revenue and the **collateral** it locked into the contract.
-
----
+As long as the storage provider meets its contract terms, it receives payments in SC. If it fails, it risks losing expected revenue and any **collateral** it locked into those contracts.
 
 ## Who are they?
 
-Storage providers can be:
+A storage provider is anyone running `hostd`: an individual with a home server or NAS, a small operator with a few machines in a data center, or a company integrating Sia storage into its product.
 
-- Individuals running a home server or Network Attached Storage (NAS)
-- Small operators with a handful of machines in a data center
-- Companies integrating Sia storage into their own product and reselling it
-
-On the network, all of these appear simply as “storage” with:
-
-- Capacity and bandwidth offers
-- A pricing configuration (storage, egress, contract fees)
-- A track record of uptime and responsiveness that renters can score
-
----
+On the network, they all look the same: each storage provider announces its capacity and bandwidth, pricing (storage, egress, and contract fees), and builds a track record of uptime and responsiveness that renters can score.
 
 ## Why they exist
 
-Storage providers are what make Sia’s decentralized storage model real: instead of trusting a single cloud vendor, the network relies on a permissionless set of independent hosts that turn raw disk and bandwidth into a verifiable storage layer. They exist to:
+Storage providers are what make Sia’s decentralized storage layer real. Instead of trusting a single cloud vendor, the network relies on many independent nodes that turn raw disk and bandwidth into verifiable storage. They exist to:
 
-- **Decentralize control and failure domains** – data is encrypted, erasure-coded, and spread across many unrelated hosts so no single operator or outage can take it offline.  
-- **Provide economic guarantees on durability** – hosts lock collateral into contracts and must submit proofs; losing data can burn collateral, while honest uptime is rewarded in Siacoin (SC).  
-- **Enable an open storage marketplace** – anyone with excess capacity can join, set prices, and compete for renter demand instead of relying on a single provider’s pricing and policies.
-- **Separate infrastructure from applications** – contracts, pricing, and proofs live at the protocol layer, so apps can change without changing the underlying storage providers.
+- **Distribute control and failure domains:** data is encrypted, erasure-coded, and spread across many unrelated storage providers so no single operator or outage can take it offline.
+- **Back durability with incentives:** storage providers lock collateral into contracts and must submit proofs; losing data can burn collateral, while honest uptime is rewarded in Siacoin (SC).
+- **Create an open storage marketplace:** anyone with excess capacity can join, set prices, and compete for renter demand instead of relying on a single provider’s pricing and policies.
 
-In short, storage providers exist so that Sia’s storage layer is **owned by the network, not by a single company**.
-
----
+In short, storage providers ensure that Sia’s storage layer is controlled by the network, **not by a single entity**.
 
 ## How do they fit?
 
-In the indexer-based architecture, storage providers sit at the edge of the network and only care about storing slabs and honoring contracts. Apps and users never talk to them directly.
+In an indexer-based architecture, storage providers sit at the edge of the network. They store slabs and answer read/write requests, while renters (often indexers) handle contracts and payments.
 
-From the host’s perspective, the world is simple:
+Apps talk to both:
 
-- The indexer inherits the responsibility of forming contracts, uploading slabs and sending requests.
-- Data arrives as **encrypted shards**, not files or object keys, and hosts never see user or app metadata.
-- Hosts focus on **staying online, serving sectors and submitting storage proofs**.
+- to the **indexer** for object metadata, account logic, and slab layout, and  
+- to **storage providers** to upload and download the encrypted shards that make up those slabs.
+
+From the storage provider’s perspective, the world is simple:
+
+- it negotiates and maintains storage contracts and payment accounts with renters,
+- it receives and serves encrypted shards, never filenames or object IDs, and
+- it focuses on staying online, serving sectors, and submitting storage proofs.
 
 ``` mermaid
 flowchart LR
-    %% === Apps in the middle (grey box) ===
-    subgraph APPS[ ]
-        F["fsd"]
-        S["S3"]
-        D["Sia Drive"]
+
+    %% === Brand color classes ===
+    classDef user fill:#76E6EB,stroke:#4bbdc2,stroke-width:2px,color:#000;        %% powder
+    classDef apps fill:#FF7919,stroke:#c85f14,stroke-width:2px,color:#000;        %% zest
+    classDef indexer fill:#E50AAE,stroke:#b10887,stroke-width:2px,color:#000;     %% punch
+    classDef hosts fill:#36D955,stroke:#27a93e,stroke-width:2px,color:#000;       %% slime
+
+    %% === Nodes ===
+    U["User"]:::user
+    A["Apps"]:::apps
+    I["Indexer"]:::indexer
+
+    %% Hosts group
+    subgraph HOSTS["Hosts"]
+        direction TB
+        H1["Host 1"]:::hosts
+        H2["Host 2"]:::hosts
+        H3["Host 3"]:::hosts
     end
-    %% === Hosts on the right ===
-    subgraph HOSTS[ ]
-        H1["Host 1"]
-        H2["Host 2"]
-        H3["Host 3"]
-    end
-    %% === User on the left ===
-    U["User"]
-    %% === Indexer User and Apps ===
-    I["Indexer"]
+
     %% === Flows ===
-    %% User <-> Indexer <-> Hosts
-    U <--> I
-    I <--> HOSTS
-    
-    %% Indexer <-> Apps
-    I <--> APPS
-    %% User <-> Apps
-    U <--> APPS
-    %% Apps <-> Hosts
-    APPS <--> HOSTS
-    %% === Styling ===
-    classDef user fill:#e1bee7,stroke:#b39ddb,stroke-width:2px,color:#000;
-    classDef apps fill:#ffe0b2,stroke:#ffb74d,stroke-width:2px,color:#000;
-    classDef indexer fill:#ffccbc,stroke:#ef9a9a,stroke-width:2px,color:#000;
-    classDef hosts fill:#bbdefb,stroke:#64b5f6,stroke-width:2px,color:#000;
-    class U user;
-    class F,S,D apps;
-    class I indexer;
-    class H1,H2,H3 hosts;
+    U --> A
+    A <--> I
+    I --> HOSTS
+    A <--> HOSTS
 ```
 
-## Who pays them in the indexer model?
-
-In the indexer model, **the indexer is the one that pays storage providers**, but it does so using funds that come from users (or apps). Users deposit funds with the indexer, and the indexer uses that money to fund payment accounts on hosts.
-
-Users and apps never talk to hosts directly; the indexer mediates all operations, manages host payment accounts, and pays hosts for valid storage proofs using user or app funds. Any future model that allows limited direct user–host interaction after account setup will be documented as an explicit exception.
+<!-- ## Who pays them in the indexer model? -->
