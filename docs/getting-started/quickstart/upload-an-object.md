@@ -1,4 +1,4 @@
-# Upload Data
+# Upload an Object
 
 Uploading data is the core action your app will perform on the Sia network. When you upload a file through the SDK, the process is made secure by design:
 
@@ -13,7 +13,7 @@ This means that even if some hosts go offline—or a malicious actor attempts to
 
 Before continuing, make sure you have:
 
-  * A [connected and approved](./connecting-to-an-indexer.md) SDK instance.
+  * A [connected and approved](./connect-to-an-indexer.md) SDK instance.
 
 Once you have established a successful connection, you’re ready to upload your first object.
 
@@ -190,4 +190,4 @@ Store original filename, MIME type, user ID, or application-specific tags.
 Instead of printing percentages, integrate `progress_callback` with a CLI or GUI progress bar.
 
 ## Next Step
-[Download Data →](./download-data.md){ .md-button }
+[Share an Object →](./share-an-object.md){ .md-button }

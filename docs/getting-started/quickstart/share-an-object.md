@@ -1,4 +1,4 @@
-# Share Objects
+# Share an Object
 
 Sharing allows your application to grant others secure, time-limited access to an object you’ve uploaded. Instead of sharing keys or credentials, the SDK generates a cryptographically signed URL that encodes:
 
@@ -18,8 +18,8 @@ This enables familiar cloud-sharing workflows—while preserving Sia’s end-to-
 
 Before you begin, you should have:
 
-  * A [connected and approved](./connecting-to-an-indexer.md) SDK instance.
-  * A `PinnedObject` returned from a [successful upload](./upload-data.md).
+  * A [connected and approved](./connect-to-an-indexer.md) SDK instance.
+  * A `PinnedObject` returned from a [successful upload](./upload-an-object.md).
 
 Once you have the object, you can generate a share URL and let another app or device resolve and download it.
 
@@ -156,22 +156,6 @@ If the recipient wants to keep the object permanently:
 
         print("\nShare URL:", share_url)
 
-        # 6. Resolve the shared object from the share URL
-        shared_obj = await sdk.shared_object(share_url)
-
-        # 7. Download the shared object
-        shared_download = await sdk.download_shared(shared_obj, DownloadOptions())
-        shared_data = bytearray()
-
-        while True:
-            chunk = await shared_download.read_chunk()
-            if not chunk:
-                break
-            shared_data.extend(chunk)
-
-        print("\nShared object downloaded!")
-        print("Shared data:", shared_data.decode())
-
     asyncio.run(main())
     ```
 === "JavaScript"
@@ -220,3 +204,6 @@ They cannot:
 
 * Modify it
 * Re-encrypt it
+
+## Next Step
+[Download an Object →](./download-an-object.md){ .md-button }

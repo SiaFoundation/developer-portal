@@ -80,4 +80,4 @@ The Sia SDK is currently distributed via source builds from the [`sia-sdk-rs`](h
     *🚧 Coming soon*
 
 ## Next Step
-[Connecting to an Indexer →](./quickstart/connecting-to-an-indexer.md){ .md-button }
+[Connect to an Indexer →](./quickstart/connect-to-an-indexer.md){ .md-button }

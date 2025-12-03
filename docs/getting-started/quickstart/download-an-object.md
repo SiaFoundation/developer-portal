@@ -1,6 +1,6 @@
-# Download Data
+# Download an Object
 
-Once your application has uploaded data to Sia, downloading it is just as straightforward. The SDK handles all network coordination: locating slabs, downloading encrypted shards, verifying them, and decrypting your data locally. All you need to do is read chunks from the download stream.
+Once your application has uploaded an object to Sia, or you have received a Share URL, downloading it is just as straightforward. The SDK handles all network coordination: locating slabs, downloading encrypted shards, verifying them, and decrypting your data locally. All you need to do is read chunks from the download stream.
 
 This makes it possible to download anything—from small text files to multi-gigabyte objects—without loading the full content into memory.
 
@@ -8,8 +8,8 @@ This makes it possible to download anything—from small text files to multi-gig
 
 Before proceeding, ensure you have:
 
-  * A [connected and approved](./connecting-to-an-indexer.md) SDK instance.
-  * A `PinnedObject` returned from a [successful upload](./upload-data.md) or retrieved using a [share URL](./share-objects.md).
+  * A [connected and approved](./connect-to-an-indexer.md) SDK instance.
+  * A `PinnedObject` returned from a [successful upload](./upload-an-object.md) or retrieved using a [share URL](./share-an-object.md).
 
 Once ready, you can begin streaming the object’s contents.
 
@@ -68,6 +68,7 @@ This is useful for:
     ```python
     import asyncio
     import json
+    from datetime import datetime, timedelta, timezone
 
     from indexd_ffi import (
         generate_recovery_phrase,
@@ -136,7 +137,22 @@ This is useful for:
         print("Object ID:", obj.id())
         print("Size:", obj.size(), "bytes")
 
-        # 5. Download the object we just uploaded
+        # 5. Share the object (valid for 1 hour)
+        expires = datetime.now(timezone.utc) + timedelta(hours=1)
+        share_url = sdk.share_object(obj, expires)
+
+        print("\nShare URL:", share_url)
+
+        # 6. Download the object
+        #
+        #    If you are downloading from a shared URL, you will first have to resolve
+        #    the object from the share URL and download it like so.
+        
+        # shared_obj = await sdk.shared_object(share_url)
+        # download = await sdk.download_shared(shared_obj, DownloadOptions())
+        
+        #    Or download the object directly like so.
+        
         download = await sdk.download(obj, DownloadOptions())
         data = bytearray()
 
@@ -146,9 +162,8 @@ This is useful for:
                 break
             data.extend(chunk)
 
-        print("\nDownload complete!")
-        print("Downloaded data:", data.decode())
-
+        print("\nObject downloaded!")
+        print("Object Contents:", data.decode())
 
     asyncio.run(main())
     ```
@@ -205,4 +220,5 @@ with open("output.bin", "wb") as f:
 ```
 
 ## Next Step
-[Share Objects →](share-objects.md){ .md-button }
+
+Congratulations! This marks the end of our Sia Developer Quickstart guide. You now have the tools needed to start building your next decentralized application on Sia!
