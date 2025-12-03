@@ -94,7 +94,7 @@ The App Key serves two critical roles during an upload:
         upload_writer = await sdk.upload(upload_options)
         await upload_writer.write(b"Hello world!")
         obj = await upload_writer.finalize()
-        
+
         sealed = obj.seal(app_key)
         print("sealed:", sealed.id, sealed.signature)
 
