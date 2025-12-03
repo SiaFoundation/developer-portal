@@ -117,7 +117,7 @@ Indexers deliberately avoid higher-level object-store features. They do **not**:
 - implement per-user ACLs, groups, or role-based permissions
 - handle application logic such as version history, trash, or billing
 
-Their job is to track objects on the Sia network and keep the underlying data healthy. Everything else belongs at the application layer. App that need richer behavior build it on top of the indexer’s simple, object-centric interface.
+Their job is to track objects on the Sia network and keep the underlying data healthy. Everything else belongs at the application layer. Apps that need richer behavior build it on top of the indexer’s simple, object-centric interface.
 
 ## Why indexers are central to Sia’s user-friendly architecture
 
