@@ -34,8 +34,6 @@ The App Key serves two critical roles during an upload:
 
 ## High-Level Overview
 
-Before we look at code, here’s what happens when you upload:
-
 #### Object
 :   Your data plus encrypted metadata. Once uploaded, it becomes a `PinnedObject` managed by the indexer.
 
