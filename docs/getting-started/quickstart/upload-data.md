@@ -11,7 +11,9 @@ This means that even if some hosts go offline—or a malicious actor attempts to
 
 ## Prerequisites
 
-Before continuing, make sure you have [connected to an indexer and initialized the SDK](./connecting-to-an-indexer.md).
+Before continuing, make sure you have:
+
+  * A [connected and approved](./connecting-to-an-indexer.md) SDK instance.
 
 Once you have established a successful connection, you’re ready to upload your first object.
 
@@ -29,6 +31,28 @@ The App Key serves two critical roles during an upload:
 * **Protecting the user’s data**  
 :   Keys derived from the App Key are used to seal objects before they are sent.  
     This ensures the indexer cannot read, tamper with, or alter the contents of the user's upload.
+
+## High-Level Concepts
+
+Before we look at code, here’s what happens when you upload:
+
+#### Object
+:   Your data plus encrypted metadata. Once uploaded, it becomes a `PinnedObject` managed by the indexer.
+
+#### Metadata
+:   Small, encrypted bytes attached to each object (commonly JSON).  
+    Example: file name, MIME type, or application-specific tags.
+
+#### Streaming upload
+:   You write bytes into an upload “writer,” and the SDK handles chunking, encryption, redundancy, and communication with hosts.
+
+#### Progress callback
+:   An optional callback that receives:
+
+    * `uploaded` so far  
+    * `encoded_size` expected 
+
+    Useful for showing progress bars or logs.
 
 ### Example
 
@@ -116,6 +140,54 @@ The App Key serves two critical roles during an upload:
     *🚧 Coming soon*
 === "Kotlin"
     *🚧 Coming soon*
+
+## Deep Dive
+#### Objects & Metadata
+
+Each successful upload creates a `PinnedObject` in the indexer:
+
+* The object key uniquely identifies the object.
+* The metadata is encrypted alongside your data.
+* The indexer stores the key, metadata, timestamps, and layout of slabs used to store the data.
+
+#### Streaming vs Single-Write
+
+In the example, we wrote the entire payload in one call:
+
+```python
+await upload.write(b"hello world")
+```
+
+In a real app, especially with large files, you will typically:
+
+* Read from a file or stream in chunks.
+* Call `upload.write(chunk)` repeatedly until all bytes are written.
+* Finally, call `upload.finalize()` to complete the upload and get the pinned object.
+
+#### Progress Callback
+
+The `progress_callback` runs while data is being uploaded:
+
+* It receives `uploaded` and `encoded_size` in bytes.
+* It may be called multiple times as data is sent.
+* It’s safe to:
+    * Update a progress bar
+    * Log percentages
+    * Trigger UI updates
+
+## Common Practices
+
+#### Upload from a file
+
+Open a file and `read()` chunks in a loop, writing each chunk to `upload.write(...)`.
+
+#### Custom metadata
+
+Store original filename, MIME type, user ID, or application-specific tags.
+
+#### Real progress bars
+
+Instead of printing percentages, integrate `progress_callback` with a CLI or GUI progress bar.
 
 ## Next Step
 [Download Data →](./download-data.md){ .md-button }
