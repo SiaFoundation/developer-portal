@@ -13,7 +13,7 @@ This means that even if some hosts go offline—or a malicious actor attempts to
 
 Before continuing, make sure you have:
 
-  * A [connected and approved](./connect-to-an-indexer.md) SDK instance.
+  * A [connected and approved](./connect-to-an-indexer.md) SDK instance
 
 Once you have established a successful connection, you’re ready to upload your first object.
 

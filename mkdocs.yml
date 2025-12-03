@@ -33,7 +33,7 @@ nav:
       - Overview: getting-started/README.md
       - Quickstart:
           #- Overview: getting-started/quickstart/README.md
-          - Connect to an indexer: getting-started/quickstart/connect-to-an-indexer.md
+          - Connect to an Indexer: getting-started/quickstart/connect-to-an-indexer.md
           - Upload an Object: getting-started/quickstart/upload-an-object.md
           - Share an Object: getting-started/quickstart/share-an-object.md
           - Download an Object: getting-started/quickstart/download-an-object.md
