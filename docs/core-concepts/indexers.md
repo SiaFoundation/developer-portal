@@ -131,7 +131,7 @@ Without an indexer, every application would need to:
 
 Indexers centralize that complexity into a reusable service:
 
-- **For users:** they can allow multiple apps to work with objects in the same account while keeping each app’s objects isolated by app key and preserving data privacy.
+- **For users:** indexers allow multiple apps to work with objects in the same account while keeping each app’s objects isolated by app key and preserving data privacy.
 - **For developers:** they provide a small, stable API focused on objects and metadata, instead of forcing each app to manage hosts and contracts.
 - **For operators:** they cleanly separate “run indexers and storage providers” from “build applications,” so infrastructure and apps can evolve independently.
 
