@@ -112,7 +112,7 @@ Common cases include:
 
 All throw predictable `DownloadError` exceptions.
 
-## Common Variations & Next Steps
+## Common Practices
 
 #### Resuming a download
 
