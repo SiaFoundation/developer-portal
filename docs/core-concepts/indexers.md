@@ -33,9 +33,9 @@ Indexers know just enough about each object to track and maintain it. For every 
 
 The metadata itself is:
 
-- **application-defined** — the app chooses the structure and fields  
-- **encrypted** — the indexer never sees it in plaintext  
-- **opaque** — the indexer cannot derive any meaning from it  
+- **application-defined** — the app chooses the structure and fields.  
+- **encrypted** — the indexer never sees it in plaintext.  
+- **opaque** — the indexer cannot derive any meaning from it.  
 
 Indexers do **not** know filenames, paths, tags, content types, versions, or any other semantic information about objects. If you want to search or filter by those things, you build that logic in your application or in a separate index.
 
