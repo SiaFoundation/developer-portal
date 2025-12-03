@@ -53,7 +53,7 @@ When an application calls the indexer:
 - the indexer will only list, return, or delete **objects that belong to that (account, app key)** pair  
 - the indexer never inspects metadata to decide who “should” see an object  
 
-Indexers can also support **share URLs** that allow anyone with the link to read a specific object Fine-grained permissions (per-user ACLs, groups, roles, and so on) are intentionally out of scope and implemented entirely at the app layer.
+Indexers can also support **share URLs** that allow anyone with the link to read a specific object. Fine-grained permissions (per-user ACLs, groups, roles, and so on) are intentionally out of scope and implemented entirely at the app layer.
 
 ### Data health and repair
 
