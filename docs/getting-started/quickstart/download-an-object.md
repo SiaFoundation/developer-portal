@@ -8,8 +8,8 @@ This makes it possible to download anything—from small text files to multi-gig
 
 Before proceeding, ensure you have:
 
-  * A [connected and approved](./connect-to-an-indexer.md) SDK instance.
-  * A `PinnedObject` returned from a [successful upload](./upload-an-object.md) or retrieved using a [share URL](./share-an-object.md).
+  * A [connected and approved](./connect-to-an-indexer.md) SDK instance
+  * A `PinnedObject` returned from a [successful upload](./upload-an-object.md) or retrieved using a [share URL](./share-an-object.md)
 
 Once ready, you can begin streaming the object’s contents.
 

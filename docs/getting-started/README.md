@@ -2,10 +2,10 @@
 
 Welcome to the Sia Developer Quickstart. This guide walks you through the fastest path to building with Sia’s decentralized, privacy-preserving storage network. By the end, you will be able to:
 
-* Create an app key.
-* Connect your app to an indexer.
-* Upload, download, and share encrypted data.
-* Use simple metadata.
+* Create an app key
+* Connect your app to an indexer
+* Upload, download, and share encrypted data
+* Use simple metadata
 
 ## Prerequisites
 
