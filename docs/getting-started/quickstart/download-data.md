@@ -66,16 +66,91 @@ This is useful for:
 
 === "Python"
     ```python
-    download = await sdk.download(pinned, DownloadOptions())
+    import asyncio
+    import json
 
-    data = bytearray()
-    while True:
-        chunk = await download.read_chunk()
-        if not chunk:
-            break
-        data.extend(chunk)
+    from indexd_ffi import (
+        generate_recovery_phrase,
+        AppKey,
+        AppMeta,
+        Sdk,
+        UploadOptions,
+        DownloadOptions,
+    )
 
-    print(data.decode())
+    # Progress callback is optional and can be used to monitor the progress of the upload
+    class PrintProgress:
+        def progress(self, uploaded: int, encoded_size: int) -> None:
+            if encoded_size == 0:
+                print("Starting upload…")
+                return
+            percent = (uploaded / encoded_size) * 100
+            print(f"Upload progress: {percent:.1f}% ({uploaded}/{encoded_size} bytes)")
+
+
+    async def main():
+        # 1. Create an app key
+        seed_phrase = generate_recovery_phrase()
+        app_id = b"your-32-byte-app-id............."
+        app_key = AppKey(seed_phrase, app_id)
+
+        # 2. Initialize the SDK
+        sdk = Sdk("https://app.sia.storage", app_key)
+
+        # 3. Connect / request approval
+        if not await sdk.connected():
+            meta = AppMeta(
+                name="My App",
+                description="Demo application",
+                service_url="https://example.com",
+                logo_url=None,
+                callback_url=None,
+            )
+            resp = await sdk.request_app_connection(meta)
+
+            print("Open this URL to approve the app:", resp.response_url)
+
+            approved = await sdk.wait_for_connect(resp)
+            if not approved:
+                raise Exception("User rejected the app")
+
+        print("Connected!")
+
+        upload_options = UploadOptions(
+            # Optional metadata can be attached that will be encrypted with the object's master key
+            metadata=json.dumps({"File Name": "example.txt"}).encode(),
+
+            # Progress callback is optional and can be used to monitor the progress of the upload
+            progress_callback=PrintProgress(),
+        )
+
+        # 4. Upload the "Hello world!" data
+        upload_writer = await sdk.upload(upload_options)
+        await upload_writer.write(b"Hello world!")
+        obj = await upload_writer.finalize()
+
+        sealed = obj.seal(app_key)
+        print("sealed:", sealed.id, sealed.signature)
+
+        print("\nUpload complete!")
+        print("Object ID:", obj.id())
+        print("Size:", obj.size(), "bytes")
+
+        # 5. Download the object we just uploaded
+        download = await sdk.download(obj, DownloadOptions())
+        data = bytearray()
+
+        while True:
+            chunk = await download.read_chunk()
+            if not chunk:
+                break
+            data.extend(chunk)
+
+        print("\nDownload complete!")
+        print("Downloaded data:", data.decode())
+
+
+    asyncio.run(main())
     ```
 === "JavaScript"
     *🚧 Coming soon*

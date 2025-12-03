@@ -1,33 +1,180 @@
 # Share Objects
 
-Sharing allows you to grant others secure, time-limited access to an object you’ve uploaded. Instead of exposing keys or credentials, the SDK generates a cryptographically signed URL that:
+Sharing allows your application to grant others secure, time-limited access to an object you’ve uploaded. Instead of sharing keys or credentials, the SDK generates a cryptographically signed URL that encodes:
 
-  * Identifies the object you want to share
-  * Embeds an expiration timestamp
-  * Ensures the link cannot be forged or extended
-  * Allows the recipient to download the object without needing your app key
-  * Can optionally be “pinned” by the recipient to save it to their own indexer
+* Which object is being shared
+* When the link expires
+* A signature preventing tampering or extension
 
-This enables simple one-click sharing workflows—similar to traditional cloud storage—while preserving Sia’s decentralized, encrypted-by-default architecture.
+Recipients can then:
+
+* Download the shared object without your App Key
+* Or pin it to their own indexer using their own App Key
+* Without exposing your keys, metadata, or account details
+
+This enables familiar cloud-sharing workflows—while preserving Sia’s end-to-end encrypted, decentralized design.
+
+## Prerequisites
 
 Before you begin, you should have:
 
-  * A [connected and approved](./connecting-to-an-indexer.md) sdk instance
+  * A [connected and approved](./connecting-to-an-indexer.md) SDK instance.
   * A `PinnedObject` returned from a [successful upload](./upload-data.md).
 
 Once you have the object, you can generate a share URL and let another app or device resolve and download it.
+
+## Authentication Requirements
+
+Sharing uses the same App Key created when connecting to an indexer.
+
+The App Key plays two key roles:
+
+* **Authorizing creation of share URLs**
+
+:   The request to create a share URL is signed using the App Key’s private key.
+    This proves your application is authorized to share that object.
+
+* **Protecting your private data**
+
+:   The share URL exposes only what is necessary to access the encrypted object.
+    It does not reveal your App Key, recovery phrase, or account details.
+    Recipients download the object using your signature but cannot decrypt or modify your private data unless the object itself is pinned into their account.
+
+## High-Level Concepts
+
+#### Share URLs
+
+!!! warning "Shared objects behave like public links"
+    Share URLs provide access to the object’s encrypted data, and **anyone who has the link can use it**.
+
+    - **There is no way to revoke access** once a user has the link.  
+      Even after the link expires, anyone who already accessed it could have pinned the object into their own account.
+
+    - **Share links cannot be restricted to specific users.**  
+      Treat shared objects as publicly accessible to anyone who obtains the URL.
+
+    If you need controlled, permissioned sharing, build your own access layer on top of pinned objects.
+
+A share URL is:
+
+* A signed, time-limited capability
+* Valid only until the expiration timestamp
+* Safe to send via email, chat, QR code, etc.
+
+#### Shared Objects
+
+Once a recipient opens a share URL, the SDK returns a `SharedObject`:
+
+* Read-only
+* Downloadable using `sdk.download_shared`
+* Pinnable using `sdk.pin_shared`
+
+#### Pinning Shared Objects
+
+If the recipient wants to keep the object permanently:
+
+* They call `sdk.pin_shared(shared)`
+* It becomes a new `PinnedObject` in their own indexer
+* They can now manage, share, and download it independently
 
 ## Example
 
 === "Python"
     ```python
-    import time
+    import asyncio
+    import json
+    from datetime import datetime, timedelta, timezone
 
-    expires = time.time() + 3600
-    url = await sdk.share_object(pinned, expires)
+    from indexd_ffi import (
+        generate_recovery_phrase,
+        AppKey,
+        AppMeta,
+        Sdk,
+        UploadOptions,
+        DownloadOptions,
+    )
 
-    shared = await sdk.shared_object(url)
-    download = await sdk.download_shared(shared, DownloadOptions())
+    # Progress callback is optional and can be used to monitor the progress of the upload
+    class PrintProgress:
+        def progress(self, uploaded: int, encoded_size: int) -> None:
+            if encoded_size == 0:
+                print("Starting upload…")
+                return
+            percent = (uploaded / encoded_size) * 100
+            print(f"Upload progress: {percent:.1f}% ({uploaded}/{encoded_size} bytes)")
+
+
+    async def main():
+        # 1. Create an app key
+        seed_phrase = generate_recovery_phrase()
+        app_id = b"your-32-byte-app-id............."
+        app_key = AppKey(seed_phrase, app_id)
+
+        # 2. Initialize the SDK
+        sdk = Sdk("https://indexd.skunk.ink", app_key)
+
+        # 3. Connect / request approval
+        if not await sdk.connected():
+            meta = AppMeta(
+                name="My App",
+                description="Demo application",
+                service_url="https://example.com",
+                logo_url=None,
+                callback_url=None,
+            )
+            resp = await sdk.request_app_connection(meta)
+
+            print("Open this URL to approve the app:", resp.response_url)
+
+            approved = await sdk.wait_for_connect(resp)
+            if not approved:
+                raise Exception("User rejected the app")
+
+        print("Connected!")
+
+        upload_options = UploadOptions(
+            # Optional metadata can be attached that will be encrypted with the object's master key
+            metadata=json.dumps({"File Name": "example.txt"}).encode(),
+
+            # Progress callback is optional and can be used to monitor the progress of the upload
+            progress_callback=PrintProgress(),
+        )
+
+        # 4. Upload the "Hello world!" data
+        upload_writer = await sdk.upload(upload_options)
+        await upload_writer.write(b"Hello world!")
+        obj = await upload_writer.finalize()
+
+        sealed = obj.seal(app_key)
+        print("sealed:", sealed.id, sealed.signature)
+
+        print("\nUpload complete!")
+        print("Object ID:", obj.id())
+        print("Size:", obj.size(), "bytes")
+
+        # 5. Share the object (valid for 1 hour)
+        expires = datetime.now(timezone.utc) + timedelta(hours=1)
+        share_url = sdk.share_object(obj, expires)
+
+        print("\nShare URL:", share_url)
+
+        # 6. Resolve the shared object from the share URL
+        shared_obj = await sdk.shared_object(share_url)
+
+        # 7. Download the shared object
+        shared_download = await sdk.download_shared(shared_obj, DownloadOptions())
+        shared_data = bytearray()
+
+        while True:
+            chunk = await shared_download.read_chunk()
+            if not chunk:
+                break
+            shared_data.extend(chunk)
+
+        print("\nShared object downloaded!")
+        print("Shared data:", shared_data.decode())
+
+    asyncio.run(main())
     ```
 === "JavaScript"
     *🚧 Coming soon*
@@ -41,3 +188,37 @@ Once you have the object, you can generate a share URL and let another app or de
     *🚧 Coming soon*
 === "Kotlin"
     *🚧 Coming soon*
+
+## Deep Dive
+
+#### Why share URLs are safe
+
+Share URLs contain:
+
+* An object identifier
+* An expiration timestamp
+* A signature proving the share was authorized
+
+They cannot be used to modify or replace the object.
+They also cannot be extended past expiration without your App Key.
+
+#### Expiration
+
+If a share URL is used after it expires:
+
+* The request fails with an error
+* No data is exposed
+* You must generate a new URL if you want continued access
+
+#### Read-only by design
+
+Recipients can:
+
+* Download
+* Inspect metadata
+* Pin the object
+
+They cannot:
+
+* Modify it
+* Re-encrypt it
