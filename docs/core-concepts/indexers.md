@@ -83,7 +83,7 @@ If an indexer server crashes or is offline, the metadata and mappings are not lo
 Objects are sealed by the SDK before they reach the indexer. The SDK encrypts the data and metadata and sends only:
 
 - the **object ID**,
-- the **slab layout** (which slabs and hosts hold the encrypted shards),
+- the **slab layout** (which slabs and storage providers hold the encrypted shards),
 - the **encrypted metadata** blob, and
 - timestamps.
 
