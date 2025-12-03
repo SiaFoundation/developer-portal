@@ -30,12 +30,10 @@ Sharing uses the same App Key created when connecting to an indexer.
 The App Key plays two key roles:
 
 * **Authorizing creation of share URLs**
-
 :   The request to create a share URL is signed using the App Key’s private key.
     This proves your application is authorized to share that object.
 
 * **Protecting your private data**
-
 :   The share URL exposes only what is necessary to access the encrypted object.
     It does not reveal your App Key, recovery phrase, or account details.
     Recipients download the object using your signature but cannot decrypt or modify your private data unless the object itself is pinned into their account.
@@ -111,7 +109,7 @@ If the recipient wants to keep the object permanently:
         app_key = AppKey(seed_phrase, app_id)
 
         # 2. Initialize the SDK
-        sdk = Sdk("https://indexd.skunk.ink", app_key)
+        sdk = Sdk("https://app.sia.storage", app_key)
 
         # 3. Connect / request approval
         if not await sdk.connected():

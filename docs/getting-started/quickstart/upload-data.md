@@ -4,7 +4,7 @@ Uploading data is the core action your app will perform on the Sia network. When
 
   * All data is encrypted client-side by the user before it leaves the device.
   * Data is erasure-coded into multiple redundant shards.
-  * Each shards is uploaded to an independent Sia storage provider distributing the data around the world.
+  * Each shard is uploaded to independent storage providers located [across the globe](https://siascan.com/map).
   * The indexer stores ***only*** encrypted metadata and helps coordinate uploads, downloads, and object management.
 
 This means that even if some hosts go offline—or a malicious actor attempts to intercept user data—all data will remain private and recoverable.
@@ -54,7 +54,7 @@ Before we look at code, here’s what happens when you upload:
 
     Useful for showing progress bars or logs.
 
-### Example
+## Example
 
 === "Python"
     ```python
