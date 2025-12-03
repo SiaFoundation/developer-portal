@@ -13,7 +13,7 @@ In order for your app to establish a connection to an indexer, you will need:
 
 * [**A valid indexer URL**](../README.md#indexer-url)
 * [**A 32-byte App ID**](../README.md#app-id)
-* [**The SDK installed for your language**](../README.md#sia-sdk)
+* [**The Sia SDK**](../README.md#sia-sdk)
 
 ## Authentication Requirements
 
@@ -84,6 +84,51 @@ The resulting App Key is a public/private key pair. The public key is registered
     *🚧 Coming soon*
 === "Kotlin"
     *🚧 Coming soon*
+
+## Deep Dive
+#### Why approval is required
+
+The indexer enforces a one-time authorization step so users must explicitly approve any app requesting access to their account.
+
+After approval:
+
+* The SDK reconnects silently on future launches
+
+* No additional interaction is required
+
+* The App Key becomes the app’s persistent identity
+
+#### App Metadata
+
+During `request_app_connection`, you provide:
+
+* `name` — shown to users during approval
+
+* `escription` — what your app does
+
+* `service_url` — the URL representing your app
+
+* `logo_url` *(optional)* — shown in the UI
+
+* `callback_url` *(optional)* — if your app needs web-based approval handling
+
+#### Connection checks
+
+`sdk.connected()` returns:
+
+* `True` → already approved
+
+* `False` → must request approval
+
+#### Approval failures
+
+Approval can fail if:
+
+* The user explicitly rejects your app
+
+* The request times out
+
+* There is a network issue
 
 ## Next Step
 [Upload an Object →](./upload-an-object.md){ .md-button }
