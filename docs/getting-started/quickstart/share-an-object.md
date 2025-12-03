@@ -38,7 +38,7 @@ The App Key plays two key roles:
     It does not reveal your App Key, recovery phrase, or account details.
     Recipients download the object using your signature but cannot decrypt or modify your private data unless the object itself is pinned into their account.
 
-## High-Level Concepts
+## High-Level Overview
 
 #### Share URLs
 

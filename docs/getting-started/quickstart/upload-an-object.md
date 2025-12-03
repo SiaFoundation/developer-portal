@@ -32,7 +32,7 @@ The App Key serves two critical roles during an upload:
 :   Keys derived from the App Key are used to seal objects before they are sent.  
     This ensures the indexer cannot read, tamper with, or alter the contents of the user's upload.
 
-## High-Level Concepts
+## High-Level Overview
 
 Before we look at code, here’s what happens when you upload:
 

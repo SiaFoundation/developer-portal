@@ -29,7 +29,7 @@ The App Key plays two important roles during a download:
     This ensures that even though storage hosts and the indexer handle encrypted shards,
     only your app can open and read the object’s contents.
 
-## High-Level Concepts
+## High-Level Overview
 
 #### Streaming Downloads
 
