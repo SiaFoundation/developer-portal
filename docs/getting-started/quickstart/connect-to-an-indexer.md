@@ -1,4 +1,4 @@
-# Connecting to an Indexer
+# Connect to an Indexer
 
 Before your app can upload, download, or share data with Sia, it must first connect to an indexer. An indexer acts as your application’s gateway to the Sia network. It handles:
 
@@ -86,4 +86,4 @@ The resulting App Key is a public/private key pair. The public key is registered
     *🚧 Coming soon*
 
 ## Next Step
-[Upload Data →](upload-data.md){ .md-button }
+[Upload an Object →](./upload-an-object.md){ .md-button }
