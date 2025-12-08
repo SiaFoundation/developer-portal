@@ -20,7 +20,7 @@ As long as the storage provider meets its contract terms, it receives payments i
 
 ## Who are they?
 
-A storage provider is anyone running `hostd`: an individual with a home server or NAS, a small operator with a few machines in a data center, or a company integrating Sia storage into its product.
+A storage provider can be anyone: an individual with a home server or NAS, a small operator with a few machines in a data center, or a company integrating Sia storage into its product.
 
 On the network, they all look the same: each storage provider announces its capacity and bandwidth, pricing (storage, egress, and contract fees), and builds a track record of uptime and responsiveness that renters can score.
 
