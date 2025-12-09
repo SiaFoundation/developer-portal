@@ -2,10 +2,10 @@
 
 Before your app can upload, download, or share data with Sia, it must first connect to an indexer. An indexer acts as your application’s gateway to the Sia network. It handles:
 
-  * **Authentication** - Verifying your app key.
-  * **Authorization** - Ensuring the user approves your app.
-  * **Metadata tracking** - Storing references to pinned objects.
-  * **Host coordination** - Telling the SDK which storage providers to use.
+  * Verifying your app’s identity.
+  * One-time approval flow.
+  * Tracking your pinned objects and their metadata.
+  * Coordination with storage providers on the network.
 
 ## Prerequisites
 
@@ -17,58 +17,74 @@ In order for your app to establish a connection to an indexer, you will need:
 
 ## Authentication Requirements
 
-Each new instance of your app will require a unique App Key which is deterministically derived from:
+Each new instance of your app will require a unique App Key, which is deterministically derived from:
 
 * **A BIP-39 recovery phrase**
 * **Your 32-byte App ID**
 
 The resulting App Key is a public/private key pair. The public key is registered with the indexer during onboarding, while the private key should be stored securely by the app.
 
-!!! warning
-    **The BIP-39 recovery phrase should be treated as the user's master key.**
-
-    * It should be randomly generated and stored securely by the user, not by the application.
-    * It is never sent to the server and should only be used once during onboarding to derive the user's App Key.
+!!! warning "**The BIP-39 recovery phrase should be treated as the user's master key.**"
+    
+    * The recovery phrase must **never** be stored by your application, but instead stored securely by the user.
+    * It should be used only once during onboarding to derive the App Key. 
+    * Your application should store `AppKey.export()` securely for future sessions.
 
 ## Example
 
 === "Python"
     ```python
     import asyncio
+
     from indexd_ffi import (
         generate_recovery_phrase,
-        AppKey,
+        Builder,
         AppMeta,
-        Sdk,
+        Sdk
     )
 
     async def main():
-        # 1. Create an app key
-        seed_phrase = generate_recovery_phrase()
-        app_id = b"your-32-byte-app-id............."
-        app_key = AppKey(seed_phrase, app_id)
+        #-------------------------------------------------------
+        # CONNECT TO AN INDEXER
+        #-------------------------------------------------------
 
-        # 2. Initialize the SDK
-        sdk = Sdk("https://app.sia.storage", app_key)
+        # Create a builder to manage the connection flow
+        builder = Builder("https://app.sia.storage")
 
-        # 3. Connect / request approval
-        if not await sdk.connected():
-            meta = AppMeta(
-                name="My App",
-                description="Demo application",
-                service_url="https://example.com",
-                logo_url=None,
-                callback_url=None
-            )
-            resp = await sdk.request_app_connection(meta)
+        # Configure your app identity details
+        meta = AppMeta(
+            id=b"your-32-byte-app-id.............",
+            name="My App",
+            description="Demo application",
+            service_url="https://example.com",
+            logo_url=None,
+            callback_url=None
+        )
 
-            print("Open this URL to approve the app:", resp.response_url)
+        # Request app connection and get the approval URL
+        await builder.request_connection(meta)
+        print("Open this URL to approve the app:", builder.response_url())
 
-            approved = await sdk.wait_for_connect(resp)
-            if not approved:
-                raise Exception("User rejected the app")
+        # Wait for the user to approve the request
+        approved = await builder.wait_for_approval()
+        if not approved:
+            raise Exception("\nUser rejected the app or request timed out")
 
-        print("Connected!")
+        # Ask the user for their recovery phrase
+        recovery_phrase = input("\nEnter your recovery phrase (type `seed` to generate a new one): ").strip()
+
+        if recovery_phrase == "seed":
+            recovery_phrase = generate_recovery_phrase()
+            print("\nRecovery phrase:", recovery_phrase)
+
+        # Register an SDK instance with your recovery phrase.
+        sdk: Sdk = await builder.register(recovery_phrase)
+
+        # Export the App Key and store it securely for future launches
+        app_key = sdk.app_key()
+        print("\nStore this App Key in your app's secure storage:", app_key.export())
+
+        print("\nApp Connected!")
 
     asyncio.run(main())
     ```
@@ -88,37 +104,29 @@ The resulting App Key is a public/private key pair. The public key is registered
 ## Deep Dive
 #### Why approval is required
 
-The indexer enforces a one-time authorization step so users must explicitly approve any app requesting access to their account.
+The indexer enforces a one-time authorization step, so the user must explicitly grant your app access to their account.
 
 After approval:
 
-* The SDK reconnects silently on future launches
-
-* No additional interaction is required
-
-* The App Key becomes the app’s persistent identity
+* The SDK reconnects automatically using the stored App Key
+* No additional user interaction is required
+* The App Key becomes the user’s persistent identity for your application
 
 #### App Metadata
 
-During `request_app_connection`, you provide:
+During `request_connection`, you supply metadata that will be displayed during app approval:
 
-* `name` — shown to users during approval
+* `id` — Your 32-byte App ID
 
-* `description` — what your app does
+* `name` — Name of your application
 
-* `service_url` — the URL representing your app
+* `description` — Explains the purpose of your app
 
-* `logo_url` *(optional)* — shown in the UI
+* `service_url` — The URL representing your app
 
-* `callback_url` *(optional)* — if your app needs web-based approval handling
+* `logo_url` *(optional)* — An icon shown to the user
 
-#### Connection checks
-
-`sdk.connected()` returns:
-
-* `True` → already approved
-
-* `False` → must request approval
+* `callback_url` *(optional)* — Used if your approval flow involves redirects
 
 #### Approval failures
 
