@@ -16,7 +16,7 @@ An indexer is responsible for:
 - tracking which **slabs** (and their shards on storage providers) belong to each object.
 - monitoring storage providers and **repairing slabs** when redundancy drops. 
 - managing **accounts and app keys** so multiple apps can safely share the same indexer.  
-- exposing an API/SDK so applications can save, list, and fetch objects without dealing with storage providers or contracts directly.  
+- exposing an API/SDK so applications can save, list, and fetch objects without dealing with storage providers or contracts directly  
 
 You can think of it as the “object directory and health manager” for a set of applications using the Sia network.
 
