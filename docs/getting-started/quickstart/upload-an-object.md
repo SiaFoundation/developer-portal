@@ -61,10 +61,10 @@ The App Key serves two critical roles during an upload:
 
     from indexd_ffi import (
         generate_recovery_phrase,
-        AppKey,
+        Builder,
         AppMeta,
         Sdk,
-        UploadOptions,
+        UploadOptions
     )
 
     # Progress callback is optional and can be used to monitor the progress of the upload
@@ -77,33 +77,53 @@ The App Key serves two critical roles during an upload:
             print(f"Upload progress: {percent:.1f}% ({uploaded}/{encoded_size} bytes)")
 
     async def main():
-        # 1. Create an app key
-        seed_phrase = generate_recovery_phrase()
-        app_id = b"your-32-byte-app-id............."
-        app_key = AppKey(seed_phrase, app_id)
+        #-------------------------------------------------------
+        # CONNECT TO AN INDEXER
+        #-------------------------------------------------------
 
-        # 2. Initialize the SDK
-        sdk = Sdk("https://app.sia.storage", app_key)
+        # Create a builder to manage the connection flow
+        builder = Builder("https://app.sia.storage")
 
-        # 3. Connect / request approval
-        if not await sdk.connected():
-            meta = AppMeta(
-                name="My App",
-                description="Demo application",
-                service_url="https://example.com",
-                logo_url=None,
-                callback_url=None
-            )
-            resp = await sdk.request_app_connection(meta)
+        # Configure your app identity details
+        meta = AppMeta(
+            id=b"your-32-byte-app-id.............",
+            name="My App",
+            description="Demo application",
+            service_url="https://example.com",
+            logo_url=None,
+            callback_url=None
+        )
 
-            print("Open this URL to approve the app:", resp.response_url)
+        # Request app connection and get the approval URL
+        await builder.request_connection(meta)
+        print("Open this URL to approve the app:", builder.response_url())
 
-            approved = await sdk.wait_for_connect(resp)
-            if not approved:
-                raise Exception("User rejected the app")
+        # Wait for the user to approve the request
+        approved = await builder.wait_for_approval()
+        if not approved:
+            raise Exception("\nUser rejected the app or request timed out")
 
-        print("Connected!")
+        # Ask the user for their recovery phrase
+        recovery_phrase = input("\nEnter your recovery phrase (type `seed` to generate a new one): ").strip()
 
+        if recovery_phrase == "seed":
+            recovery_phrase = generate_recovery_phrase()
+            print("\nRecovery phrase:", recovery_phrase)
+
+        # Register an SDK instance with your recovery phrase.
+        sdk: Sdk = await builder.register(recovery_phrase)
+
+        # Export the App Key and store it securely for future launches
+        app_key = sdk.app_key()
+        print("\nStore this App Key in your app's secure storage:", app_key.export())
+
+        print("\nApp Connected!")
+
+        #-------------------------------------------------------
+        # UPLOAD AN OBJECT
+        #-------------------------------------------------------
+
+        # Configure Upload Options
         upload_options = UploadOptions(
             # Optional metadata can be attached that will be encrypted with the object's master key
             metadata=json.dumps({"File Name": "example.txt"}).encode(),
@@ -112,17 +132,20 @@ The App Key serves two critical roles during an upload:
             progress_callback=PrintProgress()
         )
 
-        # 4. Upload the "Hello world!" data
+        # Upload the "Hello world!" data
+        print("\nStarting upload...")
         upload_writer = await sdk.upload(upload_options)
         await upload_writer.write(b"Hello world!")
         obj = await upload_writer.finalize()
 
         sealed = obj.seal(app_key)
-        print("sealed:", sealed.id, sealed.signature)
+        print("\nObject Sealed:")
+        print(" - Sealed ID:", sealed.id)
+        print(" - Signature:", sealed.signature)
 
-        print("\nUpload complete!")
-        print("Object ID:", obj.id())
-        print("Size:", obj.size(), "bytes")
+        print("\nUpload complete:")
+        print(" - Object ID:", obj.id())
+        print(" - Size:", obj.size(), "bytes")
 
     asyncio.run(main())
     ```
