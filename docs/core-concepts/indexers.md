@@ -12,19 +12,11 @@ Applications talk to the indexer for object IDs, metadata, layout, and access co
 
 An indexer is responsible for:
 
-<<<<<<< HEAD
-- storing **sealed objects** keyed by object ID  
-- tracking which **slabs** (and their shards on storage providers) belong to each object  
-- monitoring storage providers and **repairing slabs** when redundancy drops  
-- managing **accounts and app keys** so multiple apps can safely share the same indexer  
-- exposing an API/SDK so applications can save, list, and fetch objects without dealing with storage providers or contracts directly  
-=======
 - storing **sealed objects** keyed by object ID.
 - tracking which **slabs** (and their shards on storage providers) belong to each object.
 - monitoring storage providers and **repairing slabs** when redundancy drops. 
 - managing **accounts and app keys** so multiple apps can safely share the same indexer.  
 - exposing an API/SDK so applications can save, list, and fetch objects without dealing with storage providers or contracts directly.  
->>>>>>> 6cd4920 (co-pilot messages)
 
 You can think of it as the “object directory and health manager” for a set of applications using the Sia network.
 
@@ -139,13 +131,8 @@ Without an indexer, every application would need to:
 
 Indexers centralize that complexity into a reusable service:
 
-<<<<<<< HEAD
-- **For users:** indexers allow multiple apps to work with objects in the same account while keeping each app’s objects isolated by app key and preserving data privacy.
-- **For developers:** they provide a small, stable API focused on objects and metadata, instead of forcing each app to manage hosts and contracts.
-=======
 - **For users:** they can allow multiple apps to work with objects in the same account while keeping each app’s objects isolated by app key and preserving data privacy.
 - **For developers:** they provide a small, stable API focused on objects and metadata, instead of forcing each app to manage storage providers and contracts.
->>>>>>> 6cd4920 (co-pilot messages)
 - **For operators:** they cleanly separate “run indexers and storage providers” from “build applications,” so infrastructure and apps can evolve independently.
 
 By staying narrow—tracking objects, preserving privacy, managing data health, and enforcing a simple access model—indexers make Sia’s decentralized storage layer feel like a straightforward, user-friendly object service.
