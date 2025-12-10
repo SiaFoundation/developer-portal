@@ -14,6 +14,16 @@ Recipients can then:
 
 This enables familiar cloud-sharing workflows—while preserving Sia’s end-to-end encrypted, decentralized design.
 
+!!! warning "Shared objects behave like public links"
+    Share URLs provide access to the object’s encrypted data, and **anyone who has the link can use it**.
+
+    * **There is no way to revoke access** once a user has the link.  
+      Even after the link expires, anyone who already accessed it could have pinned the object into their own account.
+    * **Share links cannot be restricted to specific users.**  
+      Treat shared objects as publicly accessible to anyone who obtains the URL.
+
+    If you need controlled, permissioned sharing, build your own access layer on top of pinned objects.
+
 ## Prerequisites
 
 Before you begin, you should have:
@@ -22,58 +32,6 @@ Before you begin, you should have:
   * A `PinnedObject` returned from a [successful upload](./upload-an-object.md)
 
 Once you have the object, you can generate a share URL and let another app or device resolve and download it.
-
-## Authentication Requirements
-
-Sharing uses the same App Key created when connecting to an indexer.
-
-The App Key plays two key roles:
-
-* **Authorizing creation of share URLs**
-:   The request to create a share URL is signed using the App Key’s private key.
-    This proves your application is authorized to share that object.
-
-* **Protecting your private data**
-:   The share URL exposes only what is necessary to access the encrypted object.
-    It does not reveal your App Key, recovery phrase, or account details.
-    Recipients download the object using your signature but cannot decrypt or modify your private data unless the object itself is pinned into their account.
-
-## High-Level Overview
-
-#### Share URLs
-
-!!! warning "Shared objects behave like public links"
-    Share URLs provide access to the object’s encrypted data, and **anyone who has the link can use it**.
-
-    - **There is no way to revoke access** once a user has the link.  
-      Even after the link expires, anyone who already accessed it could have pinned the object into their own account.
-
-    - **Share links cannot be restricted to specific users.**  
-      Treat shared objects as publicly accessible to anyone who obtains the URL.
-
-    If you need controlled, permissioned sharing, build your own access layer on top of pinned objects.
-
-A share URL is:
-
-* A signed, time-limited capability
-* Valid only until the expiration timestamp
-* Safe to send via email, chat, QR code, etc
-
-#### Shared Objects
-
-Once a recipient opens a share URL, the SDK returns a `SharedObject`:
-
-* Read-only
-* Downloadable using `sdk.download_shared`
-* Pinnable using `sdk.pin_shared`
-
-#### Pinning Shared Objects
-
-If the recipient wants to keep the object permanently:
-
-* They call `sdk.pin_shared(shared)`
-* It becomes a new `PinnedObject` in their own indexer
-* They can now manage, share, and download it independently
 
 ## Example
 
@@ -101,10 +59,6 @@ If the recipient wants to keep the object permanently:
             print(f"Upload progress: {percent:.1f}% ({uploaded}/{encoded_size} bytes)")
 
     async def main():
-        #-------------------------------------------------------
-        # CONNECT TO AN INDEXER
-        #-------------------------------------------------------
-
         # Create a builder to manage the connection flow
         builder = Builder("https://app.sia.storage")
 

@@ -17,41 +17,6 @@ Before continuing, make sure you have:
 
 Once you have established a successful connection, you’re ready to upload your first object.
 
-## Authentication Requirements
-
-Uploading data requires the use of the same App Key created when connecting to an indexer.
-
-The App Key serves two critical roles during an upload:
-
-* **Authenticating requests**  
-:   Every upload and pin operation must be signed with the App Key’s private key.  
-    The indexer verifies these signatures using the public key registered during onboarding.  
-    This ensures your app is authorized to create or modify the user’s objects.
-
-* **Protecting the user’s data**  
-:   Keys derived from the App Key are used to seal objects before they are sent.  
-    This ensures the indexer cannot read, tamper with, or alter the contents of the user's upload.
-
-## High-Level Overview
-
-#### Object
-:   Your data plus encrypted metadata. Once uploaded, it becomes a `PinnedObject` managed by the indexer.
-
-#### Metadata
-:   Small, encrypted bytes attached to each object (commonly JSON).  
-    Example: file name, MIME type, or application-specific tags.
-
-#### Streaming upload
-:   You write bytes into an upload “writer,” and the SDK handles chunking, encryption, redundancy, and communication with hosts.
-
-#### Progress callback
-:   An optional callback that receives:
-
-    * `uploaded` so far  
-    * `encoded_size` expected 
-
-    Useful for showing progress bars or logs.
-
 ## Example
 
 === "Python"
@@ -77,10 +42,6 @@ The App Key serves two critical roles during an upload:
             print(f"Upload progress: {percent:.1f}% ({uploaded}/{encoded_size} bytes)")
 
     async def main():
-        #-------------------------------------------------------
-        # CONNECT TO AN INDEXER
-        #-------------------------------------------------------
-
         # Create a builder to manage the connection flow
         builder = Builder("https://app.sia.storage")
 
@@ -140,7 +101,6 @@ The App Key serves two critical roles during an upload:
 
         sealed = obj.seal(app_key)
         print("\nObject Sealed:")
-        print(" - Sealed ID:", sealed.id)
         print(" - Signature:", sealed.signature)
 
         print("\nUpload complete:")

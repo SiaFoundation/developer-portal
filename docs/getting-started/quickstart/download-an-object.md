@@ -13,55 +13,6 @@ Before proceeding, ensure you have:
 
 Once ready, you can begin streaming the object’s contents.
 
-## Authentication Requirements
-
-Downloading data requires no additional authentication steps beyond the App Key created when connecting to an indexer.
-
-The App Key plays two important roles during a download:
-
-* **Authorizing access to encrypted objects**
-:   The indexer verifies that the request is signed with the App Key’s private key.
-    This confirms your app is permitted to retrieve and read the user’s objects.
-    Only apps associated with the correct App Key can access the underlying object data.
-
-* **Decrypting downloaded content**
-:   Keys derived from the App Key are used to decrypt each object’s slabs and metadata after download.
-    This ensures that even though storage hosts and the indexer handle encrypted shards,
-    only your app can open and read the object’s contents.
-
-## High-Level Overview
-
-#### Streaming Downloads
-
-Downloads are streamed in chunks. This allows your application to:
-
-* Process data incrementally
-* Download very large files
-* Avoid loading the full object into memory
-
-#### Chunk Reading
-
-Once a download begins, you call:
-
-```python
-await download.read_chunk()
-```
-
-This yields data until an empty chunk signals the end of the stream.
-
-#### Partial Downloads
-
-You may download only part of an object using:
-
-* `offset` — where to start
-* `length` — how many bytes to read
-
-This is useful for:
-
-* Resume functionality
-* Range requests
-* Random-access reads
-
 ## Example
 
 === "Python"
@@ -89,10 +40,6 @@ This is useful for:
             print(f"Upload progress: {percent:.1f}% ({uploaded}/{encoded_size} bytes)")
 
     async def main():
-        #-------------------------------------------------------
-        # CONNECT TO AN INDEXER
-        #-------------------------------------------------------
-
         # Create a builder to manage the connection flow
         builder = Builder("https://app.sia.storage")
 

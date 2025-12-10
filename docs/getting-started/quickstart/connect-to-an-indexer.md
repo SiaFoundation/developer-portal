@@ -44,10 +44,6 @@ The resulting App Key is a public/private key pair. The public key is registered
     )
 
     async def main():
-        #-------------------------------------------------------
-        # CONNECT TO AN INDEXER
-        #-------------------------------------------------------
-
         # Create a builder to manage the connection flow
         builder = Builder("https://app.sia.storage")
 
@@ -106,26 +102,17 @@ The resulting App Key is a public/private key pair. The public key is registered
 
 The indexer enforces a one-time authorization step, so the user must explicitly grant your app access to their account.
 
-After approval:
-
-* The SDK reconnects automatically using the stored App Key
-* No additional user interaction is required
-* The App Key becomes the user’s persistent identity for your application
+After approval, the SDK can connect without user interaction using the stored app key.
 
 #### App Metadata
 
 During `request_connection`, you supply metadata that will be displayed during app approval:
 
 * `id` — Your 32-byte App ID
-
 * `name` — Name of your application
-
 * `description` — Explains the purpose of your app
-
 * `service_url` — The URL representing your app
-
 * `logo_url` *(optional)* — An icon shown to the user
-
 * `callback_url` *(optional)* — Used if your approval flow involves redirects
 
 #### Approval failures
@@ -133,9 +120,7 @@ During `request_connection`, you supply metadata that will be displayed during a
 Approval can fail if:
 
 * The user explicitly rejects your app
-
 * The request times out
-
 * There is a network issue
 
 ## Next Step
