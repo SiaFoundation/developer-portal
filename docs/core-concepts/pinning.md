@@ -7,7 +7,8 @@ It determines which objects your application wants the indexer to track, synchro
 
 ## What “Pinning” Means
 
-When you upload a file through the SDK, the result is a `PinnedObject`.
+When you upload an object through the SDK, the result is a `PinnedObject`.
+
 This means:
 
 * The object’s encrypted metadata is stored in the indexer
@@ -18,13 +19,7 @@ This means:
     * object sync streams
     * indexer UI (if you have one)
 
-A pinned object is tracked, meaning your application (or any authorized app using the same App Key) can:
-
-* List it
-* Download it
-* Delete it
-* Share it
-* Receive events when it changes
+A pinned object is tracked by the indexer, which allows your application—or any authorized app using the same App Key—to list, download, delete, share, and receive update events for that object.
 
 Pinning does not mean storing or caching data locally.
 It means registering the object with the indexer so the indexer can help your app manage it over time.
@@ -35,14 +30,14 @@ It means registering the object with the indexer so the indexer can help your ap
 
 It’s important to distinguish:
 
-### **Pinning**
+### Pinning
 
 * Occurs at the **indexer layer**
 * Tracks object metadata and references
 * Determines which objects your app knows about
 * Enables listing, syncing, events, sharing, and deletion
 
-### **Storage**
+### Storage
 
 * Occurs at the **host layer**
 * Stores encrypted slabs
@@ -58,7 +53,7 @@ Your indexer ***does*** store object metadata and slab mapping so your app can f
 
 ## How Objects Become Pinned
 
-### **1. Upload**
+### During Upload
 
 Calling:
 
@@ -69,7 +64,7 @@ pinned = await upload.finalize()
 
 automatically returns a `PinnedObject`, and the indexer records it.
 
-### **2. Pinning a Shared Object**
+### Pinning a Shared Object
 
 If someone shares a signed URL with you:
 
@@ -80,7 +75,7 @@ pinned = await sdk.pin_shared(shared)
 
 This creates a pinned copy of the shared object under your app’s account.
 
-### **3. Importing a Sealed Object (advanced)**
+### Importing a Sealed Object (advanced)
 
 Sealed objects are fully encrypted bundles that can be exported/imported across indexers or devices.
 Opening a sealed object results in a pinned object:
@@ -88,26 +83,6 @@ Opening a sealed object results in a pinned object:
 ```plaintext
 pinned = PinnedObject.open(app_key, sealed_object)
 ```
-
----
-
-## When You Should Pin Objects
-
-Pin objects when:
-
-* You upload them
-* You want to keep track of them across sessions/devices
-* You want them to appear in `sdk.objects()`
-* You want to receive update/delete events
-* You want to treat them as part of your application’s permanent state
-
-You may also pin objects that were:
-
-* Shared with you
-* Imported from backup
-* Recovered via sealed objects
-
----
 
 ## When You Should *Not* Pin Objects
 
@@ -117,48 +92,26 @@ Avoid pinning:
 * Objects used only for one-time downloads
 * Objects the user does not want stored in the indexer’s history
 
-Pinning costs nothing in storage terms—but it creates entries in the indexer’s metadata layer.
-Apps should only pin what they intend to track.
+Pinning does not consume storage on hosts, but it does add entries to the indexer’s metadata database, increasing the amount of metadata the user is responsible for storing and may be billed for.
 
----
+**Apps should only pin what they intend to store long term.**
 
 ## Unpinning and Deleting
 
 When you delete a pinned object:
 
 * The indexer marks it as deleted
-* It disappears from `sdk.objects()` listings
+* `sdk.objects()` returns `{ deleted: true }`
 * It stops generating events
-* The underlying slabs on hosts may remain until contract expiry
+* The underlying shards on hosts may remain until contract expiry
 
 The SDK currently treats “delete” and “unpin” as the same operation—removing the object from your app’s indexer state.
-
----
 
 ## Pinning and Syncing
 
 Pinning is the foundation of Sia’s object sync model.
 
-Every pinned object contributes to an event stream:
-
-```mermaid
-stateDiagram-v2
-    [*] --> Uploaded
-
-    Uploaded: SDK upload() + finalize()
-    Uploaded --> Pinned: Indexer registers object
-
-    Pinned --> Shared: sdk.share_object()
-    Shared --> Resolved: sdk.shared_object(url)
-    Resolved --> PinnedByRecipient: sdk.pin_shared()
-
-    Pinned --> Deleted: sdk.delete_object() or unpin
-    Deleted --> [*]
-
-    PinnedByRecipient --> DeletedByRecipient: sdk.delete_object()
-```
-
-These events are returned via:
+Every pinned object contributes to an event stream. These events are returned via:
 
 ```plaintext
 sdk.objects(AppObjectsQuery { cursor, ... })
@@ -168,9 +121,7 @@ This allows your app to synchronize its local state with the indexer efficiently
 
 Without pinning, an object produces no events, cannot be listed, and cannot be synced.
 
----
-
-## **Best Practices**
+## Best Practices
 
 **Keep App ID Stable**
 
@@ -184,6 +135,6 @@ Without pinning, an object produces no events, cannot be listed, and cannot be s
 
 :   If someone sends you a share URL, pin it to ensure it appears in listings and survives app restarts.
 
-**Avoid Over-pinning Ephemera**
+**Avoid Over-pinning**
 
 :   If your app handles lots of temporary files (e.g., transcoding), pin only what you want indexed.
