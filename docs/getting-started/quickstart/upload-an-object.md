@@ -1,0 +1,174 @@
+# Upload an Object
+
+Uploading data is the core action your app will perform on the Sia network. When you upload a file through the SDK, the process is made secure by design:
+
+  * All data is encrypted client-side by the user before it leaves the device.
+  * Data is erasure-coded into multiple redundant shards.
+  * Each shard is uploaded to independent storage providers located [across the globe](https://siascan.com/map).
+  * The indexer stores ***only*** encrypted metadata and helps coordinate uploads, downloads, and object management.
+
+This means that even if some hosts go offline—or a malicious actor attempts to intercept user data—all data will remain private and recoverable.
+
+## Prerequisites
+
+Before continuing, make sure you have:
+
+  * A [connected and approved](./connect-to-an-indexer.md) SDK instance
+
+Once you have established a successful connection, you’re ready to upload your first object.
+
+## Example
+
+=== "Python"
+    ```python
+    import asyncio
+    import json
+
+    from indexd_ffi import (
+        generate_recovery_phrase,
+        Builder,
+        AppMeta,
+        Sdk,
+        UploadOptions
+    )
+
+    # Progress callback is optional and can be used to monitor the progress of the upload
+    class PrintProgress:
+        def progress(self, uploaded: int, encoded_size: int) -> None:
+            if encoded_size == 0:
+                print("Starting upload…")
+                return
+            percent = (uploaded / encoded_size) * 100
+            print(f"Upload progress: {percent:.1f}% ({uploaded}/{encoded_size} bytes)")
+
+    async def main():
+        # Create a builder to manage the connection flow
+        builder = Builder("https://app.sia.storage")
+
+        # Configure your app identity details
+        meta = AppMeta(
+            id=b"your-32-byte-app-id.............",
+            name="My App",
+            description="Demo application",
+            service_url="https://example.com",
+            logo_url=None,
+            callback_url=None
+        )
+
+        # Request app connection and get the approval URL
+        await builder.request_connection(meta)
+        print("Open this URL to approve the app:", builder.response_url())
+
+        # Wait for the user to approve the request
+        approved = await builder.wait_for_approval()
+        if not approved:
+            raise Exception("\nUser rejected the app or request timed out")
+
+        # Ask the user for their recovery phrase
+        recovery_phrase = input("\nEnter your recovery phrase (type `seed` to generate a new one): ").strip()
+
+        if recovery_phrase == "seed":
+            recovery_phrase = generate_recovery_phrase()
+            print("\nRecovery phrase:", recovery_phrase)
+
+        # Register an SDK instance with your recovery phrase.
+        sdk: Sdk = await builder.register(recovery_phrase)
+
+        # Export the App Key and store it securely for future launches
+        app_key = sdk.app_key()
+        print("\nStore this App Key in your app's secure storage:", app_key.export())
+
+        print("\nApp Connected!")
+
+        #-------------------------------------------------------
+        # UPLOAD AN OBJECT
+        #-------------------------------------------------------
+
+        # Configure Upload Options
+        upload_options = UploadOptions(
+            # Optional metadata can be attached that will be encrypted with the object's master key
+            metadata=json.dumps({"File Name": "example.txt"}).encode(),
+
+            # Progress callback is optional and can be used to monitor the progress of the upload
+            progress_callback=PrintProgress()
+        )
+
+        # Upload the "Hello world!" data
+        print("\nStarting upload...")
+        upload_writer = await sdk.upload(upload_options)
+        await upload_writer.write(b"Hello world!")
+        obj = await upload_writer.finalize()
+
+        sealed = obj.seal(app_key)
+        print("\nObject Sealed:")
+        print(" - Signature:", sealed.signature)
+
+        print("\nUpload complete:")
+        print(" - Object ID:", obj.id())
+        print(" - Size:", obj.size(), "bytes")
+
+    asyncio.run(main())
+    ```
+=== "JavaScript"
+    *🚧 Coming soon*
+=== "Rust"
+    *🚧 Coming soon*
+=== "Go"
+    *🚧 Coming soon*
+=== "Dart"
+    *🚧 Coming soon*
+=== "Swift"
+    *🚧 Coming soon*
+=== "Kotlin"
+    *🚧 Coming soon*
+
+## Deep Dive
+#### Objects & Metadata
+
+Each successful upload creates a `PinnedObject` in the indexer:
+
+* The object key uniquely identifies the object.
+* The metadata is encrypted alongside your data.
+* The indexer stores the key, metadata, timestamps, and layout of slabs used to store the data.
+
+#### Streaming vs Single-Write
+
+In the example, we wrote the entire payload in one call:
+
+```python
+await upload.write(b"hello world")
+```
+
+In a real app, especially with large files, you will typically:
+
+* Read from a file or stream in chunks.
+* Call `upload.write(chunk)` repeatedly until all bytes are written.
+* Finally, call `upload.finalize()` to complete the upload and get the pinned object.
+
+#### Progress Callback
+
+The `progress_callback` runs while data is being uploaded:
+
+* It receives `uploaded` and `encoded_size` in bytes.
+* It may be called multiple times as data is sent.
+* It’s safe to:
+    * Update a progress bar
+    * Log percentages
+    * Trigger UI updates
+
+## Common Practices
+
+#### Upload from a file
+
+Open a file and `read()` chunks in a loop, writing each chunk to `upload.write(...)`.
+
+#### Custom metadata
+
+Store original filename, MIME type, user ID, or application-specific tags.
+
+#### Real progress bars
+
+Instead of printing percentages, integrate `progress_callback` with a CLI or GUI progress bar.
+
+## Next Step
+[Share an Object →](./share-an-object.md){ .md-button }
