@@ -1,3 +1,7 @@
+---
+title: Apps
+---
+
 # Apps
 
 In the Sia ecosystem, an ***App*** represents the identity of software interacting with the network.
@@ -75,20 +79,6 @@ Once approved:
 * The app may upload, download, share, and manage objects
 
 If approval is revoked, the app immediately loses access.
-
-## Registration and Authorization
-
-Once approved:
-
-1. The app derives its App Key
-2. The app registers its public key with the indexer
-3. The indexer authorizes future signed requests from that key
-
-On subsequent launches, the app may:
-
-* Import the stored App Key
-* Check authorization using the indexer
-* Skip the approval flow entirely
 
 ## Apps vs Users
 
