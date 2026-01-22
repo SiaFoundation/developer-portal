@@ -118,21 +118,3 @@ sdk.objects(AppObjectsQuery { cursor, ... })
 This allows your app to synchronize its local state with the indexer efficiently and incrementally.
 
 Without pinning, an object produces no events, cannot be listed, and cannot be synced.
-
-## Best Practices
-
-**Keep App ID Stable**
-
-:   A stable App ID ensures you always derive the same App Key, which ensures access to previously pinned objects.
-
-**Attach Metadata Thoughtfully**
-
-:   Metadata is encrypted, so feel free to include filenames, MIME types, or user-facing labels.
-
-**Pin Shared Objects You Want to Persist**
-
-:   If someone sends you a share URL, pin it to ensure it appears in listings and survives app restarts.
-
-**Avoid Over-pinning**
-
-:   If your app handles lots of temporary files (e.g., transcoding), pin only what you want indexed.
