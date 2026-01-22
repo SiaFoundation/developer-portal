@@ -5,22 +5,22 @@ It determines which objects your application wants the indexer to track, synchro
 
 ## What “Pinning” Means
 
-When you upload an object through the SDK, the result is a `PinnedObject`.
+When an object is *pinned*, it is registered with the indexer and becomes part of the indexer’s tracked state for your application.
 
-This means:
+Pinning means:
 
-* The object’s encrypted metadata is stored in the indexer.
-* The indexer maintains a reference to its slabs (the erasure-coded data stored on hosts).
-* The object will appear in:
+* The object’s encrypted metadata is recorded by the indexer.
+* The indexer records how that object maps to encrypted slabs stored on hosts.
+* The object becomes part of the app’s tracked object set.
 
-    * `sdk.objects(...)` listings
-    * object sync streams
-    * indexer UI (if you have one)
+As a result, a pinned object:
 
-A pinned object is tracked by the indexer, which allows your application—or any authorized app using the same App Key—to list, download, delete, share, and receive update events for that object.
+* Appears in object listings and sync queries
+* Generates events when it changes
+* Can be downloaded, shared, or deleted by authorized apps using the same App Key
 
-Pinning does not mean storing or caching data locally.
-It means registering the object with the indexer so the indexer can help your app manage it over time.
+Pinning does **not** store or cache data locally.
+It simply tells the indexer, “this object matters to my app,” so the indexer can help manage it over time.
 
 ## Pinning vs. Storage
 
