@@ -47,36 +47,20 @@ Your indexer ***does*** store encrypted object metadata and slab mapping so your
 
 ## How Objects Become Pinned
 
+Objects can become pinned in several ways:
+
 ### During Upload
 
-Calling:
-
-```plaintext
-upload = sdk.upload(...)
-pinned = await upload.finalize()
-```
-
-automatically returns a `PinnedObject`, and the indexer records it.
+Objects uploaded through the SDK are automatically pinned when the upload completes successfully.
 
 ### Pinning a Shared Object
 
-If someone shares a signed URL with you:
-
-```plaintext
-shared = await sdk.shared_object(url)
-pinned = await sdk.pin_shared(shared)
-```
-
-This creates a pinned copy of the shared object under your app’s account.
+If your app receives a shared object, pinning it registers the object with your indexer so it becomes part of your app’s tracked state.
 
 ### Importing a Sealed Object (advanced)
 
-Sealed objects are fully encrypted bundles that can be exported/imported across indexers or devices.
-Opening a sealed object results in a pinned object:
-
-```plaintext
-pinned = PinnedObject.open(app_key, sealed_object)
-```
+Sealed objects are self-contained, encrypted bundles that can be transferred across devices or indexers.
+Opening a sealed object results in a pinned object.
 
 ## When You Should *Not* Pin Objects
 
