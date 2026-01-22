@@ -15,8 +15,8 @@ An indexer is responsible for:
 * Storing **object records** keyed by object ID, including encrypted metadata and slab layouts.
 * Tracking which **slabs** (and their shards on storage providers) belong to each object.
 * racking slab health and **coordinating repairs** when redundancy drops.
-* Managing **accounts and registered app identities** so multiple apps can safely share the same indexer.  
-* Exposing an API/SDK so applications can save, list, and fetch objects without dealing with storage providers or contracts directly  
+* Managing **accounts and registered app identities** so multiple apps can safely share the same indexer.
+* Exposing an API/SDK so applications can save, list, and fetch objects without dealing with storage providers or contracts directly.
 
 You can think of it as the “object directory and health manager” for a set of applications using the Sia network.
 
@@ -33,9 +33,9 @@ Indexers know just enough about each object to track and maintain it. For every 
 
 The metadata itself is:
 
-* **Application-Defined** — the app chooses the structure and fields.  
-* **Encrypted** — the indexer never sees it in plaintext.  
-* **Opaque** — the indexer cannot derive any meaning from it.  
+* **Application-Defined** — the app chooses the structure and fields.
+* **Encrypted** — the indexer never sees it in plaintext.
+* **Opaque** — the indexer cannot derive any meaning from it.
 
 Indexers **do not** know filenames, paths, tags, content types, versions, or any other semantic information about objects. If you want to search or filter by those things, you build that logic in your application or in a separate index.
 
@@ -43,15 +43,15 @@ Indexers **do not** know filenames, paths, tags, content types, versions, or any
 
 Indexers enforce access permissions based on the account and the app’s registered public key.
 
-* Each **account** represents a logical owner (user, team, or service).  
-* Each **app** derives an **app key** and registers the corresponding public key with the indexer.  
+* Each **account** represents a logical owner (user, team, or service).
+* Each **app** derives an **app key** and registers the corresponding public key with the indexer.
 * When an app stores an object, the indexer associates that object ID with the account and app key that signed it.
 
 When an application calls the indexer:
 
-* It authenticates using its app key for a specific account  
+* It authenticates using its app key for a specific account.
 * The indexer will only list, return, or delete objects associated with a specific account and registered public app key.
-* The indexer never inspects metadata to decide who “should” see an object  
+* The indexer never inspects metadata to decide who “should” see an object.
 
 Indexers can also support **share URLs** that allow anyone with the link to read a specific object. Fine-grained permissions (per-user ACLs, groups, roles, and so on) are intentionally out of scope and implemented entirely at the app layer.
 
@@ -78,8 +78,6 @@ Using this basic mapping, an indexer:
 * Deletes slabs when applications unpin or remove objects
 
 If an indexer server crashes or is offline, the metadata and mappings are not lost—they remain in its database—but health checks and repairs do not run. If it stays down for a long time, it may be necessary to migrate to a new server so repair jobs can resume before redundancy decays too far.
-
-If an indexer server crashes or is offline, its database is not lost, but health checks and repairs can not be completed. During this time, existing redundancy remains intact, but no new repairs are scheduled until the indexer is back online. If downtime is prolonged, it may be necessary to migrate to a new server so repairs can resume before redundancy decays too far.
 
 ## Privacy boundary
 
