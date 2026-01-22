@@ -29,9 +29,9 @@ It’s important to distinguish:
 ### Pinning
 
 * Occurs at the **indexer layer**
-* Tracks object metadata and references
-* Determines which objects your app knows about
-* Enables listing, syncing, events, sharing, and deletion
+* Registers an object with the indexer
+* Makes the object part of the app’s tracked state
+* Enables discovery, synchronization, and deletion
 
 ### Storage
 
