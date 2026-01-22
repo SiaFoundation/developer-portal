@@ -77,7 +77,7 @@ Using this basic mapping, an indexer:
 * Repairs slabs by re-encoding data and uploading new shards when redundancy falls below a target threshold
 * Deletes slabs when applications unpin or remove objects
 
-If an indexer server crashes or is offline, the metadata and mappings are not lost—they remain in its database—but health checks and repairs do not run. If it stays down for a long time, it may be necessary to migrate to a new server so repair jobs can resume before redundancy decays too far.
+If an indexer server crashes or is offline, its database is not lost, but health checks and repair coordination do not run. During this time, existing redundancy remains intact, but no new repairs are scheduled until the indexer is back online. If downtime is prolonged, it may be necessary to migrate to a new server so repairs can resume before redundancy decays too far.
 
 ## Privacy boundary
 
