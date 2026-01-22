@@ -43,7 +43,7 @@ It’s important to distinguish:
 Your indexer ***does not*** store raw file data.
 Hosts do.
 
-Your indexer ***does*** store object metadata and slab mapping so your app can find those slabs again later.
+Your indexer ***does*** store encrypted object metadata and slab mapping so your app can find those slabs again later.
 
 ## How Objects Become Pinned
 
