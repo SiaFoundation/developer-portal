@@ -4,9 +4,9 @@ title: Indexers
 
 # Indexers
 
-An **indexer** is a service that sits between applications and storage providers. It tracks where objects live on the Sia network, coordinates ongoing data health and repair, and enforces a simple access model so apps don’t need to manage storage providers, contracts, or repairs themselves.
+An **indexer** is a service that sits between applications and storage providers. It tracks where objects live on the Sia network, coordinates ongoing repairs, and enforces a simple access model so apps don’t need to manage storage providers or contracts themselves.
 
-Applications talk to the indexer for object IDs, metadata, layout, and access control, and the SDK coordinates uploads and downloads to storage providers using information supplied by the indexer.
+Applications talk to the indexer for object IDs, metadata, storage layout, and access control, and the SDK coordinates uploads and downloads to storage providers using information supplied by the indexer.
 
 ## What does an indexer do?
 
