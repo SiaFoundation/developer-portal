@@ -3,8 +3,6 @@
 Pinning is a foundational concept in Sia’s storage model.
 It determines which objects your application wants the indexer to track, synchronize, and maintain over time. Understanding pinning is essential for building apps that upload, share, sync, or list data reliably.
 
----
-
 ## What “Pinning” Means
 
 When you upload an object through the SDK, the result is a `PinnedObject`.
@@ -23,8 +21,6 @@ A pinned object is tracked by the indexer, which allows your application—or an
 
 Pinning does not mean storing or caching data locally.
 It means registering the object with the indexer so the indexer can help your app manage it over time.
-
----
 
 ## Pinning vs. Storage
 
@@ -48,8 +44,6 @@ Your indexer ***does not*** store raw file data.
 Hosts do.
 
 Your indexer ***does*** store object metadata and slab mapping so your app can find those slabs again later.
-
----
 
 ## How Objects Become Pinned
 
