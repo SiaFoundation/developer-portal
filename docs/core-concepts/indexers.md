@@ -10,13 +10,7 @@ Applications talk to the indexer for object IDs, metadata, storage layout, and a
 
 ## What does an indexer do?
 
-An indexer is responsible for:
-
-* Storing **object records** keyed by object ID, including encrypted metadata and slab layouts.
-* Tracking which **slabs** (and their shards on storage providers) belong to each object.
-* racking slab health and **coordinating repairs** when redundancy drops.
-* Managing **accounts and registered app identities** so multiple apps can safely share the same indexer.
-* Exposing an API/SDK so applications can save, list, and fetch objects without dealing with storage providers or contracts directly.
+An indexer stores object records keyed by object ID, including encrypted metadata and slab layouts. It tracks which slabs—and their shards on storage providers—belong to each object, monitors slab health, and coordinates repairs when redundancy drops. Indexers also manage registered app identities so multiple applications can safely share the same service, and they expose an API and SDK that allow apps to save, list, and fetch objects without dealing with storage providers or contracts directly.
 
 You can think of it as the “object directory and health manager” for a set of applications using the Sia network.
 
@@ -24,12 +18,7 @@ You can think of it as the “object directory and health manager” for a set o
 
 ### Metadata
 
-Indexers know just enough about each object to track and maintain it. For every object, an indexer knows the following:
-
-* The **object ID** (a deterministic identifier derived during object sealing)
-* The set of **slabs** that store the object’s data
-* The **creation timestamp**
-* The **size** of the opaque metadata blob
+Indexers know just enough about each object to track and maintain it. For every object, an indexer knows its object ID (a deterministic identifier derived during object sealing), the set of slabs that store the object’s data, the creation timestamp, and the size of the opaque metadata blob.
 
 The metadata itself is:
 
@@ -43,16 +32,9 @@ Indexers **do not** know filenames, paths, tags, content types, versions, or any
 
 Indexers enforce access permissions based on the app’s registered public key.
 
-* Each **app** derives an **app key** locally and registers its corresponding public key with the indexer during approval.
-* The registered public key represents the app’s identity and authorization scope.
-* When an app stores an object, the indexer associates that object ID with the public key that signed the request.
+Each app derives an app key locally and registers its corresponding public key with the indexer during approval. That registered public key represents the app’s identity and authorization scope. When an app stores an object, the indexer associates the object ID with the public key that signed the request.
 
-When an application calls the indexer:
-
-* It authenticates by signing requests with its app key.
-* The indexer authorizes the request by verifying the signature and checking that the public key is registered.
-* The indexer will only list, return, or delete objects associated with that registered public key.
-* The indexer never inspects metadata to decide who “should” see an object.
+When an application calls the indexer, it authenticates by signing requests with its app key. The indexer authorizes the request by verifying the signature and checking that the public key is registered. It will only list, return, or delete objects associated with that registered public key, and it never inspects metadata to decide who “should” see an object.
 
 Indexers can also support **share URLs** that allow anyone with the link to read a specific object. Fine-grained permissions (per-user ACLs, groups, roles, and so on) are intentionally out of scope and implemented entirely at the app layer.
 
@@ -71,12 +53,7 @@ flowchart LR
     O --> S --> H
 ```
 
-Using this basic mapping, an indexer:
-
-* Periodically scans storage providers to measure availability
-* Tracks how many shards for each slab remain healthy
-* Repairs slabs by re-encoding data and uploading new shards when redundancy falls below a target threshold
-* Deletes slabs when applications unpin or remove objects
+Using this mapping, an indexer periodically scans storage providers to measure availability, tracks how many shards for each slab remain healthy, and initiates repairs by re-encoding data and uploading new shards when redundancy falls below a target threshold. When applications unpin or remove objects, the indexer deletes the associated slabs.
 
 If an indexer server crashes or is offline, its database is not lost, but health checks and repair coordination do not run. During this time, existing redundancy remains intact, but no new repairs are scheduled until the indexer is back online. If downtime is prolonged, it may be necessary to migrate to a new server so repairs can resume before redundancy decays too far.
 
@@ -96,7 +73,7 @@ Storage providers store encrypted **shards** only; they do not see object IDs, m
 Indexers **can** observe operational information, such as:
 
 * Approximate object sizes (derived from the slab layout)
-* Which account and app key own which object IDs
+* Which registered public key owns which object IDs
 * When objects are created and when layout/metadata is requested
 
 Indexers **cannot** see:
