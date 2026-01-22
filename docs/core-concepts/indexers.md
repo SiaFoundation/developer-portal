@@ -37,7 +37,7 @@ The metadata itself is:
 * **Encrypted** — the indexer never sees it in plaintext.
 * **Opaque** — the indexer cannot derive any meaning from it.
 
-Indexers **do not** know filenames, paths, tags, content types, versions, or any other semantic information about objects. If you want to search or filter by those things, you build that logic in your application or in a separate index.
+Indexers **do not** know filenames, paths, tags, content types, versions, or any other semantic information about objects. If you want to search or filter by those things, you build that logic in your application.
 
 ### Access controls
 
