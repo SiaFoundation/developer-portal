@@ -10,7 +10,7 @@ Applications talk to the indexer for object IDs, metadata, storage layout, and a
 
 ## What does an indexer do?
 
-An indexer stores object records keyed by object ID, including encrypted metadata and slab layouts. It tracks which slabs—and their shards on storage providers—belong to each object, monitors slab health, and coordinates repairs when redundancy drops. Indexers also manage registered app identities so multiple applications can safely share the same service, and they expose an API and SDK that allow apps to save, list, and fetch objects without dealing with storage providers or contracts directly.
+An indexer stores object records keyed by object ID, including encrypted metadata and slab layouts. It tracks which slabs—and their shards on storage providers—belong to each object, monitors slab health, and coordinates repairs when redundancy drops. Indexers also manage registered app identities so multiple applications can safely share the same service. They expose an API and SDK that allow apps to save, list, and fetch objects without dealing with storage providers or contracts directly.
 
 You can think of it as the “object directory and health manager” for a set of applications using the Sia network.
 
