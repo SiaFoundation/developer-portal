@@ -185,9 +185,10 @@ The `progress_callback` runs while data is being uploaded:
 Implement a `Reader` that reads from a file in chunks:
 
 ```python
+import json
 from indexd_ffi import Reader
 
-class FileReader(Reader):
+class BytesReader(Reader):
     def __init__(self, path: str, chunk_size: int = 65536):
         self.f = open(path, "rb")
         self.chunk_size = chunk_size
@@ -198,7 +199,7 @@ class FileReader(Reader):
             self.f.close()
         return chunk
 
-reader = FileReader("example.txt")
+reader = BytesReader("example.txt")
 obj = await sdk.upload(reader, upload_options)
 obj.update_metadata(json.dumps({"File Name": "example.txt"}).encode())
 await sdk.pin_object(obj)
