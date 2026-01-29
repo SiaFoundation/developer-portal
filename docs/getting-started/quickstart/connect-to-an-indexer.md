@@ -28,7 +28,7 @@ The resulting App Key is a public/private key pair. The public key is registered
     
     * The recovery phrase must **never** be stored by your application, but instead stored securely by the user.
     * It should be used only once during onboarding to derive the App Key. 
-    * Your application should store `AppKey.export()` securely for future sessions.
+    * Your application should export and store the App Key securely for future sessions.
 
 ## Example
 
@@ -38,12 +38,15 @@ The resulting App Key is a public/private key pair. The public key is registered
 
     from indexd_ffi import (
         generate_recovery_phrase,
+        uniffi_set_event_loop,
         Builder,
         AppMeta,
-        Sdk
     )
 
     async def main():
+        # IMPORTANT: required for UniFFI async trait callbacks (Reader/Writer/etc.)
+        uniffi_set_event_loop(asyncio.get_running_loop())
+
         # Create a builder to manage the connection flow
         builder = Builder("https://app.sia.storage")
 
@@ -58,13 +61,14 @@ The resulting App Key is a public/private key pair. The public key is registered
         )
 
         # Request app connection and get the approval URL
-        await builder.request_connection(meta)
+        builder = await builder.request_connection(meta)
         print("Open this URL to approve the app:", builder.response_url())
 
         # Wait for the user to approve the request
-        approved = await builder.wait_for_approval()
-        if not approved:
-            raise Exception("\nUser rejected the app or request timed out")
+        try:
+            builder = await builder.wait_for_approval()
+        except Exception as e:
+            raise Exception("\nApp was not approved (rejected or request expired)") from e
 
         # Ask the user for their recovery phrase
         recovery_phrase = input("\nEnter your recovery phrase (type `seed` to generate a new one): ").strip()
@@ -74,11 +78,11 @@ The resulting App Key is a public/private key pair. The public key is registered
             print("\nRecovery phrase:", recovery_phrase)
 
         # Register an SDK instance with your recovery phrase.
-        sdk: Sdk = await builder.register(recovery_phrase)
+        sdk = await builder.register(recovery_phrase)
 
-        # Export the App Key and store it securely for future launches
+        # The App Key should be exported and stored securely for future launches, but we don't demonstrate storage here.
         app_key = sdk.app_key()
-        print("\nStore this App Key in your app's secure storage:", app_key.export())
+        print("\nApp Key export (persist however your app prefers):", app_key.export())
 
         print("\nApp Connected!")
 
@@ -119,9 +123,9 @@ During `request_connection`, you supply metadata that will be displayed during a
 
 Approval can fail if:
 
-* The user explicitly rejects your app
-* The request times out
-* There is a network issue
+* The request expires before the user approves it
+* The user declines the request (the indexer will not approve it)
+* There is a network or connectivity issue while polling
 
 ## Next Step
 [Upload an Object →](./upload-an-object.md){ .md-button }
