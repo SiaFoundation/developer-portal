@@ -230,7 +230,7 @@ class BytesWriter(Writer):
         self.f.close()
 
 resume_at = os.path.getsize("output.bin")
-writer = FileWriter("output.bin", mode="ab")
+writer = BytesWriter("output.bin", mode="ab")
 
 await sdk.download(writer, obj, DownloadOptions(offset=resume_at))
 writer.close()
@@ -254,7 +254,7 @@ class BytesWriter(Writer):
     def close(self) -> None:
         self.f.close()
 
-writer = FileWriter("output.bin", mode="wb")
+writer = BytesWriter("output.bin", mode="wb")
 await sdk.download(writer, obj, DownloadOptions())
 writer.close()
 ```
