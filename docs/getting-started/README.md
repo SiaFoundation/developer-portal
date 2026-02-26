@@ -69,7 +69,10 @@ The Sia SDK is currently distributed via source builds from the [`sia-sdk-rs`](h
 === "JavaScript"
     *🚧 Coming soon*
 === "Rust"
-    *🚧 Coming soon*
+    ```shell
+    # Add `indexd` and `sia_sdk` crates to your Rust project
+    cargo add indexd sia_sdk
+    ```
 === "Go"
     *🚧 Coming soon*
 === "Dart"
