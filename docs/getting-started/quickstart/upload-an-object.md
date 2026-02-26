@@ -113,7 +113,7 @@ Once you have established a successful connection, you’re ready to upload your
         obj = await sdk.upload(reader, upload_options)
 
         # Attach optional application metadata (encrypted before the indexer sees it).
-        # NOTE: update_object_metadata() requires a pinned object, so we set metadata before pinning.
+        # NOTE: update_metadata() requires a pinned object, so we set metadata before pinning.
         obj.update_metadata(json.dumps({"File Name": "example.txt"}).encode())
 
         # IMPORTANT: upload returns an object whose slabs are not yet pinned in the indexer.
