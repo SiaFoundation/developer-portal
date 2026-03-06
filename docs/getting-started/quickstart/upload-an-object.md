@@ -167,10 +167,13 @@ Just like a normal upload, these returned objects can have encrypted application
 Upload packing is most useful when your app needs to store **many small files**, where uploading each item separately would introduce unnecessary overhead.
 
 === "Python"
-    ```python
+    ```python    
     #-------------------------------------------------------
     # PACKED UPLOADS
     #-------------------------------------------------------
+
+    from indexd_ffi import Writer
+    from datetime import datetime, timezone, timedelta
 
     # Packed uploads are useful when your app needs to store
     # many small objects efficiently.
