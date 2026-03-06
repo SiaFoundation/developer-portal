@@ -162,12 +162,10 @@ Once you have the object, you can generate a share URL and let another app or de
     ```rust
     use chrono::{Duration, Utc};
     use indexd::{app_client::RegisterAppRequest, Builder, UploadOptions};
-    use sia::rhp::SECTOR_SIZE;
     use sia::seed::Seed;
     use sia::types::Hash256;
     use std::io::{self, Write};
     use std::str::FromStr;
-    use tokio::sync::mpsc;
 
     const INDEXER_URL: &str = "https://app.sia.storage";
 
@@ -252,31 +250,7 @@ Once you have the object, you can generate a share URL and let another app or de
         // UPLOAD AN OBJECT
         //-------------------------------------------------------
 
-        // Optional progress reporting via shard notifications
-        let (progress_tx, mut progress_rx) = mpsc::unbounded_channel::<()>();
-        let data_shards = 10u64;
-        let parity_shards = 20u64;
-        let total_shards = data_shards + parity_shards;
-        tokio::spawn(async move {
-            let mut sectors: u64 = 0;
-            while progress_rx.recv().await.is_some() {
-                sectors += 1;
-                let uploaded = sectors * SECTOR_SIZE as u64;
-                let slab_size = total_shards * SECTOR_SIZE as u64;
-                let encoded_size = sectors.div_ceil(total_shards) * slab_size;
-                if encoded_size > 0 {
-                    let pct = (uploaded as f64 / encoded_size as f64) * 100.0;
-                    println!("Upload progress: {pct:.1}% ({uploaded}/{encoded_size} bytes)");
-                }
-            }
-        });
-
-        let options = UploadOptions {
-            data_shards: data_shards as u8,
-            parity_shards: parity_shards as u8,
-            max_inflight: 16,
-            shard_uploaded: Some(progress_tx),
-        };
+        let options = UploadOptions::default();
 
         // Upload "Hello world!" from an in-memory reader
         let reader = std::io::Cursor::new(b"Hello world!".to_vec());

@@ -177,14 +177,11 @@ Once ready, you can download the object by providing a `Writer` implementation.
     *🚧 Coming soon*
 === "Rust"
     ```rust
-    use chrono::{Duration, Utc};
-    use indexd::{app_client::RegisterAppRequest, Builder, UploadOptions, DownloadOptions};
-    use sia::rhp::SECTOR_SIZE;
+    use indexd::{app_client::RegisterAppRequest, Builder, DownloadOptions};
     use sia::seed::Seed;
     use sia::types::Hash256;
     use std::io::{self, Write};
     use std::str::FromStr;
-    use tokio::sync::mpsc;
 
     const INDEXER_URL: &str = "https://app.sia.storage";
 
@@ -266,68 +263,10 @@ Once ready, you can download the object by providing a `Writer` implementation.
         println!("\nApp Connected!");
 
         //-------------------------------------------------------
-        // UPLOAD AN OBJECT
-        //-------------------------------------------------------
-
-        // Optional progress reporting via shard notifications
-        let (progress_tx, mut progress_rx) = mpsc::unbounded_channel::<()>();
-        let data_shards = 10u64;
-        let parity_shards = 20u64;
-        let total_shards = data_shards + parity_shards;
-        tokio::spawn(async move {
-            let mut sectors: u64 = 0;
-            while progress_rx.recv().await.is_some() {
-                sectors += 1;
-                let uploaded = sectors * SECTOR_SIZE as u64;
-                let slab_size = total_shards * SECTOR_SIZE as u64;
-                let encoded_size = sectors.div_ceil(total_shards) * slab_size;
-                if encoded_size > 0 {
-                    let pct = (uploaded as f64 / encoded_size as f64) * 100.0;
-                    println!("Upload progress: {pct:.1}% ({uploaded}/{encoded_size} bytes)");
-                }
-            }
-        });
-
-        let options = UploadOptions {
-            data_shards: data_shards as u8,
-            parity_shards: parity_shards as u8,
-            max_inflight: 16,
-            shard_uploaded: Some(progress_tx),
-        };
-
-        // Upload "Hello world!" from an in-memory reader
-        let reader = std::io::Cursor::new(b"Hello world!".to_vec());
-        println!("\nStarting upload...");
-        let mut obj = sdk.upload(reader, options).await?;
-
-        // Attach optional metadata (encrypted with the object's master key)
-        obj.metadata = br#"{"File Name":"example.txt"}"#.to_vec();
-
-        // Pin the object to the indexer (stores encrypted metadata + layout)
-        sdk.pin_object(&obj).await?;
-
-        let sealed = obj.seal(sdk.app_key());
-        println!("\nObject Sealed:");
-        println!(" - Object ID: {}", sealed.id());
-        println!(" - Data signature: {}", sealed.data_signature);
-
-        println!("\nUpload complete:");
-        println!(" - Object ID: {}", obj.id());
-        println!(" - Size: {} bytes", obj.size());
-
-        //-------------------------------------------------------
-        // SHARE AN OBJECT
-        //-------------------------------------------------------
-
-        let expires = Utc::now() + Duration::hours(1);
-        let share_url = sdk.share_object(&obj, expires)?;
-        println!("\nShare URL: {share_url}");
-
-        //-------------------------------------------------------
         // DOWNLOAD AN OBJECT
         //-------------------------------------------------------
 
-        // If downloading via share URL, resolve it first:
+        let share_url = read_line("Enter an indexer share url to download: ")?;
         let shared_obj = sdk.shared_object(share_url).await?;
 
         let mut out = tokio::fs::File::create("output.txt").await?;
