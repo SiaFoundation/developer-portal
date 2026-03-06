@@ -268,6 +268,80 @@ In this quickstart flow, **upload and pin are separate steps**:
 
 Metadata is **application-defined** and **encrypted**. In this guide we set metadata on the object (`obj.update_metadata(...)`) *before pinning* so the pinned record includes it.
 
+#### Upload Packing
+
+`await sdk.upload_packed(...)` creates a **packing session** for many small uploads. Instead of uploading each small object as its own standalone layout, the SDK groups them into a packed upload so they can share underlying storage more efficiently.
+
+Each call to `await packed.add(reader)` adds one logical object to the packing session and returns the number of bytes read from that `Reader`. `await packed.remaining()` shows how much unused capacity remains in the current packed upload, which is useful for understanding how the SDK is filling available space.
+
+When you call `await packed.finalize()`, the SDK completes the packed upload and returns a list of object handles—one for each item you added. Even though the data may be stored more efficiently under the hood, each returned object can still be managed individually.
+
+Just like a normal upload, these returned objects can have encrypted application metadata attached and can then be pinned with `await sdk.pin_object(obj)`. Pinning makes each object persist in the indexer so it becomes listable, syncable, and eligible for repair.
+
+Upload packing is most useful when your app needs to store **many small files**, where uploading each item separately would introduce unnecessary overhead.
+
+=== "Python"
+    ```python
+    #-------------------------------------------------------
+    # PACKED UPLOADS
+    #-------------------------------------------------------
+
+    # Packed uploads are useful when your app needs to store
+    # many small objects efficiently.
+    start = datetime.now(timezone.utc)
+
+    # Create a packing session.
+    packed = await sdk.upload_packed(
+        UploadOptions(
+            # Progress callback is optional and can be used to monitor the upload.
+            progress_callback=PrintProgress()
+        )
+    )
+
+    # Add several small objects to the packing session.
+    for i in range(10):
+        data = f"Contents of object {i + 1}."
+        reader = BytesReader(data.encode())
+
+        # add() reads from the Reader and queues one logical object.
+        size = await packed.add(reader)
+
+        # remaining() shows how much capacity is left in the current pack.
+        rem = await packed.remaining()
+        print(f"Object {i + 1} added: {size} bytes ({rem} remaining)")
+
+    # Finalize the packed upload and get back one object handle per item added.
+    objects = await packed.finalize()
+    elapsed = datetime.now(timezone.utc) - start
+
+    print(f"\nPacked upload finished {len(objects)} objects in {elapsed}")
+
+    # Each returned object can still be managed individually.
+    # Here we attach encrypted metadata and pin each object so it is
+    # persisted in the indexer and becomes listable/syncable.
+    for i, obj in enumerate(objects):
+        obj.update_metadata(json.dumps({
+            "File Name": f"example-{i}.txt"
+        }).encode())
+
+        await sdk.pin_object(obj)
+
+        print(f"\nPinned object {i + 1}:")
+        print(" - ID:", obj.id())
+        print(" - Size:", obj.size(), "bytes")
+    ```
+=== "JavaScript"
+    *🚧 Coming soon*
+=== "Rust"
+    *🚧 Coming soon*
+=== "Go"
+    *🚧 Coming soon*
+=== "Dart"
+    *🚧 Coming soon*
+=== "Swift"
+    *🚧 Coming soon*
+=== "Kotlin"
+    *🚧 Coming soon*
 #### Streaming vs Single-Write
 
 Uploads are **Reader-based**. The SDK repeatedly calls your `Reader.read()` method until it returns `b""` (EOF).
