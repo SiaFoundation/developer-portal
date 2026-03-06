@@ -345,6 +345,7 @@ Upload packing is most useful when your app needs to store **many small files**,
     *🚧 Coming soon*
 === "Kotlin"
     *🚧 Coming soon*
+    
 #### Streaming vs Single-Write
 
 Uploads are **Reader-based**. The SDK repeatedly calls your `Reader.read()` method until it returns `b""` (EOF).
