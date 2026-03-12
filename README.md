@@ -10,20 +10,22 @@ Use existing developer portals for inspiration:
 
 ## Running
 
-### Linux/macOS
-```
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-mkdocs serve
+```bash
+bun install
+bun dev
 ```
 
-### Windows
+## Build
+
+```bash
+bun run build
 ```
-python3 -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-mkdocs serve
+
+## Docker
+
+```bash
+docker build -t developer-portal .
+docker run -p 80:80 developer-portal
 ```
 
 ## Getting Started
@@ -32,33 +34,33 @@ Provide basic code snippets in various languages. This should realistically be a
 
 Available now:
 
-- Python  
-- Swift  
-- Kotlin  
+- Python
+- Swift
+- Kotlin
 - React Native (Typescript) (iOS \+ Android)
 
 Future:
 
-- Go  
-- Rust  
-- Typescript/Javascript  
-  - nodejs   
-  - web  
+- Go
+- Rust
+- Typescript/Javascript
+  - nodejs
+  - web
 - Dart
 
 ### Connecting to an indexer
 
-1. Generating an “app key”  
-2. Overview of “app metadata”  
-3. Basic connect auth flow  
+1. Generating an “app key”
+2. Overview of “app metadata”
+3. Basic connect auth flow
 4. Approval/Rejection handling
 
 ### Quickstart
 
 #### Upload Data
 
-1. Calling SDK.Upload  
-2. Using the progress callback  
+1. Calling SDK.Upload
+2. Using the progress callback
 3. Getting the object
 
 #### Download Data
@@ -67,16 +69,16 @@ Future:
 
 #### Share Objects
 
-1. Calling share object with the uploaded object  
-2. Expiration  
+1. Calling share object with the uploaded object
+2. Expiration
 3. What it means to share a file
 
 ## Core Concepts
 
 Explain concepts that developers might not be familiar with:
-- What do they do? 
-- Why are they important? 
-- How do they help protect your privacy and your data? 
+- What do they do?
+- Why are they important?
+- How do they help protect your privacy and your data?
 - How do they make Sia secure, by default?
 
 Our tutorials and quick start should link to these concepts and sections.

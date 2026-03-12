@@ -1,5 +1,6 @@
 ---
 title: Indexers
+description: Learn how indexers work in the Sia ecosystem, including metadata management, access controls, data health and repair, privacy boundaries, and their role in the architecture.
 ---
 
 # Indexers

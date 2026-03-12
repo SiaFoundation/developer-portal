@@ -1,5 +1,6 @@
 ---
-title: Storage providers
+title: Storage Providers
+description: Learn about Sia storage providers, the nodes that store encrypted data shards on the network. Understand their role, incentive model, and how they fit into the indexer-based architecture.
 ---
 
 # Storage providers
@@ -49,7 +50,7 @@ From the storage provider’s perspective, the world is simple:
 - it receives and serves encrypted shards, never filenames or object IDs, and
 - it focuses on staying online, serving sectors, and submitting storage proofs.
 
-``` mermaid
+```mermaid
 flowchart LR
 
     %% === Brand color classes ===
@@ -77,5 +78,3 @@ flowchart LR
     I --> HOSTS
     A <--> HOSTS
 ```
-
-<!-- ## Who pays them in the indexer model? -->
