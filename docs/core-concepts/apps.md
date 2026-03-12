@@ -1,5 +1,6 @@
 ---
 title: Apps
+description: Understand the App identity model in the Sia ecosystem, including App IDs, App Keys, recovery phrases, user approval, and the authorization model.
 ---
 
 # Apps

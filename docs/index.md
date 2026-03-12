@@ -1,3 +1,8 @@
+---
+title: Sia Developer Portal
+description: Get started building with Sia's decentralized, privacy-preserving storage network. Learn how to create an app key, connect to an indexer, and upload, download, and share encrypted data.
+---
+
 # Sia Developer Portal
 
 Sia is a decentralized storage network where all data is encrypted client-side, erasure-coded into redundant shards, and distributed across independent storage providers worldwide. An indexer coordinates uploads, downloads, and object management without ever seeing your data.

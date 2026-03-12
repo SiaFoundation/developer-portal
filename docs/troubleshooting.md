@@ -1,3 +1,8 @@
+---
+title: Troubleshooting
+description: Common errors and solutions when working with the Sia SDK, including issues with app keys, approval, network connectivity, and object retrieval.
+---
+
 # Troubleshooting & Common Errors
 
 | Error                      | Explanation                                                  |

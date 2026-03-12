@@ -1,0 +1,152 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* Light mode variant */
+@custom-variant light (&:where(.light-mode, .light-mode *));
+
+@utility scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ── Heading anchors ── */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  scroll-margin-top: 70px;
+}
+
+.prose :is(h1, h2, h3, h4) {
+  position: relative;
+}
+
+/* Anchor links appended to headings */
+.prose :is(h1, h2, h3, h4) > a[href^="#"] {
+  text-decoration: none !important;
+  margin-left: 0.5em;
+}
+
+.prose :is(h1, h2, h3, h4) > a[href^="#"] > svg {
+  opacity: 0;
+  color: #757575;
+  transition: opacity 0.15s;
+  vertical-align: middle;
+}
+
+.prose :is(h1, h2, h3, h4):hover > a[href^="#"] > svg {
+  opacity: 1;
+}
+
+.prose :is(h1, h2, h3, h4) > a[href^="#"]:hover > svg {
+  color: #0099ff;
+}
+
+/* ── Prose: dark mode (default) ── */
+
+.prose :is(h1, h2, h3, h4, h5, h6, th) {
+  color: #e7e7e7;
+}
+.prose :is(p, li, td) {
+  color: #b0b0b0;
+}
+.prose strong {
+  color: #e7e7e7;
+}
+.prose a {
+  color: #0099ff;
+  text-decoration: none;
+}
+.prose a:hover {
+  text-decoration: underline;
+}
+.prose :is(blockquote) {
+  border-color: #2d2d2d;
+}
+.prose hr {
+  border-color: #2d2d2d;
+}
+.prose table {
+  border-color: #2d2d2d;
+}
+.prose :is(thead, tbody, tr, th, td) {
+  border-color: #2d2d2d;
+}
+.prose pre {
+  background: transparent;
+  padding: 0;
+}
+
+/* ── Prose: inline code ── */
+
+.prose :where(code):not(:where(pre *, [class~="not-prose"] *)) {
+  color: #e7e7e7;
+  background-color: #0d1117;
+  border: 1px solid #2d2d2d;
+  border-radius: 0.25rem;
+  padding: 0.15em 0.4em;
+  font-size: 0.85em;
+}
+.prose :where(code):not(:where(pre *, [class~="not-prose"] *))::before,
+.prose :where(code):not(:where(pre *, [class~="not-prose"] *))::after {
+  content: none;
+}
+
+/* ── Prose: light mode ── */
+
+.light-mode .prose :is(h1, h2, h3, h4, h5, h6, th) {
+  color: #1a1a1a;
+}
+.light-mode .prose :is(p, li, td) {
+  color: #374151;
+}
+.light-mode .prose strong {
+  color: #1a1a1a;
+}
+.light-mode .prose a {
+  color: #0099ff;
+}
+.light-mode .prose :is(blockquote) {
+  border-color: #e0e0e0;
+  color: #6b7280;
+}
+.light-mode .prose hr {
+  border-color: #e0e0e0;
+}
+.light-mode .prose table {
+  border-color: #e5e7eb;
+}
+.light-mode .prose :is(thead, tbody, tr, th, td) {
+  border-color: #e5e7eb;
+}
+.light-mode .prose :where(code):not(:where(pre *, [class~="not-prose"] *)) {
+  background-color: #f6f8fa;
+  border-color: #e0e0e0;
+  color: #1a1a1a;
+}
+
+/* ── Syntax highlighting: dual theme ── */
+
+code[data-theme],
+code[data-theme] span {
+  color: var(--shiki-dark);
+  background-color: var(--shiki-dark-bg);
+}
+.light-mode code[data-theme],
+.light-mode code[data-theme] span {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+}
+
+/* ── Code blocks: horizontal scroll ── */
+
+pre {
+  overflow-x: auto;
+  max-width: 100%;
+}

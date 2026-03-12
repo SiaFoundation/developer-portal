@@ -1,3 +1,8 @@
+---
+title: Pinning
+description: Understand object pinning in Sia's storage model, including how objects become pinned, the difference between pinning and storage, unpinning, and syncing.
+---
+
 # Pinning
 
 Pinning is a foundational concept in Sia’s storage model.

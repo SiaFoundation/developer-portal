@@ -1,5 +1,6 @@
 ---
 title: Objects
+description: Understand the object model in Sia's indexd, including object IDs, sealed objects, metadata, slab layouts, and how objects differ from traditional file systems.
 ---
 
 # Objects
@@ -10,9 +11,9 @@ At the storage layer, the data ultimately lives as encrypted **shards** on hosts
 
 An object carries four pieces of information:
 
-- An **object ID** - a 32-byte content ID derived from the object’s slabs  
-- A set of **slabs** - the pieces of encrypted data that make up the object 
-- **metadata** - opaque, application-defined bytes (often JSON)  
+- An **object ID** - a 32-byte content ID derived from the object’s slabs
+- A set of **slabs** - the pieces of encrypted data that make up the object
+- **metadata** - opaque, application-defined bytes (often JSON)
 - **timestamps** - when the object was created and last updated
 
 The **object ID** depends only on the content layout. If the data changes and the slabs change, the object ID changes as well.
@@ -25,7 +26,7 @@ The **object ID** depends only on the content layout. If the data changes and th
 - the **slab layout** (`slabs`)
 - the **encrypted metadata** (`encryptedMetadata`)
 - a **signature** over the object ID and encrypted fields
-- **timestamps** (`createdAt`, `updatedAt`) 
+- **timestamps** (`createdAt`, `updatedAt`)
 
 `indexd` stores this sealed form keyed by the object ID under a specific account and app key. It doesn’t attach filenames, paths, content types, or other higher-level attributes to an object. If you need those, you store them yourself in the object’s metadata or in your own indexer.
 
@@ -42,4 +43,3 @@ At the `indexd` layer, **objects are immutable**:
 - The **object ID** is a hash of the object’s slab layout.
 - Changing the data changes the slabs, which produces a **new object ID**.
 - `indexd` never updates an object’s data in place; each new layout is stored as a separate object with its own ID.
-
