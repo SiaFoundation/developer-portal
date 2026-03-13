@@ -284,7 +284,160 @@ Once you have the object, you can generate a share URL and let another app or de
     }
     ```
 === "Go"
-    *🚧 Coming soon*
+    ```go
+    package main
+
+    import (
+        "bufio"
+        "bytes"
+        "context"
+        "encoding/hex"
+        "fmt"
+        "os"
+        "strings"
+        "time"
+
+        "go.sia.tech/core/types"
+        "go.sia.tech/indexd/sdk"
+    )
+
+    const indexerURL = "https://app.sia.storage"
+
+    // Replace this with your real 32-byte App ID (hex-encoded, 64 chars).
+    // Generate this ONCE and keep it stable forever for your app.
+    // Example: openssl rand -hex 32
+    const appIDHex = "0000000000000000000000000000000000000000000000000000000000000000"
+
+    func readLine(prompt string) (string, error) {
+        fmt.Print(prompt)
+        in := bufio.NewReader(os.Stdin)
+        s, err := in.ReadString('\n')
+        if err != nil {
+            return "", err
+        }
+        return strings.TrimSpace(s), nil
+    }
+
+    func generateRecoveryPhrase() string {
+        return sdk.NewSeedPhrase()
+    }
+
+    func mustHash256(s string) types.Hash256 {
+        b, err := hex.DecodeString(s)
+        if err != nil {
+            panic(fmt.Errorf("invalid app ID hex: %w", err))
+        }
+        if len(b) != 32 {
+            panic(fmt.Errorf("app ID must be 32 bytes, got %d", len(b)))
+        }
+
+        var h types.Hash256
+        copy(h[:], b)
+        return h
+    }
+
+    func main() {
+        if err := run(); err != nil {
+            panic(err)
+        }
+    }
+
+    func run() error {
+        ctx := context.Background()
+
+        // Create a builder to manage the connection flow
+        builder := sdk.NewBuilder(indexerURL, sdk.AppMetadata{
+            ID:          mustHash256(appIDHex),
+            Name:        "My App",
+            Description: "Demo application",
+            ServiceURL:  "https://example.com",
+            LogoURL:     "",
+            CallbackURL: "",
+        })
+
+        // Request app connection and get the approval URL
+        responseURL, err := builder.RequestConnection(ctx)
+        if err != nil {
+            return fmt.Errorf("request connection: %w", err)
+        }
+        fmt.Println("Open this URL to approve the app:", responseURL)
+
+        // Wait for the user to approve the request
+        approved, err := builder.WaitForApproval(ctx)
+        if err != nil {
+            return fmt.Errorf("wait for approval: %w", err)
+        }
+        if !approved {
+            return fmt.Errorf("app connection was rejected")
+        }
+
+        // Ask the user for their recovery phrase
+        recovery_phrase, err := readLine("Enter your recovery phrase (type `seed` to generate a new one): ")
+        if err != nil {
+            return fmt.Errorf("read recovery phrase: %w", err)
+        }
+
+        if recovery_phrase == "seed" {
+            recovery_phrase = generateRecoveryPhrase()
+            fmt.Printf("\nRecovery phrase:\n%s\n\n", recovery_phrase)
+        }
+
+        // Register an SDK instance with your recovery phrase
+        client, err := builder.Register(ctx, recovery_phrase)
+        if err != nil {
+            return fmt.Errorf("register app: %w", err)
+        }
+        defer client.Close()
+
+        // The App Key should be stored securely for future launches,
+        // but we do not demonstrate app key storage here.
+        _ = client.AppKey()
+
+        fmt.Println("\nApp Connected!")
+
+        //-------------------------------------------------------
+        // UPLOAD AN OBJECT
+        //-------------------------------------------------------
+
+        // Upload "Hello world!" from an in-memory reader
+        reader := bytes.NewReader([]byte("Hello world!"))
+        fmt.Println("\nStarting upload...")
+
+        obj := sdk.NewEmptyObject()
+        if err := client.Upload(ctx, &obj, reader); err != nil {
+            return fmt.Errorf("upload object: %w", err)
+        }
+
+        // Attach optional metadata (encrypted with the object's master key)
+        obj.UpdateMetadata([]byte(`{"File Name":"example.txt"}`))
+
+        // Pin the object to the indexer (stores encrypted metadata + layout)
+        if err := client.PinObject(ctx, obj); err != nil {
+            return fmt.Errorf("pin object: %w", err)
+        }
+
+        sealed := obj.Seal(client.AppKey())
+        fmt.Println("\nObject Sealed:")
+        fmt.Println(" - Data signature:", sealed.DataSignature)
+
+        fmt.Println("\nUpload complete:")
+        fmt.Println(" - Object ID:", obj.ID())
+        fmt.Println(" - Size:", obj.Size(), "bytes")
+
+        //-------------------------------------------------------
+        // SHARE AN OBJECT
+        //-------------------------------------------------------
+
+        expires := time.Now().UTC().Add(time.Hour)
+        shareURL, err := client.CreateSharedObjectURL(ctx, obj.ID(), expires)
+        if err != nil {
+            return fmt.Errorf("create share URL: %w", err)
+        }
+        fmt.Println("\nShare URL:", shareURL)
+
+        return nil
+    }
+    ```
 === "Dart"
     *🚧 Coming soon*
 === "Swift"
