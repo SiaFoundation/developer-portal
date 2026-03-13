@@ -30,7 +30,7 @@ This enables familiar cloud-sharing workflows—while preserving Sia’s end-to-
 Before you begin, you should have:
 
   * A [connected and approved](./connect-to-an-indexer.md) SDK instance
-  * A `PinnedObject` returned from a [successful upload](./upload-an-object.md)
+  * An object returned from a [successful upload](./upload-an-object.md) and pinned to the indexer.
 
 Once you have the object, you can generate a share URL and let another app or device resolve and download it.
 

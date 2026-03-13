@@ -400,71 +400,105 @@ Once you have established a successful connection, you’re ready to upload your
 ## Deep Dive
 #### Objects & Metadata
 
-`await sdk.upload(reader, upload_options)` uploads your encrypted, erasure-coded data and returns an object handle you can work with immediately (e.g., seal it, share it, download it).
+Uploading returns an object handle you can work with immediately (for example, to seal it, share it, or download it later).
 
 In this quickstart flow, **upload and pin are separate steps**:
 
 * **Upload** sends shards to storage providers and builds the object’s layout.
 * **Pinning** (`await sdk.pin_object(obj)`) persists the sealed object record in the indexer and pins the underlying slabs so the object becomes listable/syncable and eligible for repair.
 
-Metadata is **application-defined** and **encrypted**. In this guide we set metadata on the object (`obj.update_metadata(...)`) *before pinning* so the pinned record includes it.
+Metadata is **application-defined** and **encrypted**. In this guide, metadata is attached to the object before the pin step so the pinned record includes it.
 
 #### Streaming vs Single-Write
 
-Uploads are **Reader-based**. The SDK repeatedly calls your `Reader.read()` method until it returns `b""` (EOF).
+Uploads are stream-based. The SDK reads bytes from the source you provide until it reaches the end of the stream.
 
-In the example, `BytesReader` wraps an in-memory buffer:
+In the quickstart examples, we upload an in-memory string such as `"Hello world!"`. In a real application, you will often stream from a file, an HTTP request body, or another in-memory buffer.
 
-```python
-reader = BytesReader(b"Hello world!")
-obj = await sdk.upload(reader, upload_options)
-```
+#### Progress Reporting
 
-In a real app (especially for large files), you typically implement a `Reader` helper that reads from a file in chunks. The core idea is the same: return the next chunk each call, and return `b""` when finished.
+Some language bindings expose upload progress callbacks or options that let you monitor:
 
-#### Progress Callback
+* Bytes uploaded
+* Total encoded size
+* Percentage complete
 
-The `progress_callback` runs while data is being uploaded:
-
-* It receives `uploaded` and `encoded_size` in bytes.
-* It may be called multiple times as data is sent.
-* It’s safe to:
-    * Update a progress bar
-    * Log percentages
-    * Trigger UI updates
+Use those hooks to update progress bars, log status, or drive UI updates when they are available in your chosen SDK.
 
 ## Common Practices
 
 #### Upload from a file
 
-Implement a `Reader` that reads from a file in chunks:
+Stream directly from disk instead of loading the entire object into memory first:
 
-```python
-import json
-from indexd_ffi import Reader
+=== "Python"
+    ```python
+    import json
+    from indexd_ffi import Reader
 
-class BytesReader(Reader):
-    def __init__(self, path: str, chunk_size: int = 65536):
-        self.f = open(path, "rb")
-        self.chunk_size = chunk_size
+    class BytesReader(Reader):
+        def __init__(self, path: str, chunk_size: int = 65536):
+            self.f = open(path, "rb")
+            self.chunk_size = chunk_size
 
-    async def read(self) -> bytes:
-        chunk = self.f.read(self.chunk_size)
-        if chunk == b"":
-            self.f.close()
-        return chunk
+        async def read(self) -> bytes:
+            chunk = self.f.read(self.chunk_size)
+            if chunk == b"":
+                self.f.close()
+            return chunk
 
-reader = BytesReader("example.txt")
-obj = await sdk.upload(reader, upload_options)
-obj.update_metadata(json.dumps({"File Name": "example.txt"}).encode())
-await sdk.pin_object(obj)
-```
+    reader = BytesReader("example.txt")
+    obj = await sdk.upload(reader, upload_options)
+    obj.update_metadata(json.dumps({"File Name": "example.txt"}).encode())
+    await sdk.pin_object(obj)
+    ```
 
-For GUI apps or high-throughput workloads, you may prefer async file IO or reading in a background thread — but the Reader contract stays the same.
+=== "Rust"
+    ```rust
+    use indexd::UploadOptions;
+
+    let options = UploadOptions::default();
+
+    // Stream the file directly from disk
+    let file = tokio::fs::File::open("example.txt").await?;
+    let mut obj = sdk.upload(file, options).await?;
+
+    // Attach optional metadata before pinning
+    obj.metadata = br#"{"File Name":"example.txt"}"#.to_vec();
+
+    // Pin the object to the indexer
+    sdk.pin_object(&obj).await?;
+    ```
+
+=== "Go"
+    ```go
+    file, err := os.Open("example.txt")
+    if err != nil {
+        return fmt.Errorf("open file: %w", err)
+    }
+    defer file.Close()
+
+    obj := sdk.NewEmptyObject()
+
+    // Stream the file directly from disk
+    if err := client.Upload(ctx, &obj, file); err != nil {
+        return fmt.Errorf("upload object: %w", err)
+    }
+
+    // Attach optional metadata before pinning
+    obj.UpdateMetadata([]byte(`{"File Name":"example.txt"}`))
+
+    // Pin the object to the indexer
+    if err := client.PinObject(ctx, obj); err != nil {
+        return fmt.Errorf("pin object: %w", err)
+    }
+    ```
+
+For GUI apps or high-throughput workloads, you may prefer async file IO or reading in a background thread — but the same pattern applies: stream chunks from disk, attach metadata if needed, then pin the object.
 
 #### Custom metadata
 
-Store original filename, MIME type, user ID, or application-specific tags.
+If you want the pinned object record to include metadata such as the original filename, MIME type, user ID, or application-specific tags, attach that metadata before calling the pin step.
 
 #### Real progress bars
 
