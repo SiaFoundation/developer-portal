@@ -200,14 +200,14 @@ Once you have established a successful connection, you’re ready to upload your
         let builder = builder.wait_for_approval().await?;
 
         // Ask the user for their recovery phrase
-        let mut mnemonic = read_line("Enter your recovery phrase (type `seed` to generate a new one): ")?;
-        if mnemonic == "seed" {
-            mnemonic = generate_recovery_phrase();
-            println!("\nRecovery phrase:\n{mnemonic}\n");
+        let mut recovery_phrase = read_line("Enter your recovery phrase (type `seed` to generate a new one): ")?;
+        if recovery_phrase == "seed" {
+            recovery_phrase = generate_recovery_phrase();
+            println!("\nRecovery phrase:\n{recovery_phrase}\n");
         }
 
         // Register an SDK instance with your recovery phrase
-        let sdk = builder.register(&mnemonic, tls_config()).await?;
+        let sdk = builder.register(&recovery_phrase, tls_config()).await?;
 
         // Export the App Key seed (32 bytes) and store it securely for future launches
         let app_key_seed = &sdk.app_key().as_ref()[..32];
@@ -335,18 +335,18 @@ Once you have established a successful connection, you’re ready to upload your
         }
 
         // Ask the user for their recovery phrase
-        recovery_phrase, err := readLine("Enter your recovery phrase (type `seed` to generate a new one): ")
+        recoveryPhrase, err := readLine("Enter your recovery phrase (type `seed` to generate a new one): ")
         if err != nil {
             return fmt.Errorf("read recovery phrase: %w", err)
         }
 
-        if recovery_phrase == "seed" {
-            recovery_phrase = generateRecoveryPhrase()
-            fmt.Printf("\nRecovery phrase:\n%s\n\n", recovery_phrase)
+        if recoveryPhrase == "seed" {
+            recoveryPhrase = generateRecoveryPhrase()
+            fmt.Printf("\nRecovery phrase:\n%s\n\n", recoveryPhrase)
         }
 
         // Register an SDK instance with your recovery phrase
-        client, err := builder.Register(ctx, recovery_phrase)
+        client, err := builder.Register(ctx, recoveryPhrase)
         if err != nil {
             return fmt.Errorf("register app: %w", err)
         }
