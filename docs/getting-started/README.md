@@ -74,7 +74,18 @@ The Sia SDK is currently distributed via source builds from the [`sia-sdk-rs`](h
     cargo add indexd sia_sdk
     ```
 === "Go"
-    *🚧 Coming soon*
+    ```shell
+    # Create a new Go project
+    mkdir example-app
+    cd example-app
+    go mod init sia.storage/example-app
+
+    # Add the Sia Indexd SDK
+    go get go.sia.tech/indexd/sdk@latest
+
+    # Resolve and tidy dependencies
+    go mod tidy
+    ```
 === "Dart"
     *🚧 Coming soon*
 === "Swift"
