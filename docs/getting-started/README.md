@@ -30,7 +30,7 @@ A unique 32-byte identifier that has been randomly generated for your app.
 
 #### Sia SDK
 
-The Sia SDK is currently distributed via source builds from the [`sia-sdk-rs`](https://github.com/SiaFoundation/sia-sdk-rs) repository.
+The Sia SDK is available in multiple language-specific implementations. Follow the setup instructions for your language below.
 
 === "Python"
     === "Windows"

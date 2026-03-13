@@ -2,16 +2,16 @@
 
 Once your application has uploaded an object to Sia (or you’ve received a Share URL), downloading is straightforward. The SDK handles all network coordination: locating slabs, downloading encrypted shards, verifying them, and decrypting your data locally.
 
-Downloads are **Writer-based**: you provide a `Writer`, and the SDK streams the decrypted bytes into it. This makes it easy to download small objects into memory or stream large objects directly to disk.
+Downloads stream decrypted bytes into a writable destination. Depending on the SDK, that destination might be a custom `Writer`, an in-memory buffer, or a file handle. This makes it easy to download small objects into memory or stream large objects directly to disk.
 
 ## Prerequisites
 
 Before proceeding, ensure you have:
 
   * A [connected and approved](./connect-to-an-indexer.md) SDK instance
-  * A `PinnedObject` returned from a [successful upload](./upload-an-object.md) or retrieved using a [share URL](./share-an-object.md)
+  * Either a pinned object from a [successful upload](./upload-an-object.md) or a share URL from the [sharing flow](./share-an-object.md)
 
-Once ready, you can download the object by providing a `Writer` implementation.
+Once ready, you can download the object into memory, into a file, or into another writable destination supported by your SDK.
 
 ## Example
 
@@ -421,74 +421,175 @@ Once ready, you can download the object by providing a `Writer` implementation.
 
 #### Download Options
 
-`DownloadOptions` allows you to control:
+Some SDKs expose download options for ranged or tuned downloads, such as:
 
-| Option         | Description                                      |
-| -------------- | ------------------------------------------------ |
-| `offset`       | Starting byte for the download (default: `0`)    |
-| `length`       | Number of bytes to read (default: entire object) |
-| `max_inflight` | Number of parallel host requests                 |
+* An `offset` to start partway through an object
+* A `length` to read only part of the object
+* Concurrency controls such as `max_inflight`
+
+Check your language binding for the exact option names that are available.
+
+#### Direct object downloads vs share URL downloads
+
+There are two common download flows:
+
+* **Direct object download** uses an object that already belongs to the connected app account.
+* **Share URL download** resolves a time-limited shared object and downloads it without needing the original app’s App Key.
+
+This quickstart page focuses on the share URL flow so it can build directly on the previous sharing example.
 
 #### Error Handling
 
-Common cases include:
+Common download failures include:
 
-* Network interruptions
-* Host timeouts
-* Cancelled downloads (if you call `download.cancel()`)
+* network interruptions
+* host timeouts
+* expired or invalid share URLs
+* application-level cancellation, when supported by the SDK
 
-All throw predictable `DownloadError` exceptions.
+Handle these errors by surfacing a clear retry path to the user and, when appropriate, resuming from the last successfully written byte range.
 
 ## Common Practices
 
 #### Resuming a download
 
-To resume, start from the number of bytes you already have and append into the same file:
+If you already have an object handle, resume by starting at the number of bytes you already have and appending into the same file:
 
-```python
-import os
-from indexd_ffi import Writer, DownloadOptions
+=== "Python"
+    ```python
+    import os
+    from indexd_ffi import Writer, DownloadOptions
 
-class BytesWriter(Writer):
-    def __init__(self, path: str, mode: str = "ab"):
-        self.f = open(path, mode)
+    class BytesWriter(Writer):
+        def __init__(self, path: str, mode: str = "ab"):
+            self.f = open(path, mode)
 
-    async def write(self, data: bytes) -> None:
-        if len(data) > 0:
-            self.f.write(data)
+        async def write(self, data: bytes) -> None:
+            if len(data) > 0:
+                self.f.write(data)
 
-    def close(self) -> None:
-        self.f.close()
+        def close(self) -> None:
+            self.f.close()
 
-resume_at = os.path.getsize("output.bin")
-writer = BytesWriter("output.bin", mode="ab")
+    resume_at = os.path.getsize("output.bin")
+    writer = BytesWriter("output.bin", mode="ab")
 
-await sdk.download(writer, obj, DownloadOptions(offset=resume_at))
-writer.close()
-```
+    await sdk.download(writer, obj, DownloadOptions(offset=resume_at))
+    writer.close()
+    ```
+
+=== "Rust"
+    ```rust
+    use indexd::DownloadOptions;
+
+    let resume_at = tokio::fs::metadata("output.bin").await?.len();
+    let mut out = tokio::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open("output.bin")
+        .await?;
+
+    let opts = DownloadOptions {
+        offset: resume_at,
+        length: obj.size() - resume_at,
+        ..Default::default()
+    };
+
+    sdk.download(&mut out, &obj, opts).await?;
+    ```
+
+=== "Go"
+    ```go
+    info, err := os.Stat("output.bin")
+    if err != nil {
+        return fmt.Errorf("stat output file: %w", err)
+    }
+    resumeAt := uint64(info.Size())
+
+    file, err := os.OpenFile("output.bin", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
+    if err != nil {
+        return fmt.Errorf("open output file: %w", err)
+    }
+    defer file.Close()
+
+    if err := client.Download(
+        ctx,
+        file,
+        obj,
+        sdk.WithDownloadRange(resumeAt, obj.Size()-resumeAt),
+    ); err != nil {
+        return fmt.Errorf("resume download: %w", err)
+    }
+    ```
+
+This pattern is especially useful for large files or unstable network connections. Measure how many bytes you already have, reopen the destination in append mode, and request only the remaining byte range.
 
 #### Download to a file
 
 Stream the decrypted bytes directly to disk:
 
-```python
-from indexd_ffi import Writer, DownloadOptions
+=== "Python"
+    ```python
+    from indexd_ffi import Writer, DownloadOptions
 
-class BytesWriter(Writer):
-    def __init__(self, path: str, mode: str = "wb"):
-        self.f = open(path, mode)
+    class BytesWriter(Writer):
+        def __init__(self, path: str, mode: str = "wb"):
+            self.f = open(path, mode)
 
-    async def write(self, data: bytes) -> None:
-        if len(data) > 0:
-            self.f.write(data)
+        async def write(self, data: bytes) -> None:
+            if len(data) > 0:
+                self.f.write(data)
 
-    def close(self) -> None:
-        self.f.close()
+        def close(self) -> None:
+            self.f.close()
 
-writer = BytesWriter("output.bin", mode="wb")
-await sdk.download(writer, obj, DownloadOptions())
-writer.close()
-```
+    writer = BytesWriter("output.bin", mode="wb")
+    await sdk.download(writer, obj, DownloadOptions())
+    writer.close()
+    ```
+
+=== "Rust"
+    ```rust
+    use indexd::DownloadOptions;
+    use tokio::fs::File;
+
+    // Stream the object directly to disk
+    let mut file = File::create("output.bin").await?;
+    sdk.download(&mut file, &obj, DownloadOptions::default()).await?;
+
+    // If you are downloading from a share URL instead, use the same file handle:
+    //
+    // let mut file = File::create("output.bin").await?;
+    // sdk.download_shared_object(&mut file, &share_url, DownloadOptions::default()).await?;
+    ```
+
+=== "Go"
+    ```go
+    file, err := os.Create("output.bin")
+    if err != nil {
+        return fmt.Errorf("create output file: %w", err)
+    }
+    defer file.Close()
+
+    // Stream the object directly to disk
+    if err := client.Download(ctx, file, obj); err != nil {
+        return fmt.Errorf("download object: %w", err)
+    }
+
+    // If you are downloading from a share URL instead, use the same file handle:
+    //
+    // file, err := os.Create("output.bin")
+    // if err != nil {
+    //     return fmt.Errorf("create output file: %w", err)
+    // }
+    // defer file.Close()
+    //
+    // if err := client.DownloadSharedObject(ctx, file, shareURL); err != nil {
+    //     return fmt.Errorf("download shared object: %w", err)
+    // }
+    ```
+
+This pattern is ideal for larger objects, since it avoids buffering the entire file in memory before writing it to disk.
 
 ## Next Step
 
