@@ -58,9 +58,6 @@ Once you have established a successful connection, you’re ready to upload your
         # IMPORTANT: required for UniFFI async trait callbacks (Reader/Writer/etc.)
         uniffi_set_event_loop(asyncio.get_running_loop())
 
-        # Create a builder to manage the connection flow
-        builder = Builder("https://app.sia.storage")
-
         # Configure your app identity details
         meta = AppMeta(
             id=b"your-32-byte-app-id.............",
@@ -71,13 +68,16 @@ Once you have established a successful connection, you’re ready to upload your
             callback_url=None
         )
 
+        # Create a builder to manage the connection flow
+        builder = Builder("https://app.sia.storage", meta)
+
         # Request app connection and get the approval URL
-        builder = await builder.request_connection(meta)
+        await builder.request_connection()
         print("Open this URL to approve the app:", builder.response_url())
 
         # Wait for the user to approve the request
         try:
-            builder = await builder.wait_for_approval()
+            await builder.wait_for_approval()
         except Exception as e:
             raise Exception("\nApp was not approved (rejected or request expired)") from e
 
@@ -93,7 +93,7 @@ Once you have established a successful connection, you’re ready to upload your
 
         # The App Key should be exported and stored securely for future launches, but we don't demonstrate storage here.
         app_key = sdk.app_key()
-        print("\nApp Key export (persist however your app prefers):", app_key.export())
+        print("\nStore this App Key in your app's secure storage:", app_key.export())
 
         print("\nApp Connected!")
 
@@ -113,7 +113,7 @@ Once you have established a successful connection, you’re ready to upload your
         obj = await sdk.upload(reader, upload_options)
 
         # Attach optional application metadata (encrypted before the indexer sees it).
-        # NOTE: update_metadata() requires a pinned object, so we set metadata before pinning.
+        # NOTE: update_object_metadata() requires a pinned object, so we set metadata before pinning.
         obj.update_metadata(json.dumps({"File Name": "example.txt"}).encode())
 
         # IMPORTANT: upload returns an object whose slabs are not yet pinned in the indexer.
@@ -122,7 +122,7 @@ Once you have established a successful connection, you’re ready to upload your
 
         sealed = obj.seal(app_key)
         print("\nObject Sealed:")
-        print(" - Sealed ID:", sealed.id)
+        print(" - Object ID:", sealed.id)
 
         print("\nUpload complete:")
         print(" - Size:", obj.size(), "bytes")
