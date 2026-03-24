@@ -47,9 +47,6 @@ The resulting App Key is a public/private key pair. The public key is registered
         # IMPORTANT: required for UniFFI async trait callbacks (Reader/Writer/etc.)
         uniffi_set_event_loop(asyncio.get_running_loop())
 
-        # Create a builder to manage the connection flow
-        builder = Builder("https://app.sia.storage")
-
         # Configure your app identity details
         meta = AppMeta(
             id=b"your-32-byte-app-id.............",
@@ -60,13 +57,16 @@ The resulting App Key is a public/private key pair. The public key is registered
             callback_url=None
         )
 
+        # Create a builder to manage the connection flow
+        builder = Builder("https://app.sia.storage", meta)
+
         # Request app connection and get the approval URL
-        builder = await builder.request_connection(meta)
+        await builder.request_connection()
         print("Open this URL to approve the app:", builder.response_url())
 
         # Wait for the user to approve the request
         try:
-            builder = await builder.wait_for_approval()
+            await builder.wait_for_approval()
         except Exception as e:
             raise Exception("\nApp was not approved (rejected or request expired)") from e
 
@@ -82,7 +82,7 @@ The resulting App Key is a public/private key pair. The public key is registered
 
         # The App Key should be exported and stored securely for future launches, but we don't demonstrate storage here.
         app_key = sdk.app_key()
-        print("\nApp Key export (persist however your app prefers):", app_key.export())
+        print("\nStore this App Key in your app's secure storage:", app_key.export())
 
         print("\nApp Connected!")
 

@@ -18,31 +18,16 @@ Once ready, you can download the object into memory, into a file, or into anothe
 === "Python"
     ```python
     import asyncio
-    import json
     from io import BytesIO
-    from datetime import datetime, timedelta, timezone
 
     from indexd_ffi import (
         generate_recovery_phrase,
         uniffi_set_event_loop,
         Builder,
         AppMeta,
-        UploadOptions,
         DownloadOptions,
-        Reader,
         Writer,
-        UploadProgressCallback,
     )
-
-    # Reader helper
-    class BytesReader(Reader):
-        def __init__(self, data: bytes, chunk_size: int = 65536):
-            self.buffer = BytesIO(data)
-            self.chunk_size = chunk_size
-
-        async def read(self) -> bytes:
-            # When the buffer is exhausted, this returns b"" (EOF).
-            return self.buffer.read(self.chunk_size)
 
     # Writer helper
     class BytesWriter(Writer):
@@ -56,21 +41,10 @@ Once ready, you can download the object into memory, into a file, or into anothe
         def get_data(self) -> bytes:
             return self.buffer.getvalue()
 
-    # Progress callback is optional and can be used to monitor the progress of the upload
-    class PrintProgress(UploadProgressCallback):
-        def progress(self, uploaded: int, encoded_size: int) -> None:
-            if encoded_size == 0:
-                print("Starting upload…")
-                return
-            percent = (uploaded / encoded_size) * 100
-            print(f"Upload progress: {percent:.1f}% ({uploaded}/{encoded_size} bytes)")
 
     async def main():
         # IMPORTANT: required for UniFFI async trait callbacks (Reader/Writer/etc.)
         uniffi_set_event_loop(asyncio.get_running_loop())
-
-        # Create a builder to manage the connection flow
-        builder = Builder("https://app.sia.storage")
 
         # Configure your app identity details
         meta = AppMeta(
@@ -79,21 +53,26 @@ Once ready, you can download the object into memory, into a file, or into anothe
             description="Demo application",
             service_url="https://example.com",
             logo_url=None,
-            callback_url=None
+            callback_url=None,
         )
 
+        # Create a builder to manage the connection flow
+        builder = Builder("https://app.sia.storage", meta)
+
         # Request app connection and get the approval URL
-        builder = await builder.request_connection(meta)
+        await builder.request_connection()
         print("Open this URL to approve the app:", builder.response_url())
 
         # Wait for the user to approve the request
         try:
-            builder = await builder.wait_for_approval()
+            await builder.wait_for_approval()
         except Exception as e:
             raise Exception("\nApp was not approved (rejected or request expired)") from e
 
         # Ask the user for their recovery phrase
-        recovery_phrase = input("\nEnter your recovery phrase (type `seed` to generate a new one): ").strip()
+        recovery_phrase = input(
+            "\nEnter your recovery phrase (type `seed` to generate a new one): "
+        ).strip()
 
         if recovery_phrase == "seed":
             recovery_phrase = generate_recovery_phrase()
@@ -102,74 +81,27 @@ Once ready, you can download the object into memory, into a file, or into anothe
         # Register an SDK instance with your recovery phrase.
         sdk = await builder.register(recovery_phrase)
 
-        # The App Key should be exported and stored securely for future launches, but we don't demonstrate storage here.
+        # The App Key should be exported and stored securely for future launches,
+        # but we don't demonstrate storage here.
         app_key = sdk.app_key()
-        print("\nApp Key export (persist however your app prefers):", app_key.export())
+        print("\nStore this App Key in your app's secure storage:", app_key.export())
 
         print("\nApp Connected!")
 
-        #-------------------------------------------------------
-        # UPLOAD AN OBJECT
-        #-------------------------------------------------------
-
-        # Configure Upload Options
-        upload_options = UploadOptions(
-            # Progress callback is optional and can be used to monitor the progress of the upload
-            progress_callback=PrintProgress()
-        )
-
-        # Upload the "Hello world!" data
-        print("\nStarting upload...")
-        reader = BytesReader(b"Hello world!")
-        obj = await sdk.upload(reader, upload_options)
-
-        # Attach optional application metadata (encrypted before the indexer sees it).
-        # NOTE: update_object_metadata() requires a pinned object, so we set metadata before pinning.
-        obj.update_metadata(json.dumps({"File Name": "example.txt"}).encode())
-
-        # IMPORTANT: upload returns an object whose slabs are not yet pinned in the indexer.
-        # Pinning persists the sealed object + pins its slabs (including the metadata set above).
-        await sdk.pin_object(obj)
-
-        sealed = obj.seal(app_key)
-        print("\nObject Sealed:")
-        print(" - Sealed ID:", sealed.id)
-
-        print("\nUpload complete:")
-        print(" - Size:", obj.size(), "bytes")
-
-        #-------------------------------------------------------
-        # SHARE AN OBJECT
-        #-------------------------------------------------------
-
-        # Share the object (valid for 1 hour)
-        expires = datetime.now(timezone.utc) + timedelta(hours=1)
-        share_url = sdk.share_object(obj, expires)
-        print("\nShare URL:", share_url)
-
-        #-------------------------------------------------------
+        # -------------------------------------------------------
         # DOWNLOAD AN OBJECT
-        #-------------------------------------------------------
+        # -------------------------------------------------------
 
-        # Download the object
-        #
-        #    If you are downloading from a shared URL, you will first have to resolve
-        #    the object from the share URL and download it like so.
-        """
+        share_url = input("\nEnter an indexer share URL to download: ").strip()
+
         shared_obj = await sdk.shared_object(share_url)
-        bWriter = BytesWriter()
-        await sdk.download(bWriter, shared_obj, DownloadOptions())
-        print("\nDownloaded via share!")
-        print(" - Contents:", bWriter.get_data().decode())
-        """
 
-        #    Or download the object directly like so.
-
-        bWriter = BytesWriter()
-        await sdk.download(bWriter, obj, DownloadOptions())
+        writer = BytesWriter()
+        await sdk.download(writer, shared_obj, DownloadOptions())
 
         print("\nObject downloaded!")
-        print(" - Contents:", bWriter.get_data().decode())
+        print(" - Contents:", writer.get_data().decode())
+
 
     asyncio.run(main())
     ```
