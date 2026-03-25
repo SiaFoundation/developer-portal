@@ -29,7 +29,7 @@ This enables familiar cloud-sharing workflows—while preserving Sia’s end-to-
 
 Before you begin, you should have:
 
-  * An [App key](./connect-to-an-indexer.md) returned from successfull connection to an Indexer.
+  * An [App key](./connect-to-an-indexer.md) returned from successful connection to an Indexer.
   * An [Object ID](./upload-an-object.md) returned from a successful upload.
 
 Once you have the object, you can generate a share URL and let another app or device resolve and download it.
