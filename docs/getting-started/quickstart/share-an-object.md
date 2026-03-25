@@ -289,7 +289,6 @@ Once you have the object, you can generate a share URL and let another app or de
 
     import (
         "bufio"
-        "bytes"
         "context"
         "encoding/hex"
         "fmt"
@@ -308,134 +307,75 @@ Once you have the object, you can generate a share URL and let another app or de
     // Example: openssl rand -hex 32
     const appIDHex = "0000000000000000000000000000000000000000000000000000000000000000"
 
-    func readLine(prompt string) (string, error) {
-        fmt.Print(prompt)
-        in := bufio.NewReader(os.Stdin)
-        s, err := in.ReadString('\n')
-        if err != nil {
-            return "", err
-        }
-        return strings.TrimSpace(s), nil
-    }
-
-    func generateRecoveryPhrase() string {
-        return sdk.NewSeedPhrase()
-    }
-
-    func mustHash256(s string) types.Hash256 {
-        b, err := hex.DecodeString(s)
-        if err != nil {
-            panic(fmt.Errorf("invalid app ID hex: %w", err))
-        }
-        if len(b) != 32 {
-            panic(fmt.Errorf("app ID must be 32 bytes, got %d", len(b)))
-        }
-
-        var h types.Hash256
-        copy(h[:], b)
-        return h
-    }
-
-    func main() {
-        if err := run(); err != nil {
+    // Parse the App ID once at startup.
+    var appID = func() (id types.Hash256) {
+        if err := id.UnmarshalText([]byte(appIDHex)); err != nil {
             panic(err)
         }
-    }
+        return
+    }()
 
-    func run() error {
+    func main() {
         ctx := context.Background()
 
-        // Create a builder to manage the connection flow
+        // Create a builder to manage SDK access.
         builder := sdk.NewBuilder(indexerURL, sdk.AppMetadata{
-            ID:          mustHash256(appIDHex),
+            ID:          appID,
             Name:        "My App",
             Description: "Demo application",
             ServiceURL:  "https://example.com",
-            LogoURL:     "",
-            CallbackURL: "",
         })
 
-        // Request app connection and get the approval URL
-        responseURL, err := builder.RequestConnection(ctx)
+        // Ask the user for the App Key printed by connect-to-an-indexer.
+        fmt.Print("Enter your App Key (hex): ")
+        appKeyHex, err := bufio.NewReader(os.Stdin).ReadString('\n')
         if err != nil {
-            return fmt.Errorf("request connection: %w", err)
+            panic(err)
         }
-        fmt.Println("Open this URL to approve the app:", responseURL)
+        appKeyHex = strings.TrimSpace(appKeyHex)
 
-        // Wait for the user to approve the request
-        approved, err := builder.WaitForApproval(ctx)
+        appKeySeed, err := hex.DecodeString(appKeyHex)
         if err != nil {
-            return fmt.Errorf("wait for approval: %w", err)
+            panic(err)
         }
-        if !approved {
-            return fmt.Errorf("app connection was rejected")
-        }
-
-        // Ask the user for their recovery phrase
-        recoveryPhrase, err := readLine("Enter your recovery phrase (type `seed` to generate a new one): ")
-        if err != nil {
-            return fmt.Errorf("read recovery phrase: %w", err)
+        if len(appKeySeed) != 32 {
+            panic("app key must be 32 bytes (64 hex chars)")
         }
 
-        if recoveryPhrase == "seed" {
-            recoveryPhrase = generateRecoveryPhrase()
-            fmt.Printf("\nRecovery phrase:\n%s\n\n", recoveryPhrase)
-        }
-
-        // Register an SDK instance with your recovery phrase
-        client, err := builder.Register(ctx, recoveryPhrase)
+        // Create an SDK instance with the stored App Key.
+        client, err := builder.SDK(types.NewPrivateKeyFromSeed(appKeySeed))
         if err != nil {
-            return fmt.Errorf("register app: %w", err)
+            panic(err)
         }
         defer client.Close()
 
-        // The App Key should be stored securely for future launches,
-        // but we do not demonstrate app key storage here.
-        _ = client.AppKey()
-
         fmt.Println("\nApp Connected!")
-
-        //-------------------------------------------------------
-        // UPLOAD AN OBJECT
-        //-------------------------------------------------------
-
-        // Upload "Hello world!" from an in-memory reader
-        reader := bytes.NewReader([]byte("Hello world!"))
-        fmt.Println("\nStarting upload...")
-
-        obj := sdk.NewEmptyObject()
-        if err := client.Upload(ctx, &obj, reader); err != nil {
-            return fmt.Errorf("upload object: %w", err)
-        }
-
-        // Attach optional metadata (encrypted with the object's master key)
-        obj.UpdateMetadata([]byte(`{"File Name":"example.txt"}`))
-
-        // Pin the object to the indexer (stores encrypted metadata + layout)
-        if err := client.PinObject(ctx, obj); err != nil {
-            return fmt.Errorf("pin object: %w", err)
-        }
-
-        sealed := obj.Seal(client.AppKey())
-        fmt.Println("\nObject Sealed:")
-        fmt.Println(" - Data signature:", sealed.DataSignature)
-
-        fmt.Println("\nUpload complete:")
-        fmt.Println(" - Object ID:", obj.ID())
-        fmt.Println(" - Size:", obj.Size(), "bytes")
 
         //-------------------------------------------------------
         // SHARE AN OBJECT
         //-------------------------------------------------------
 
-        expires := time.Now().UTC().Add(time.Hour)
-        shareURL, err := client.CreateSharedObjectURL(ctx, obj.ID(), expires)
+        // Ask the user for an object ID from the previously uploaded object.
+        fmt.Print("Enter the Object ID from the previously uploaded object: ")
+        objectIDText, err := bufio.NewReader(os.Stdin).ReadString('\n')
         if err != nil {
-            return fmt.Errorf("create share URL: %w", err)
+            panic(err)
         }
-        fmt.Println("\nShare URL:", shareURL)
+        objectIDText = strings.TrimSpace(objectIDText)
 
-        return nil
+        var objectID types.Hash256
+        if err := objectID.UnmarshalText([]byte(objectIDText)); err != nil {
+            panic(err)
+        }
+
+        // Create a share URL valid for 1 hour.
+        expires := time.Now().Add(time.Hour)
+        shareURL, err := client.CreateSharedObjectURL(ctx, objectID, expires)
+        if err != nil {
+            panic(err)
+        }
+
+        fmt.Println("\nShare URL:", shareURL)
     }
     ```
 === "Dart"
