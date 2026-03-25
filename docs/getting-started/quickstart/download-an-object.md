@@ -310,7 +310,7 @@ Common download failures include:
 * expired or invalid share URLs
 * application-level cancellation, when supported by the SDK
 
-Handle these errors by surfacing a clear retry path to the user and, when appropriate, resuming from the last successfuly written byte range.
+Handle these errors by surfacing a clear retry path to the user and, when appropriate, resuming from the last successfully written byte range.
 
 ## Common Practices
 
