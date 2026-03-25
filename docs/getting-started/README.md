@@ -70,10 +70,14 @@ The Sia SDK is available in multiple language-specific implementations. Follow t
     *🚧 Coming soon*
 === "Rust"
     ```shell
-    # Add the `sia_storage` crate to your Rust project
+    # Create a new project
+    cargo new sia-storage-example
+    cd sia-storage-example/
+
+    # Add the `sia_storage` crate to your project
     cargo add sia_storage
 
-    # The following crates are required for the Quickstart examples to run
+    # Add the additional crates required by Quickstart examples
     cargo add chrono rustls hex tokio
     ```
 === "Go"
