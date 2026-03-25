@@ -9,7 +9,7 @@ Downloads stream decrypted bytes into a writable destination. Depending on the S
 Before proceeding, ensure you have:
 
   * An [App key](./connect-to-an-indexer.md) returned from successful connection to an Indexer.
-  * A share URL returned from a [shared object](./share-an-object.md).
+  * A share URL returned from a [sharing an object](./share-an-object.md).
 
 Once ready, you can download the object into memory, into a file, or into another writable destination supported by your SDK.
 
