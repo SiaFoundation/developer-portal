@@ -361,30 +361,6 @@ If you already have an object handle, resume by starting at the number of bytes 
     sdk.download(&mut out, &obj, opts).await?;
     ```
 
-=== "Go"
-    ```go
-    info, err := os.Stat("output.bin")
-    if err != nil {
-        return fmt.Errorf("stat output file: %w", err)
-    }
-    resumeAt := uint64(info.Size())
-
-    file, err := os.OpenFile("output.bin", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
-    if err != nil {
-        return fmt.Errorf("open output file: %w", err)
-    }
-    defer file.Close()
-
-    if err := client.Download(
-        ctx,
-        file,
-        obj,
-        sdk.WithDownloadRange(resumeAt, obj.Size()-resumeAt),
-    ); err != nil {
-        return fmt.Errorf("resume download: %w", err)
-    }
-    ```
-
 This pattern is especially useful for large files or unstable network connections. Measure how many bytes you already have, reopen the destination in append mode, and request only the remaining byte range.
 
 #### Download to a file
@@ -424,32 +400,6 @@ Stream the decrypted bytes directly to disk:
     //
     // let mut file = File::create("output.bin").await?;
     // sdk.download_shared_object(&mut file, &share_url, DownloadOptions::default()).await?;
-    ```
-
-=== "Go"
-    ```go
-    file, err := os.Create("output.bin")
-    if err != nil {
-        return fmt.Errorf("create output file: %w", err)
-    }
-    defer file.Close()
-
-    // Stream the object directly to disk
-    if err := client.Download(ctx, file, obj); err != nil {
-        return fmt.Errorf("download object: %w", err)
-    }
-
-    // If you are downloading from a share URL instead, use the same file handle:
-    //
-    // file, err := os.Create("output.bin")
-    // if err != nil {
-    //     return fmt.Errorf("create output file: %w", err)
-    // }
-    // defer file.Close()
-    //
-    // if err := client.DownloadSharedObject(ctx, file, shareURL); err != nil {
-    //     return fmt.Errorf("download shared object: %w", err)
-    // }
     ```
 
 This pattern is ideal for larger objects, since it avoids buffering the entire file in memory before writing it to disk.

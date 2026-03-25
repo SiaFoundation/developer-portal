@@ -444,30 +444,6 @@ Stream directly from disk instead of loading the entire object into memory first
     sdk.pin_object(&obj).await?;
     ```
 
-=== "Go"
-    ```go
-    file, err := os.Open("example.txt")
-    if err != nil {
-        return fmt.Errorf("open file: %w", err)
-    }
-    defer file.Close()
-
-    obj := sdk.NewEmptyObject()
-
-    // Stream the file directly from disk
-    if err := client.Upload(ctx, &obj, file); err != nil {
-        return fmt.Errorf("upload object: %w", err)
-    }
-
-    // Attach optional metadata before pinning
-    obj.UpdateMetadata([]byte(`{"File Name":"example.txt"}`))
-
-    // Pin the object to the indexer
-    if err := client.PinObject(ctx, obj); err != nil {
-        return fmt.Errorf("pin object: %w", err)
-    }
-    ```
-
 For GUI apps or high-throughput workloads, you may prefer async file IO or reading in a background thread — but the same pattern applies: stream chunks from disk, attach metadata if needed, then pin the object.
 
 #### Custom metadata
