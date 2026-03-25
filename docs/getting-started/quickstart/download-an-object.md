@@ -8,8 +8,8 @@ Downloads stream decrypted bytes into a writable destination. Depending on the S
 
 Before proceeding, ensure you have:
 
-  * An [App key](./connect-to-an-indexer.md) returned from successfull connection to an Indexer.
-  * An share URL returned from a [shared object](./share-an-object.md).
+  * An [App key](./connect-to-an-indexer.md) returned from successful connection to an Indexer.
+  * A share URL returned from a [shared object](./share-an-object.md).
 
 Once ready, you can download the object into memory, into a file, or into another writable destination supported by your SDK.
 
@@ -310,7 +310,7 @@ Common download failures include:
 * expired or invalid share URLs
 * application-level cancellation, when supported by the SDK
 
-Handle these errors by surfacing a clear retry path to the user and, when appropriate, resuming from the last successfully written byte range.
+Handle these errors by surfacing a clear retry path to the user and, when appropriate, resuming from the last successfuly written byte range.
 
 ## Common Practices
 
