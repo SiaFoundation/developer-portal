@@ -65,7 +65,7 @@ Once you have the object, you can generate a share URL and let another app or de
         # Create a builder to manage the connection flow
         builder = Builder("https://app.sia.storage", meta)
 
-        # Ask the user for their App Key, exported from connect-to-an-indexer.py
+        # Ask the user for their App Key
         app_key_hex = input("\nEnter your App Key (hex): ").strip()
         app_key = AppKey(bytes.fromhex(app_key_hex))
 
