@@ -429,7 +429,7 @@ Stream directly from disk instead of loading the entire object into memory first
 
 === "Rust"
     ```rust
-    use indexd::UploadOptions;
+    use sia_storage::UploadOptions;
 
     let options = UploadOptions::default();
 
