@@ -120,7 +120,7 @@ Once you have the object, you can generate a share URL and let another app or de
 
     #[tokio::main(flavor = "multi_thread")]
     async fn main() -> Result<(), Box<dyn std::error::Error>> {
-        rustls::crypto::ring::default_provider()
+        rustls::crypto::aws_lc_rs::default_provider()
             .install_default()
             .expect("failed to install rustls crypto provider");
 
