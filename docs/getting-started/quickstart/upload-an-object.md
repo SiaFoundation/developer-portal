@@ -13,7 +13,7 @@ This means that even if some hosts go offline—or a malicious actor attempts to
 
 Before continuing, make sure you have:
 
-  * An [App key](./connect-to-an-indexer.md) returned from successful connection to an Indexer.
+  * An [App Key](./connect-to-an-indexer.md) returned from a successful connection to an indexer.
 
 Once you have established a successful connection, you’re ready to upload your first object.
 
