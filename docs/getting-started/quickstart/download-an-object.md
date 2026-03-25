@@ -57,7 +57,7 @@ Once ready, you can download the object into memory, into a file, or into anothe
         )
 
         # Create a builder to manage the connection flow
-        builder = Builder("https://indexd.skunk.ink", meta)
+        builder = Builder("https://app.sia.storage", meta)
 
         # Ask the user for their App Key, exported from connect-to-an-indexer.py
         app_key_hex = input("\nEnter your App Key (hex): ").strip()
