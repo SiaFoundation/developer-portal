@@ -343,7 +343,7 @@ If you already have an object handle, resume by starting at the number of bytes 
 
 === "Rust"
     ```rust
-    use indexd::DownloadOptions;
+    use sia_storage::DownloadOptions;
 
     let resume_at = tokio::fs::metadata("output.bin").await?.len();
     let mut out = tokio::fs::OpenOptions::new()
@@ -354,7 +354,7 @@ If you already have an object handle, resume by starting at the number of bytes 
 
     let opts = DownloadOptions {
         offset: resume_at,
-        length: obj.size() - resume_at,
+        length: None,
         ..Default::default()
     };
 
@@ -389,7 +389,7 @@ Stream the decrypted bytes directly to disk:
 
 === "Rust"
     ```rust
-    use indexd::DownloadOptions;
+    use sia_storage::DownloadOptions;
     use tokio::fs::File;
 
     // Stream the object directly to disk
@@ -398,8 +398,9 @@ Stream the decrypted bytes directly to disk:
 
     // If you are downloading from a share URL instead, use the same file handle:
     //
+    // let shared_obj = sdk.shared_object(share_url).await?;
     // let mut file = File::create("output.bin").await?;
-    // sdk.download_shared_object(&mut file, &share_url, DownloadOptions::default()).await?;
+    // sdk.download(&mut file, &shared_obj, DownloadOptions::default()).await?;
     ```
 
 This pattern is ideal for larger objects, since it avoids buffering the entire file in memory before writing it to disk.
