@@ -20,7 +20,7 @@ Once ready, you can download the object into memory, into a file, or into anothe
     import asyncio
     from io import BytesIO
 
-    from indexd_ffi import (
+    from sia_storage_ffi import (
         uniffi_set_event_loop,
         Builder,
         AppMeta,
@@ -321,7 +321,7 @@ If you already have an object handle, resume by starting at the number of bytes 
 === "Python"
     ```python
     import os
-    from indexd_ffi import Writer, DownloadOptions
+    from sia_storage_ffi import Writer, DownloadOptions
 
     class BytesWriter(Writer):
         def __init__(self, path: str, mode: str = "ab"):
@@ -369,7 +369,7 @@ Stream the decrypted bytes directly to disk:
 
 === "Python"
     ```python
-    from indexd_ffi import Writer, DownloadOptions
+    from sia_storage_ffi import Writer, DownloadOptions
 
     class BytesWriter(Writer):
         def __init__(self, path: str, mode: str = "wb"):
