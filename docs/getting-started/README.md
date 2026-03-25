@@ -40,9 +40,9 @@ The Sia SDK is available in multiple language-specific implementations. Follow t
         cd sia-sdk-rs
 
         # Build the libraries and move them to your projects root folder
-        cargo build --release -p indexd_ffi
-        cargo run -p indexd_ffi --bin uniffi-bindgen -- generate --library .\target\release\indexd_ffi.dll --language python --out-dir ../
-        mv target\release\indexd_ffi.dll ../
+        cargo build --release -p sia_storage_ffi
+        cargo run -p sia_storage_ffi --bin uniffi-bindgen -- generate --library .\target\release\sia_storage_ffi.dll --language python --out-dir ../
+        mv target\release\sia_storage_ffi.dll ../
         ```
     === "Linux"
         ```shell
@@ -51,9 +51,9 @@ The Sia SDK is available in multiple language-specific implementations. Follow t
         cd sia-sdk-rs
 
         # Build the libraries and move them to your projects root folder
-        cargo build --release -p indexd_ffi
-        cargo run -p indexd_ffi --bin uniffi-bindgen generate --library target/release/libindexd_ffi.so --language python --out-dir ../
-        mv target/release/libindexd_ffi.so ../
+        cargo build --release -p sia_storage_ffi
+        cargo run -p sia_storage_ffi --bin uniffi-bindgen generate --library target/release/libsia_storage_ffi.so --language python --out-dir ../
+        mv target/release/libsia_storage_ffi.so ../
         ```
     === "MacOS"
         ```shell
@@ -62,9 +62,9 @@ The Sia SDK is available in multiple language-specific implementations. Follow t
         cd sia-sdk-rs
 
         # Build the libraries and move them to your projects root folder
-        cargo build --release -p indexd_ffi
-        cargo run -p indexd_ffi --bin uniffi-bindgen generate --library target/release/libindexd_ffi.dylib --language python --out-dir ../
-        mv target/release/libindexd_ffi.dylib ../
+        cargo build --release -p sia_storage_ffi
+        cargo run -p sia_storage_ffi --bin uniffi-bindgen generate --library target/release/libsia_storage_ffi.dylib --language python --out-dir ../
+        mv target/release/libsia_storage_ffi.dylib ../
         ```
 === "JavaScript"
     *🚧 Coming soon*
