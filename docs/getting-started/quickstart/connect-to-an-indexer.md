@@ -199,96 +199,69 @@ The resulting App Key is a public/private key pair. The public key is registered
 
     // Replace this with your real 32-byte App ID (hex-encoded, 64 chars).
     // Generate this ONCE and keep it stable forever for your app.
-    // Example: openssl rand -hex 32
     const appIDHex = "0000000000000000000000000000000000000000000000000000000000000000"
 
-    func readLine(prompt string) (string, error) {
-        fmt.Print(prompt)
-        in := bufio.NewReader(os.Stdin)
-        s, err := in.ReadString('\n')
-        if err != nil {
-            return "", err
-        }
-        return strings.TrimSpace(s), nil
-    }
-
-    func generateRecoveryPhrase() string {
-        return sdk.NewSeedPhrase()
-    }
-
-    func mustHash256(s string) types.Hash256 {
-        b, err := hex.DecodeString(s)
-        if err != nil {
-            panic(fmt.Errorf("invalid app ID hex: %w", err))
-        }
-        if len(b) != 32 {
-            panic(fmt.Errorf("app ID must be 32 bytes, got %d", len(b)))
-        }
-
-        var h types.Hash256
-        copy(h[:], b)
-        return h
-    }
-
-    func main() {
-        if err := run(); err != nil {
+    // Parse the App ID once at startup.
+    var appID = func() (id types.Hash256) {
+        if err := id.UnmarshalText([]byte(appIDHex)); err != nil {
             panic(err)
         }
-    }
+        return
+    }()
 
-    func run() error {
+    func main() {
         ctx := context.Background()
 
-        // Create a builder to manage the connection flow
+        // Create a builder to manage the connection flow.
         builder := sdk.NewBuilder(indexerURL, sdk.AppMetadata{
-            ID:          mustHash256(appIDHex),
+            ID:          appID,
             Name:        "My App",
             Description: "Demo application",
             ServiceURL:  "https://example.com",
-            LogoURL:     "",
-            CallbackURL: "",
         })
 
-        // Request app connection and get the approval URL
+        // Request app connection and get the approval URL.
         responseURL, err := builder.RequestConnection(ctx)
         if err != nil {
-            return fmt.Errorf("request connection: %w", err)
+            panic(err)
         }
         fmt.Println("Open this URL to approve the app:", responseURL)
 
-        // Wait for the user to approve the request
+        // Wait for the user to approve the request.
         approved, err := builder.WaitForApproval(ctx)
         if err != nil {
-            return fmt.Errorf("wait for approval: %w", err)
+            panic(err)
         }
         if !approved {
-            return fmt.Errorf("app connection was rejected")
+            panic("app connection was rejected")
         }
 
-        // Ask the user for their recovery phrase
-        recoveryPhrase, err := readLine("Enter your recovery phrase (type `seed` to generate a new one): ")
+        // Ask the user for their recovery phrase.
+        fmt.Print("Enter your recovery phrase (type `seed` to generate a new one): ")
+        recoveryPhrase, err := bufio.NewReader(os.Stdin).ReadString('\n')
         if err != nil {
-            return fmt.Errorf("read recovery phrase: %w", err)
+            panic(err)
         }
+        recoveryPhrase = strings.TrimSpace(recoveryPhrase)
 
         if recoveryPhrase == "seed" {
-            recoveryPhrase = generateRecoveryPhrase()
+            recoveryPhrase = sdk.NewSeedPhrase()
             fmt.Printf("\nRecovery phrase:\n%s\n\n", recoveryPhrase)
         }
 
-        // Register an SDK instance with your recovery phrase
+        // Register an SDK instance with your recovery phrase.
         client, err := builder.Register(ctx, recoveryPhrase)
         if err != nil {
-            return fmt.Errorf("register app: %w", err)
+            panic(err)
         }
         defer client.Close()
 
         // The App Key should be stored securely for future launches,
         // but we do not demonstrate app key storage here.
-        _ = client.AppKey()
+        appKeyHex := hex.EncodeToString(client.AppKey()[:32])
 
         fmt.Println("\nApp Connected!")
-        return nil
+        fmt.Println("AppKey (save this securely):", appKeyHex)
     }
     ```
 === "Dart"
