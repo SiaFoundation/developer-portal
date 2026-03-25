@@ -12,7 +12,7 @@ Before your app can upload, download, or share data with Sia, it must first conn
 In order for your app to establish a connection to an indexer, you will need:
 
 * [**A valid indexer URL**](../README.md#indexer-url)
-* [**A 32-byte App ID**](../README.md#app-id)
+* [**A unique 32-byte App ID (Generated once and persists forever)**](../README.md#app-id)
 * [**The Sia SDK**](../README.md#sia-sdk)
 
 ## Authentication Requirements
@@ -20,7 +20,7 @@ In order for your app to establish a connection to an indexer, you will need:
 Each new instance of your app will require a unique App Key, which is deterministically derived from:
 
 * **A BIP-39 recovery phrase**
-* **Your 32-byte App ID**
+* [**A unique 32-byte App ID (Generated once and persists forever)**](../README.md#app-id)
 
 The resulting App Key is a public/private key pair. The public key is registered with the indexer during onboarding, while the private key should be stored securely by the app.
 
@@ -92,90 +92,60 @@ The resulting App Key is a public/private key pair. The public key is registered
     *🚧 Coming soon*
 === "Rust"
     ```rust
-    use indexd::{app_client::RegisterAppRequest, Builder};
-    use sia::seed::Seed;
-    use sia::types::Hash256;
+    use sia_storage::{app_id, generate_recovery_phrase, AppMetadata, Builder};
     use std::io::{self, Write};
-    use std::str::FromStr;
 
     const INDEXER_URL: &str = "https://app.sia.storage";
 
-    // Replace this with your real 32-byte App ID (hex-encoded, 64 chars).
-    // Generate once per app and keep it stable forever.
-
-    const APP_ID_HEX: &str = "0000000000000000000000000000000000000000000000000000000000000000";
-
-    fn read_line(prompt: &str) -> io::Result<String> {
-        print!("{prompt}");
-        io::stdout().flush()?;
-        let mut s = String::new();
-        io::stdin().read_line(&mut s)?;
-        Ok(s.trim().to_string())
-    }
-
-    fn generate_recovery_phrase() -> String {
-        let seed: [u8; 16] = rand::random();
-        Seed::from_seed(seed).to_string()
-    }
-
-    #[cfg(target_os = "android")]
-    fn tls_config() -> rustls::ClientConfig {
-        use rustls::RootCertStore;
-        let roots = RootCertStore::from_iter(webpki_roots::TLS_SERVER_ROOTS.to_vec());
-        rustls::ClientConfig::builder()
-            .with_root_certificates(roots)
-            .with_no_client_auth()
-    }
-
-    #[cfg(not(target_os = "android"))]
-    fn tls_config() -> rustls::ClientConfig {
-        use rustls_platform_verifier::ConfigVerifierExt; // adds with_platform_verifier()
-        rustls::ClientConfig::with_platform_verifier().expect("failed to create tls config")
-    }
+    const APP_META: AppMetadata = AppMetadata {
+        // Replace `app_id` with your real 32-byte App ID (hex-encoded, 64 chars).
+        // Generate this ONCE and keep it stable forever for your app.
+        id: app_id!("0000000000000000000000000000000000000000000000000000000000000000"),
+        name: "My App",
+        description: "Demo application",
+        service_url: "https://example.com",
+        logo_url: None,
+        callback_url: None,
+    };
 
     #[tokio::main(flavor = "multi_thread")]
     async fn main() -> Result<(), Box<dyn std::error::Error>> {
-        rustls::crypto::ring::default_provider().install_default().expect("failed to install rustls crypto provider");
+        rustls::crypto::ring::default_provider()
+            .install_default()
+            .expect("failed to install rustls crypto provider");
 
         // Create a builder to manage the connection flow
-        let builder = Builder::new(INDEXER_URL)?;
-
-        // Configure your app identity details
-        let app_id = Hash256::from_str(APP_ID_HEX)?;
-        let meta = RegisterAppRequest {
-            app_id,
-            name: "My App".to_string(),
-            description: "Demo application".to_string(),
-            service_url: indexd::Url::parse("https://example.com")?,
-            logo_url: None,
-            callback_url: None,
-        };
+        let builder = Builder::new(INDEXER_URL, APP_META)?;
 
         // Request app connection and get the approval URL
-        let builder = builder.request_connection(&meta).await?;
+        let builder = builder.request_connection().await?;
         println!("Open this URL to approve the app: {}", builder.response_url());
 
         // Wait for the user to approve the request
         let builder = builder.wait_for_approval().await?;
 
         // Ask the user for their recovery phrase
-        let mut recovery_phrase = read_line("Enter your recovery phrase (type `seed` to generate a new one): ")?;
+        print!("Enter your recovery phrase (type `seed` to generate a new one): ");
+        io::stdout().flush()?;
+        let mut recovery_phrase = String::new();
+        io::stdin().read_line(&mut recovery_phrase)?;
+        let mut recovery_phrase = recovery_phrase.trim().to_string();
+
         if recovery_phrase == "seed" {
             recovery_phrase = generate_recovery_phrase();
             println!("\nRecovery phrase:\n{recovery_phrase}\n");
         }
 
         // Register an SDK instance with your recovery phrase
-        let sdk = builder.register(&recovery_phrase, tls_config()).await?;
+        let sdk = builder.register(&recovery_phrase).await?;
 
         // Export the App Key seed (32 bytes) and store it securely for future launches
-        let app_key_seed = &sdk.app_key().as_ref()[..32];
-        println!(
-            "Store this App Key seed in your app's secure storage (hex): {}",
-            hex::encode(app_key_seed)
-        );
+        let mut app_key_seed = [0u8; 32];
+        app_key_seed.copy_from_slice(&sdk.app_key().as_ref()[..32]);
 
         println!("\nApp Connected!");
+        println!("App Key (hex): {}", hex::encode(app_key_seed));
+
         Ok(())
     }
     ```
@@ -282,7 +252,7 @@ After approval, the SDK can connect without user interaction using the stored ap
 
 During `request_connection`, you supply metadata that will be displayed during app approval:
 
-* `id` — Your 32-byte App ID
+* `id` — A 32-byte App ID (Generated once and persists forever)
 * `name` — Name of your application
 * `description` — Explains the purpose of your app
 * `service_url` — The URL representing your app

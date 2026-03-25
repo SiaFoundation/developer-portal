@@ -29,8 +29,8 @@ This enables familiar cloud-sharing workflows—while preserving Sia’s end-to-
 
 Before you begin, you should have:
 
-  * A [connected and approved](./connect-to-an-indexer.md) SDK instance
-  * An object returned from a [successful upload](./upload-an-object.md) and pinned to the indexer.
+  * An [App key](./connect-to-an-indexer.md) returned from successfull connection to an Indexer.
+  * An [Object ID](./upload-an-object.md) returned from a successful upload.
 
 Once you have the object, you can generate a share URL and let another app or device resolve and download it.
 
@@ -101,123 +101,75 @@ Once you have the object, you can generate a share URL and let another app or de
 === "Rust"
     ```rust
     use chrono::{Duration, Utc};
-    use indexd::{app_client::RegisterAppRequest, Builder, UploadOptions};
-    use sia::seed::Seed;
-    use sia::types::Hash256;
+    use sia_storage::{app_id, AppMetadata, Builder, Hash256, PrivateKey};
     use std::io::{self, Write};
     use std::str::FromStr;
 
     const INDEXER_URL: &str = "https://app.sia.storage";
 
-    // Replace this with your real 32-byte App ID (hex-encoded, 64 chars).
-    // Generate once per app and keep it stable forever.
-
-    const APP_ID_HEX: &str = "0000000000000000000000000000000000000000000000000000000000000000";
-
-    fn read_line(prompt: &str) -> io::Result<String> {
-        print!("{prompt}");
-        io::stdout().flush()?;
-        let mut s = String::new();
-        io::stdin().read_line(&mut s)?;
-        Ok(s.trim().to_string())
-    }
-
-    fn generate_recovery_phrase() -> String {
-        let seed: [u8; 16] = rand::random();
-        Seed::from_seed(seed).to_string()
-    }
-
-    #[cfg(target_os = "android")]
-    fn tls_config() -> rustls::ClientConfig {
-        use rustls::RootCertStore;
-        let roots = RootCertStore::from_iter(webpki_roots::TLS_SERVER_ROOTS.to_vec());
-        rustls::ClientConfig::builder()
-            .with_root_certificates(roots)
-            .with_no_client_auth()
-    }
-
-    #[cfg(not(target_os = "android"))]
-    fn tls_config() -> rustls::ClientConfig {
-        use rustls_platform_verifier::ConfigVerifierExt; // adds with_platform_verifier()
-        rustls::ClientConfig::with_platform_verifier().expect("failed to create tls config")
-    }
+    const APP_META: AppMetadata = AppMetadata {
+        // Replace `app_id` with your real 32-byte App ID (hex-encoded, 64 chars).
+        // Generate this ONCE and keep it stable forever for your app.
+        id: app_id!("0000000000000000000000000000000000000000000000000000000000000000"),
+        name: "My App",
+        description: "Demo application",
+        service_url: "https://example.com",
+        logo_url: None,
+        callback_url: None,
+    };
 
     #[tokio::main(flavor = "multi_thread")]
     async fn main() -> Result<(), Box<dyn std::error::Error>> {
-        rustls::crypto::ring::default_provider().install_default().expect("failed to install rustls crypto provider");
+        rustls::crypto::ring::default_provider()
+            .install_default()
+            .expect("failed to install rustls crypto provider");
 
-        // Create a builder to manage the connection flow
-        let builder = Builder::new(INDEXER_URL)?;
+        // Create a builder that can reconnect using an existing App Key
+        let builder = Builder::new(INDEXER_URL, APP_META)?;
 
-        // Configure your app identity details
-        let app_id = Hash256::from_str(APP_ID_HEX)?;
-        let meta = RegisterAppRequest {
-            app_id,
-            name: "My App".to_string(),
-            description: "Demo application".to_string(),
-            service_url: indexd::Url::parse("https://example.com")?,
-            logo_url: None,
-            callback_url: None,
+        // Ask the user for their App Key
+        print!("Enter your App Key (hex): ");
+        io::stdout().flush()?;
+        let mut app_key_hex = String::new();
+        io::stdin().read_line(&mut app_key_hex)?;
+        let app_key_hex = app_key_hex.trim();
+
+        let mut seed = [0u8; 32];
+        hex::decode_to_slice(app_key_hex, &mut seed)?;
+        let app_key = PrivateKey::from_seed(&seed);
+
+        // Reconnect using the App Key
+        let sdk = match builder.connected(&app_key).await? {
+            Some(sdk) => sdk,
+            None => {
+                return Err(io::Error::new(
+                    io::ErrorKind::PermissionDenied,
+                    "invalid App Key",
+                )
+                .into())
+            }
         };
 
-        // Request app connection and get the approval URL
-        let builder = builder.request_connection(&meta).await?;
-        println!("Open this URL to approve the app: {}", builder.response_url());
-
-        // Wait for the user to approve the request
-        let builder = builder.wait_for_approval().await?;
-
-        // Ask the user for their recovery phrase
-        let mut recovery_phrase = read_line("Enter your recovery phrase (type `seed` to generate a new one): ")?;
-        if recovery_phrase == "seed" {
-            recovery_phrase = generate_recovery_phrase();
-            println!("\nRecovery phrase:\n{recovery_phrase}\n");
-        }
-
-        // Register an SDK instance with your recovery phrase
-        let sdk = builder.register(&recovery_phrase, tls_config()).await?;
-
-        // Export the App Key seed (32 bytes) and store it securely for future launches
-        let app_key_seed = &sdk.app_key().as_ref()[..32];
-        println!(
-            "Store this App Key seed in your app's secure storage (hex): {}",
-            hex::encode(app_key_seed)
-        );
-
         println!("\nApp Connected!");
-
-        //-------------------------------------------------------
-        // UPLOAD AN OBJECT
-        //-------------------------------------------------------
-
-        let options = UploadOptions::default();
-
-        // Upload "Hello world!" from an in-memory reader
-        let reader = std::io::Cursor::new(b"Hello world!".to_vec());
-        println!("\nStarting upload...");
-        let mut obj = sdk.upload(reader, options).await?;
-
-        // Attach optional metadata (encrypted with the object's master key)
-        obj.metadata = br#"{"File Name":"example.txt"}"#.to_vec();
-
-        // Pin the object to the indexer (stores encrypted metadata + layout)
-        sdk.pin_object(&obj).await?;
-
-        let sealed = obj.seal(sdk.app_key());
-        println!("\nObject Sealed:");
-        println!(" - Object ID: {}", sealed.id());
-        println!(" - Data signature: {}", sealed.data_signature);
-
-        println!("\nUpload complete:");
-        println!(" - Object ID: {}", obj.id());
-        println!(" - Size: {} bytes", obj.size());
 
         //-------------------------------------------------------
         // SHARE AN OBJECT
         //-------------------------------------------------------
 
+        // Ask the user for the Object ID to share
+        print!("Enter the Object ID to share: ");
+        io::stdout().flush()?;
+        let mut object_id = String::new();
+        io::stdin().read_line(&mut object_id)?;
+        let object_id = Hash256::from_str(object_id.trim())?;
+
+        // Look up the object from the indexer
+        let obj = sdk.object(&object_id).await?;
+
+        // Generate a share URL that expires in 1 hour
         let expires = Utc::now() + Duration::hours(1);
         let share_url = sdk.share_object(&obj, expires)?;
+
         println!("\nShare URL: {share_url}");
 
         Ok(())

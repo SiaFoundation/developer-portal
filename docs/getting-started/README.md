@@ -70,8 +70,11 @@ The Sia SDK is available in multiple language-specific implementations. Follow t
     *🚧 Coming soon*
 === "Rust"
     ```shell
-    # Add `indexd` and `sia_sdk` crates to your Rust project
-    cargo add indexd sia_sdk
+    # Add the `sia_storage` crate to your Rust project
+    cargo add sia_storage
+
+    # The following crates are required for the Quickstart examples to run
+    cargo add chrono rustls hex tokio
     ```
 === "Go"
     ```shell
