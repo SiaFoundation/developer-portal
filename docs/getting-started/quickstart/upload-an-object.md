@@ -25,7 +25,7 @@ Once you have established a successful connection, you’re ready to upload your
     import json
     from io import BytesIO
 
-    from indexd_ffi import (
+    from sia_storage_ffi import (
         uniffi_set_event_loop,
         Builder,
         AppMeta,
@@ -408,7 +408,7 @@ Stream directly from disk instead of loading the entire object into memory first
 === "Python"
     ```python
     import json
-    from indexd_ffi import Reader
+    from sia_storage_ffi import Reader
 
     class BytesReader(Reader):
         def __init__(self, path: str, chunk_size: int = 65536):
