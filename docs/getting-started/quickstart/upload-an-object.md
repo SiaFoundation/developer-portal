@@ -26,10 +26,10 @@ Once you have established a successful connection, you’re ready to upload your
     from io import BytesIO
 
     from indexd_ffi import (
-        generate_recovery_phrase,
         uniffi_set_event_loop,
         Builder,
         AppMeta,
+        AppKey,
         UploadOptions,
         Reader,
         UploadProgressCallback,
@@ -71,29 +71,17 @@ Once you have established a successful connection, you’re ready to upload your
         # Create a builder to manage the connection flow
         builder = Builder("https://app.sia.storage", meta)
 
-        # Request app connection and get the approval URL
-        await builder.request_connection()
-        print("Open this URL to approve the app:", builder.response_url())
+        # Ask the user for their App Key, exported from connect-to-an-indexer.py
+        app_key_hex = input("\nEnter your App Key (hex): ").strip()
+        app_key = AppKey(bytes.fromhex(app_key_hex))
 
-        # Wait for the user to approve the request
-        try:
-            await builder.wait_for_approval()
-        except Exception as e:
-            raise Exception("\nApp was not approved (rejected or request expired)") from e
-
-        # Ask the user for their recovery phrase
-        recovery_phrase = input("\nEnter your recovery phrase (type `seed` to generate a new one): ").strip()
-
-        if recovery_phrase == "seed":
-            recovery_phrase = generate_recovery_phrase()
-            print("\nRecovery phrase:", recovery_phrase)
-
-        # Register an SDK instance with your recovery phrase.
-        sdk = await builder.register(recovery_phrase)
-
-        # The App Key should be exported and stored securely for future launches, but we don't demonstrate storage here.
-        app_key = sdk.app_key()
-        print("\nStore this App Key in your app's secure storage:", app_key.export())
+        # Connect using the existing App Key
+        sdk = await builder.connected(app_key)
+        if sdk is None:
+            raise Exception(
+                "\nApp Key is not connected to this app on this indexer."
+                "\nRun connect-to-an-indexer.py first to approve and register the app."
+            )
 
         print("\nApp Connected!")
 
@@ -113,7 +101,7 @@ Once you have established a successful connection, you’re ready to upload your
         obj = await sdk.upload(reader, upload_options)
 
         # Attach optional application metadata (encrypted before the indexer sees it).
-        # NOTE: update_object_metadata() requires a pinned object, so we set metadata before pinning.
+        # This updates the local object before pinning persists it to the indexer.
         obj.update_metadata(json.dumps({"File Name": "example.txt"}).encode())
 
         # IMPORTANT: upload returns an object whose slabs are not yet pinned in the indexer.
@@ -121,11 +109,10 @@ Once you have established a successful connection, you’re ready to upload your
         await sdk.pin_object(obj)
 
         sealed = obj.seal(app_key)
-        print("\nObject Sealed:")
-        print(" - Object ID:", sealed.id)
 
         print("\nUpload complete:")
         print(" - Size:", obj.size(), "bytes")
+        print(" - Object ID:", sealed.id)
 
     asyncio.run(main())
     ```

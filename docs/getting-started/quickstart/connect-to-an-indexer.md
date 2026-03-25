@@ -82,7 +82,7 @@ The resulting App Key is a public/private key pair. The public key is registered
 
         # The App Key should be exported and stored securely for future launches, but we don't demonstrate storage here.
         app_key = sdk.app_key()
-        print("\nStore this App Key in your app's secure storage:", app_key.export())
+        print("\nStore this App Key in your app's secure storage:", app_key.export().hex())
 
         print("\nApp Connected!")
 
