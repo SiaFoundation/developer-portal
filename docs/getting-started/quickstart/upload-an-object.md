@@ -359,6 +359,19 @@ Upload packing is most useful when your app needs to store **many small files**,
 
     elapsed = datetime.now(timezone.utc) - start
     print(f"\nPacked upload finished {len(objects)} objects in {elapsed}")
+    ```
+=== "JavaScript"
+    *🚧 Coming soon*
+=== "Rust"
+    *🚧 Coming soon*
+=== "Go"
+    *🚧 Coming soon*
+=== "Dart"
+    *🚧 Coming soon*
+=== "Swift"
+    *🚧 Coming soon*
+=== "Kotlin"
+    *🚧 Coming soon*
 
     # Each returned object can still be managed individually.
     # Here we attach encrypted metadata and pin each object so it is
@@ -430,7 +443,8 @@ Stream directly from disk instead of loading the entire object into memory first
     obj.update_metadata(json.dumps({"File Name": "example.txt"}).encode())
     await sdk.pin_object(obj)
     ```
-
+=== "JavaScript"
+    *🚧 Coming soon*
 === "Rust"
     ```rust
     use sia_storage::UploadOptions;
@@ -447,6 +461,14 @@ Stream directly from disk instead of loading the entire object into memory first
     // Pin the object to the indexer
     sdk.pin_object(&obj).await?;
     ```
+=== "Go"
+    *🚧 Coming soon*
+=== "Dart"
+    *🚧 Coming soon*
+=== "Swift"
+    *🚧 Coming soon*
+=== "Kotlin"
+    *🚧 Coming soon*
 
 For GUI apps or high-throughput workloads, you may prefer async file IO or reading in a background thread — but the same pattern applies: stream chunks from disk, attach metadata if needed, then pin the object.
 
