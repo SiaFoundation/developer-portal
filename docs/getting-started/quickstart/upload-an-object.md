@@ -108,8 +108,6 @@ Once you have established a successful connection, you’re ready to upload your
         # Pinning persists the sealed object + pins its slabs (including the metadata set above).
         await sdk.pin_object(obj)
 
-        sealed = obj.seal(app_key)
-
         print("\nUpload complete:")
         print(" - Size:", obj.size(), "bytes")
         print(" - Object ID:", sealed.id)
@@ -302,6 +300,8 @@ In this quickstart flow, **upload and pin are separate steps**:
 
 * **Upload** sends shards to storage providers and builds the object’s layout.
 * **Pinning** (`await sdk.pin_object(obj)`) persists the sealed object record in the indexer and pins the underlying slabs so the object becomes listable/syncable and eligible for repair.
+
+The Object ID comes from the object’s slab layout, so you can read it directly with obj.id() after upload. Sealing is only needed when you want a sealed object for offline storage or manual transport; `sdk.pin_object(...)` handles sealing internally.
 
 Metadata is **application-defined** and **encrypted**. In this guide, metadata is attached to the object before the pin step so the pinned record includes it.
 
