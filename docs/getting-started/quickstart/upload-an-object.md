@@ -319,12 +319,11 @@ Upload packing is most useful when your app needs to store **many small files**,
 
 === "Python"
     ```python    
+    from datetime import datetime, timezone
+
     #-------------------------------------------------------
     # PACKED UPLOADS
     #-------------------------------------------------------
-
-    from indexd_ffi import Writer
-    from datetime import datetime, timezone, timedelta
 
     # Packed uploads are useful when your app needs to store
     # many small objects efficiently.
@@ -352,8 +351,13 @@ Upload packing is most useful when your app needs to store **many small files**,
 
     # Finalize the packed upload and get back one object handle per item added.
     objects = await packed.finalize()
-    elapsed = datetime.now(timezone.utc) - start
 
+    # Each returned object still needs to be pinned to persist it in the indexer.
+    for i, obj in enumerate(objects, start=1):
+        obj.update_metadata(f'{{"File Name":"packed-{i}.txt"}}'.encode())
+        await sdk.pin_object(obj)
+
+    elapsed = datetime.now(timezone.utc) - start
     print(f"\nPacked upload finished {len(objects)} objects in {elapsed}")
 
     # Each returned object can still be managed individually.
