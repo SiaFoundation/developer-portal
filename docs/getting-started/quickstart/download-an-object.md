@@ -341,6 +341,9 @@ If you already have an object handle, resume by starting at the number of bytes 
     writer.close()
     ```
 
+=== "JavaScript"
+    *🚧 Coming soon*
+
 === "Rust"
     ```rust
     use sia_storage::DownloadOptions;
@@ -360,6 +363,14 @@ If you already have an object handle, resume by starting at the number of bytes 
 
     sdk.download(&mut out, &obj, opts).await?;
     ```
+=== "Go"
+    *🚧 Coming soon*
+=== "Dart"
+    *🚧 Coming soon*
+=== "Swift"
+    *🚧 Coming soon*
+=== "Kotlin"
+    *🚧 Coming soon*
 
 This pattern is especially useful for large files or unstable network connections. Measure how many bytes you already have, reopen the destination in append mode, and request only the remaining byte range.
 
@@ -387,6 +398,9 @@ Stream the decrypted bytes directly to disk:
     writer.close()
     ```
 
+=== "JavaScript"
+    *🚧 Coming soon*
+
 === "Rust"
     ```rust
     use sia_storage::DownloadOptions;
@@ -402,6 +416,15 @@ Stream the decrypted bytes directly to disk:
     // let mut file = File::create("output.bin").await?;
     // sdk.download(&mut file, &shared_obj, DownloadOptions::default()).await?;
     ```
+=== "Go"
+    *🚧 Coming soon*
+=== "Dart"
+    *🚧 Coming soon*
+=== "Swift"
+    *🚧 Coming soon*
+=== "Kotlin"
+    *🚧 Coming soon*
+    
 
 This pattern is ideal for larger objects, since it avoids buffering the entire file in memory before writing it to disk.
 
