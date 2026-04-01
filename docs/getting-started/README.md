@@ -77,8 +77,10 @@ The Sia SDK is available in multiple language-specific implementations. Follow t
     # Add the `sia_storage` crate to your project
     cargo add sia_storage
 
-    # Add the additional crates required by Quickstart examples
-    cargo add chrono rustls hex tokio
+    # Add supporting crates used across the Quickstart examples.
+    # Not every example uses every crate listed below.
+    cargo add chrono rustls hex
+    cargo add tokio --features macros,rt-multi-thread,io-util,fs
     ```
 === "Go"
     ```shell
