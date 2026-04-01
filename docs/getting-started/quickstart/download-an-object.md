@@ -158,7 +158,8 @@ Once ready, you can download the object into memory, into a file, or into anothe
         // Look up the shared object from the share URL
         let shared_obj = sdk.shared_object(share_url).await?;
 
-        // Download the shared object into memory
+        // Use an in-memory duplex stream so we can download into memory
+        // without writing a temporary file to disk.
         let (mut writer, mut reader) = tokio::io::duplex(64 * 1024);
 
         let download_fut = async {
