@@ -36,7 +36,7 @@ The resulting App Key is a public/private key pair. The public key is registered
     ```python
     import asyncio
 
-    from sia_storage_ffi import (
+    from sia_storage import (
         generate_recovery_phrase,
         Builder,
         AppMeta,
