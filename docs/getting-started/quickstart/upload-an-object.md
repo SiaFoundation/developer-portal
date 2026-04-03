@@ -99,8 +99,6 @@ Once you have established a successful connection, you’re ready to upload your
 
     asyncio.run(main())
     ```
-=== "JavaScript"
-    *🚧 Coming soon*
 === "Rust"
     ```rust
     use sia_storage::{app_id, AppMetadata, Builder, PrivateKey, UploadOptions};
@@ -265,12 +263,6 @@ Once you have established a successful connection, you’re ready to upload your
         fmt.Println(" - Object ID:", obj.ID())
     }
     ```
-=== "Dart"
-    *🚧 Coming soon*
-=== "Swift"
-    *🚧 Coming soon*
-=== "Kotlin"
-    *🚧 Coming soon*
 
 ## Deep Dive
 #### Objects & Metadata
@@ -341,8 +333,6 @@ Upload packing is most useful when your app needs to store **many small files**,
     for i, obj in enumerate(objects, start=1):
         print(f" - Object {i} ID: {obj.id()}")
     ```
-=== "JavaScript"
-    *🚧 Coming soon*
 === "Rust"
     ```
     //-------------------------------------------------------
@@ -450,12 +440,6 @@ Upload packing is most useful when your app needs to store **many small files**,
 		fmt.Printf(" - Object %d ID: %s\n", i+1, obj.ID())
 	}
     ```
-=== "Dart"
-    *🚧 Coming soon*
-=== "Swift"
-    *🚧 Coming soon*
-=== "Kotlin"
-    *🚧 Coming soon*
 
     # Each returned object can still be managed individually.
     # Here we attach encrypted metadata and pin each object so it is
@@ -525,8 +509,6 @@ Stream directly from disk instead of loading the entire object into memory first
     # This stores the sealed object record and pins its slabs, including the metadata set above.
     await sdk.pin_object(obj)
     ```
-=== "JavaScript"
-    *🚧 Coming soon*
 === "Rust"
     ```rust
     use sia_storage::UploadOptions;
@@ -579,12 +561,6 @@ Stream directly from disk instead of loading the entire object into memory first
 	fmt.Println(" - Size:", obj.Size(), "bytes")
 	fmt.Println(" - Object ID:", obj.ID())
     ```
-=== "Dart"
-    *🚧 Coming soon*
-=== "Swift"
-    *🚧 Coming soon*
-=== "Kotlin"
-    *🚧 Coming soon*
 
 For GUI apps or high-throughput workloads, you may prefer async file IO or reading in a background thread — but the same pattern applies: stream chunks from disk, attach metadata if needed, then pin the object.
 

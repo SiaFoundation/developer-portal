@@ -84,8 +84,6 @@ The resulting App Key is a public/private key pair. The public key is registered
 
     asyncio.run(main())
     ```
-=== "JavaScript"
-    *🚧 Coming soon*
 === "Rust"
     ```rust
     use sia_storage::{app_id, generate_recovery_phrase, AppMetadata, Builder};
@@ -226,12 +224,6 @@ The resulting App Key is a public/private key pair. The public key is registered
         fmt.Println("AppKey (save this securely):", appKeyHex)
     }
     ```
-=== "Dart"
-    *🚧 Coming soon*
-=== "Swift"
-    *🚧 Coming soon*
-=== "Kotlin"
-    *🚧 Coming soon*
 
 ## Deep Dive
 #### Why approval is required

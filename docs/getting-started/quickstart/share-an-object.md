@@ -92,8 +92,6 @@ Once you have the object, you can generate a share URL and let another app or de
 
     asyncio.run(main())
     ```
-=== "JavaScript"
-    *🚧 Coming soon*
 === "Rust"
     ```rust
     use chrono::{Duration, Utc};
@@ -263,12 +261,6 @@ Once you have the object, you can generate a share URL and let another app or de
         fmt.Println("\nShare URL:", shareURL)
     }
     ```
-=== "Dart"
-    *🚧 Coming soon*
-=== "Swift"
-    *🚧 Coming soon*
-=== "Kotlin"
-    *🚧 Coming soon*
 
 ## Deep Dive
 

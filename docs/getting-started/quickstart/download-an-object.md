@@ -71,8 +71,6 @@ Once ready, you can download the object into memory, into a file, or into anothe
 
     asyncio.run(main())
     ```
-=== "JavaScript"
-    *🚧 Coming soon*
 === "Rust"
     ```rust
     use sia_storage::{app_id, AppMetadata, Builder, DownloadOptions, PrivateKey};
@@ -252,13 +250,7 @@ Once ready, you can download the object into memory, into a file, or into anothe
         fmt.Println(" - Contents:", buf.String())
     }
     ```
-=== "Dart"
-    *🚧 Coming soon*
-=== "Swift"
-    *🚧 Coming soon*
-=== "Kotlin"
-    *🚧 Coming soon*
-
+    
 ## Deep Dive
 
 #### Download Options
@@ -316,10 +308,6 @@ If you already have an object handle, resume by starting at the number of bytes 
     print(" - Saved to:", output_path)
     print(" - Resumed from byte:", resume_at)
     ```
-
-=== "JavaScript"
-    *🚧 Coming soon*
-
 === "Rust"
     ```rust
     use sia_storage::DownloadOptions;
@@ -402,12 +390,6 @@ If you already have an object handle, resume by starting at the number of bytes 
 	fmt.Println(" - Saved to:", outputPath)
 	fmt.Println(" - Resumed from byte:", resumeAt)
     ```
-=== "Dart"
-    *🚧 Coming soon*
-=== "Swift"
-    *🚧 Coming soon*
-=== "Kotlin"
-    *🚧 Coming soon*
 
 This pattern is especially useful for large files or unstable network connections. Measure how many bytes you already have, reopen the destination in append mode, and request only the remaining byte range.
 
@@ -428,10 +410,6 @@ Stream the decrypted bytes directly to disk:
     print("\nObject downloaded!")
     print(" - Saved to: output.bin")
     ```
-
-=== "JavaScript"
-    *🚧 Coming soon*
-
 === "Rust"
     ```rust
     use sia_storage::DownloadOptions;
@@ -470,14 +448,7 @@ Stream the decrypted bytes directly to disk:
 
 	fmt.Println("\nObject downloaded!")
 	fmt.Println(" - Saved to: output.bin")
-    ```
-=== "Dart"
-    *🚧 Coming soon*
-=== "Swift"
-    *🚧 Coming soon*
-=== "Kotlin"
-    *🚧 Coming soon*
-    
+    ```    
 
 This pattern is ideal for larger objects, since it avoids buffering the entire file in memory before writing it to disk.
 
