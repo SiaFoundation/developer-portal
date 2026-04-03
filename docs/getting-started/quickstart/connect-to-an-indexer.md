@@ -38,15 +38,11 @@ The resulting App Key is a public/private key pair. The public key is registered
 
     from sia_storage_ffi import (
         generate_recovery_phrase,
-        uniffi_set_event_loop,
         Builder,
         AppMeta,
     )
 
     async def main():
-        # IMPORTANT: required for UniFFI async trait callbacks (Reader/Writer/etc.)
-        uniffi_set_event_loop(asyncio.get_running_loop())
-
         # Configure your app identity details
         meta = AppMeta(
             id=b"your-32-byte-app-id.............",

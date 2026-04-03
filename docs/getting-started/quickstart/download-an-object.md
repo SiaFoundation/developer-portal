@@ -21,7 +21,6 @@ Once ready, you can download the object into memory, into a file, or into anothe
     from io import BytesIO
 
     from sia_storage_ffi import (
-        uniffi_set_event_loop,
         Builder,
         AppMeta,
         AppKey,
@@ -43,9 +42,6 @@ Once ready, you can download the object into memory, into a file, or into anothe
 
 
     async def main():
-        # IMPORTANT: required for UniFFI async trait callbacks (Reader/Writer/etc.)
-        uniffi_set_event_loop(asyncio.get_running_loop())
-
         # Configure your app identity details
         meta = AppMeta(
             id=b"your-32-byte-app-id.............",
