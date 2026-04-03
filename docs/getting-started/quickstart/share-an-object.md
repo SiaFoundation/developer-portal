@@ -42,16 +42,12 @@ Once you have the object, you can generate a share URL and let another app or de
     from datetime import datetime, timedelta, timezone
 
     from sia_storage_ffi import (
-        uniffi_set_event_loop,
         Builder,
         AppMeta,
         AppKey,
     )
 
     async def main():
-        # IMPORTANT: required for UniFFI async trait callbacks
-        uniffi_set_event_loop(asyncio.get_running_loop())
-
         # Configure your app identity details
         meta = AppMeta(
             id=b"your-32-byte-app-id.............",

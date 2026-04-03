@@ -26,7 +26,6 @@ Once you have established a successful connection, you’re ready to upload your
     from io import BytesIO
 
     from sia_storage_ffi import (
-        uniffi_set_event_loop,
         Builder,
         AppMeta,
         AppKey,
@@ -55,9 +54,6 @@ Once you have established a successful connection, you’re ready to upload your
             print(f"Upload progress: {percent:.1f}% ({uploaded}/{encoded_size} bytes)")
 
     async def main():
-        # IMPORTANT: required for UniFFI async trait callbacks (Reader/Writer/etc.)
-        uniffi_set_event_loop(asyncio.get_running_loop())
-
         # Configure your app identity details
         meta = AppMeta(
             id=b"your-32-byte-app-id.............",
