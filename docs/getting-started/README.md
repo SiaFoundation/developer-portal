@@ -34,37 +34,22 @@ The Sia SDK is available in multiple language-specific implementations. Follow t
 
 === "Python"
     === "Windows"
-        ```powershell
-        # Clone the Sia SDK repo
-        git clone https://github.com/SiaFoundation/sia-sdk-rs
-        cd sia-sdk-rs
-
-        # Build the libraries and move them to your projects root folder
-        cargo build --release -p sia_storage_ffi
-        cargo run -p sia_storage_ffi --bin uniffi-bindgen -- generate --library .\target\release\sia_storage_ffi.dll --language python --out-dir ../
-        mv target\release\sia_storage_ffi.dll ../
+        ```bat
+        python -m venv .venv
+        .venv\Scripts\activate
+        python -m pip install sia-storage
         ```
     === "Linux"
         ```shell
-        # Clone the Sia SDK repo
-        git clone https://github.com/SiaFoundation/sia-sdk-rs
-        cd sia-sdk-rs
-
-        # Build the libraries and move them to your projects root folder
-        cargo build --release -p sia_storage_ffi
-        cargo run -p sia_storage_ffi --bin uniffi-bindgen generate --library target/release/libsia_storage_ffi.so --language python --out-dir ../
-        mv target/release/libsia_storage_ffi.so ../
+        python -m venv .venv
+        source .venv/bin/activate
+        python -m pip install sia-storage
         ```
     === "MacOS"
         ```shell
-        # Clone the Sia SDK repo
-        git clone https://github.com/SiaFoundation/sia-sdk-rs
-        cd sia-sdk-rs
-
-        # Build the libraries and move them to your projects root folder
-        cargo build --release -p sia_storage_ffi
-        cargo run -p sia_storage_ffi --bin uniffi-bindgen generate --library target/release/libsia_storage_ffi.dylib --language python --out-dir ../
-        mv target/release/libsia_storage_ffi.dylib ../
+        python -m venv .venv
+        source .venv/bin/activate
+        python -m pip install sia-storage
         ```
 === "JavaScript"
     *🚧 Coming soon*
