@@ -344,7 +344,56 @@ Upload packing is most useful when your app needs to store **many small files**,
 === "JavaScript"
     *🚧 Coming soon*
 === "Rust"
-    *🚧 Coming soon*
+    ```
+    //-------------------------------------------------------
+    // PACKED UPLOADS
+    //-------------------------------------------------------
+
+    // Packed uploads are useful when your app needs to store
+    // many small objects efficiently.
+    let start = Instant::now();
+
+    // Create a packing session.
+    let mut packed = sdk.upload_packed(UploadOptions::default());
+
+    // Add several small objects to the packing session.
+    for i in 0..10 {
+        let data = format!("Contents of object {}.", i + 1);
+        let reader = Cursor::new(data.into_bytes());
+
+        // add() reads from the reader and queues one logical object.
+        let size = packed.add(reader).await?;
+
+        // remaining() returns the unused capacity left in the current pack.
+        // In the Rust SDK, this is a normal method, not an async one.
+        let rem = packed.remaining();
+        println!("Object {} added: {} bytes ({} remaining)", i + 1, size, rem);
+    }
+
+    // Finalize the packed upload and get back one object handle per item added.
+    let mut objects = packed.finalize().await?;
+
+    // Each returned object still needs to be pinned to persist it in the indexer.
+    for (i, obj) in objects.iter_mut().enumerate() {
+        // Attach optional metadata before pinning.
+        obj.metadata = format!(r#"{{"File Name":"packed-{}.txt"}}"#, i + 1).into_bytes();
+
+        // Pin the object to the indexer (stores encrypted metadata + layout).
+        sdk.pin_object(obj).await?;
+    }
+
+    let elapsed = start.elapsed();
+    println!(
+        "\nPacked upload finished {} objects in {:.2?}",
+        objects.len(),
+        elapsed
+    );
+
+    // Print the Object ID for each uploaded object.
+    for (i, obj) in objects.iter().enumerate() {
+        println!(" - Object {} ID: {}", i + 1, obj.id());
+    }
+    ```
 === "Go"
     *🚧 Coming soon*
 === "Dart"
