@@ -324,6 +324,10 @@ If you already have an object handle, resume by starting at the number of bytes 
     ```rust
     use sia_storage::DownloadOptions;
 
+    # -------------------------------------------------------
+    # RESUME DOWNLOAD
+    # -------------------------------------------------------
+    
     let resume_at = tokio::fs::metadata("output.bin").await?.len();
     let mut out = tokio::fs::OpenOptions::new()
         .create(true)
@@ -375,6 +379,10 @@ Stream the decrypted bytes directly to disk:
     ```rust
     use sia_storage::DownloadOptions;
     use tokio::fs::File;
+
+    # -------------------------------------------------------
+    # DOWNLOAD AN OBJECT TO FILE
+    # -------------------------------------------------------
 
     // Stream the object directly to disk
     let mut file = File::create("output.bin").await?;
