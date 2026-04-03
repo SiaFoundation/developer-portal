@@ -335,9 +335,12 @@ Upload packing is most useful when your app needs to store **many small files**,
     ```
 === "Rust"
     ```
-    //-------------------------------------------------------
+    use std::io::{Cursor};
+    use std::time::Instant;
+
+    // -------------------------------------------------------
     // PACKED UPLOADS
-    //-------------------------------------------------------
+    // -------------------------------------------------------
 
     // Packed uploads are useful when your app needs to store
     // many small objects efficiently.
@@ -386,9 +389,14 @@ Upload packing is most useful when your app needs to store **many small files**,
     ```
 === "Go"
     ```go
-	//-------------------------------------------------------
+    import (
+        "bytes"
+        "time"
+    )
+
+	// -------------------------------------------------------
 	// PACKED UPLOADS
-	//-------------------------------------------------------
+	// -------------------------------------------------------
 
 	start := time.Now()
 
@@ -513,9 +521,9 @@ Stream directly from disk instead of loading the entire object into memory first
     ```rust
     use sia_storage::UploadOptions;
 
-    #-------------------------------------------------------
-    # UPLOAD AN OBJECT FROM A FILE
-    #-------------------------------------------------------
+    // -------------------------------------------------------
+    // UPLOAD AN OBJECT FROM A FILE
+    // -------------------------------------------------------
     
     let options = UploadOptions::default();
 
@@ -531,9 +539,9 @@ Stream directly from disk instead of loading the entire object into memory first
     ```
 === "Go"
     ```go
-	//-------------------------------------------------------
+	// -------------------------------------------------------
 	// UPLOAD AN OBJECT FROM A FILE
-	//-------------------------------------------------------
+	// -------------------------------------------------------
 
 	// Stream the contents of a file directly from disk.
 	fmt.Println("\nStarting upload...")

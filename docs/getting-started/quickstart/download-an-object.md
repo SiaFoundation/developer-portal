@@ -250,7 +250,7 @@ Once ready, you can download the object into memory, into a file, or into anothe
         fmt.Println(" - Contents:", buf.String())
     }
     ```
-    
+
 ## Deep Dive
 
 #### Download Options
@@ -291,6 +291,8 @@ If you already have an object handle, resume by starting at the number of bytes 
 
 === "Python"
     ```python
+    import os
+
     # -------------------------------------------------------
     # RESUME DOWNLOAD
     # -------------------------------------------------------
@@ -312,30 +314,50 @@ If you already have an object handle, resume by starting at the number of bytes 
     ```rust
     use sia_storage::DownloadOptions;
 
-    # -------------------------------------------------------
-    # RESUME DOWNLOAD
-    # -------------------------------------------------------
+    // -------------------------------------------------------
+    // RESUME DOWNLOAD
+    // -------------------------------------------------------
     
-    let resume_at = tokio::fs::metadata("output.bin").await?.len();
+    let output_path = "output.bin";
+
+    let resume_at = match tokio::fs::metadata(output_path).await {
+        Ok(metadata) => metadata.len(),
+        Err(err) if err.kind() == io::ErrorKind::NotFound => 0,
+        Err(err) => return Err(err.into()),
+    };
+
+    // If the file is already complete, there is nothing left to download.
+    if resume_at >= shared_obj.size() {
+        println!("\nDownload already complete.");
+        println!(" - Saved to: {}", output_path);
+        println!(" - Current size: {}", resume_at);
+        return Ok(());
+    }
+
+    // Reopen the file in append mode and request only the remaining bytes.
     let mut out = tokio::fs::OpenOptions::new()
         .create(true)
         .append(true)
-        .open("output.bin")
+        .open(output_path)
         .await?;
 
     let opts = DownloadOptions {
         offset: resume_at,
-        length: None,
+        length: Some(shared_obj.size() - resume_at),
         ..Default::default()
     };
 
-    sdk.download(&mut out, &obj, opts).await?;
+    sdk.download(&mut out, &shared_obj, opts).await?;
+
+    println!("\nObject downloaded!");
+    println!(" - Saved to: {}", output_path);
+    println!(" - Resumed from byte: {}", resume_at);
     ```
 === "Go"
     ```go
-	//-------------------------------------------------------
+	// -------------------------------------------------------
 	// RESUME DOWNLOAD
-	//-------------------------------------------------------
+	// -------------------------------------------------------
 
 	// Ask the user for the Object ID to resume downloading.
 	fmt.Print("Enter the Object ID to resume: ")
@@ -415,25 +437,22 @@ Stream the decrypted bytes directly to disk:
     use sia_storage::DownloadOptions;
     use tokio::fs::File;
 
-    # -------------------------------------------------------
-    # DOWNLOAD AN OBJECT TO FILE
-    # -------------------------------------------------------
+    // -------------------------------------------------------
+    // DOWNLOAD AN OBJECT TO FILE
+    // -------------------------------------------------------
 
-    // Stream the object directly to disk
-    let mut file = File::create("output.bin").await?;
-    sdk.download(&mut file, &obj, DownloadOptions::default()).await?;
+    // Stream the shared object directly to a file on disk
+    let mut file = tokio::fs::File::create("output.bin").await?;
+    sdk.download(&mut file, &shared_obj, DownloadOptions::default()).await?;
 
-    // If you are downloading from a share URL instead, use the same file handle:
-    //
-    // let shared_obj = sdk.shared_object(share_url).await?;
-    // let mut file = File::create("output.bin").await?;
-    // sdk.download(&mut file, &shared_obj, DownloadOptions::default()).await?;
+    println!("\nObject downloaded!");
+    println!(" - Saved to: output.bin");
     ```
 === "Go"
     ```go
-	//-------------------------------------------------------
+	// -------------------------------------------------------
 	// DOWNLOAD AN OBJECT TO FILE
-	//-------------------------------------------------------
+	// -------------------------------------------------------
 
 	// Stream the shared object directly to a file on disk.
 	file, err := os.Create("output.bin")
