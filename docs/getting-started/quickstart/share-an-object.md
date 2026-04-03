@@ -41,7 +41,7 @@ Once you have the object, you can generate a share URL and let another app or de
     import asyncio
     from datetime import datetime, timedelta, timezone
 
-    from sia_storage_ffi import (
+    from sia_storage import (
         Builder,
         AppMeta,
         AppKey,

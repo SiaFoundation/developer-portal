@@ -20,7 +20,7 @@ Once ready, you can download the object into memory, into a file, or into anothe
     import asyncio
     from io import BytesIO
 
-    from sia_storage_ffi import (
+    from sia_storage import (
         Builder,
         AppMeta,
         AppKey,
