@@ -79,7 +79,7 @@ The Sia SDK is available in multiple language-specific implementations. Follow t
 
     # Add supporting crates used across the Quickstart examples.
     # Not every example uses every crate listed below.
-    cargo add chrono rustls hex
+    cargo add chrono hex
     cargo add tokio --features macros,rt-multi-thread,io-util,fs
     ```
 === "Go"

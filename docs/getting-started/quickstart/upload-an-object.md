@@ -136,10 +136,6 @@ Once you have established a successful connection, you’re ready to upload your
 
     #[tokio::main(flavor = "multi_thread")]
     async fn main() -> Result<(), Box<dyn std::error::Error>> {
-        rustls::crypto::aws_lc_rs::default_provider()
-            .install_default()
-            .expect("failed to install rustls crypto provider");
-
         // Create a builder that can reconnect using an existing App Key
         let builder = Builder::new(INDEXER_URL, APP_META)?;
 
