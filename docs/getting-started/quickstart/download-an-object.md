@@ -344,7 +344,64 @@ If you already have an object handle, resume by starting at the number of bytes 
     sdk.download(&mut out, &obj, opts).await?;
     ```
 === "Go"
-    *🚧 Coming soon*
+    ```go
+	//-------------------------------------------------------
+	// RESUME DOWNLOAD
+	//-------------------------------------------------------
+
+	// Ask the user for the Object ID to resume downloading.
+	fmt.Print("Enter the Object ID to resume: ")
+	objectIDText, err := bufio.NewReader(os.Stdin).ReadString('\n')
+	if err != nil {
+		panic(err)
+	}
+	objectIDText = strings.TrimSpace(objectIDText)
+
+	var objectID types.Hash256
+	if err := objectID.UnmarshalText([]byte(objectIDText)); err != nil {
+		panic(err)
+	}
+
+	// Look up the object from the indexer.
+	obj, err := client.Object(ctx, objectID)
+	if err != nil {
+		panic(err)
+	}
+
+	// Measure how many bytes have already been downloaded.
+	// If the file does not exist yet, start from the beginning.
+	outputPath := "output.bin"
+	var resumeAt uint64
+	if info, err := os.Stat(outputPath); err == nil {
+		resumeAt = uint64(info.Size())
+	} else if !os.IsNotExist(err) {
+		panic(err)
+	}
+
+	// If the file is already complete, there is nothing left to download.
+	if resumeAt >= obj.Size() {
+		fmt.Println("\nDownload already complete.")
+		fmt.Println(" - Saved to:", outputPath)
+		fmt.Println(" - Current size:", resumeAt)
+		return
+	}
+
+	// Reopen the file in append mode and request only the remaining bytes.
+	file, err := os.OpenFile(outputPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	remaining := obj.Size() - resumeAt
+	if err := client.Download(ctx, file, obj, sdk.WithDownloadRange(resumeAt, remaining)); err != nil {
+		panic(err)
+	}
+
+	fmt.Println("\nObject downloaded!")
+	fmt.Println(" - Saved to:", outputPath)
+	fmt.Println(" - Resumed from byte:", resumeAt)
+    ```
 === "Dart"
     *🚧 Coming soon*
 === "Swift"
@@ -395,7 +452,25 @@ Stream the decrypted bytes directly to disk:
     // sdk.download(&mut file, &shared_obj, DownloadOptions::default()).await?;
     ```
 === "Go"
-    *🚧 Coming soon*
+    ```go
+	//-------------------------------------------------------
+	// DOWNLOAD AN OBJECT TO FILE
+	//-------------------------------------------------------
+
+	// Stream the shared object directly to a file on disk.
+	file, err := os.Create("output.bin")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	if err := client.DownloadSharedObject(ctx, file, shareURL); err != nil {
+		panic(err)
+	}
+
+	fmt.Println("\nObject downloaded!")
+	fmt.Println(" - Saved to: output.bin")
+    ```
 === "Dart"
     *🚧 Coming soon*
 === "Swift"
