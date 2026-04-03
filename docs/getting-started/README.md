@@ -51,8 +51,6 @@ The Sia SDK is available in multiple language-specific implementations. Follow t
         source .venv/bin/activate
         python -m pip install sia-storage
         ```
-=== "JavaScript"
-    *🚧 Coming soon*
 === "Rust"
     ```shell
     # Create a new project
@@ -80,12 +78,6 @@ The Sia SDK is available in multiple language-specific implementations. Follow t
     # Resolve and tidy dependencies
     go mod tidy
     ```
-=== "Dart"
-    *🚧 Coming soon*
-=== "Swift"
-    *🚧 Coming soon*
-=== "Kotlin"
-    *🚧 Coming soon*
 
 ## Next Step
 [Connect to an Indexer →](./quickstart/connect-to-an-indexer.md){ .md-button }
