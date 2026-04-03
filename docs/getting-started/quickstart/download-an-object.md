@@ -25,21 +25,7 @@ Once ready, you can download the object into memory, into a file, or into anothe
         AppMeta,
         AppKey,
         DownloadOptions,
-        Writer,
     )
-
-    # Writer helper
-    class BytesWriter(Writer):
-        def __init__(self):
-            self.buffer = BytesIO()
-
-        async def write(self, data: bytes) -> None:
-            if len(data) > 0:
-                self.buffer.write(data)
-
-        def get_data(self) -> bytes:
-            return self.buffer.getvalue()
-
 
     async def main():
         # Configure your app identity details
@@ -77,11 +63,11 @@ Once ready, you can download the object into memory, into a file, or into anothe
 
         shared_obj = await sdk.shared_object(share_url)
 
-        writer = BytesWriter()
-        await sdk.download(writer, shared_obj, DownloadOptions())
+        buffer = BytesIO()
+        await sdk.download(buffer, shared_obj, DownloadOptions())
 
         print("\nObject downloaded!")
-        print(" - Contents:", writer.get_data().decode())
+        print(" - Contents:", buffer.getvalue().decode())
 
     asyncio.run(main())
     ```
@@ -313,25 +299,22 @@ If you already have an object handle, resume by starting at the number of bytes 
 
 === "Python"
     ```python
-    import os
-    from sia_storage_ffi import Writer, DownloadOptions
+    # -------------------------------------------------------
+    # RESUME DOWNLOAD
+    # -------------------------------------------------------
 
-    class BytesWriter(Writer):
-        def __init__(self, path: str, mode: str = "ab"):
-            self.f = open(path, mode)
+    # Measure how many bytes have already been downloaded.
+    # If the file does not exist yet, start from the beginning.
+    output_path = "output.bin"
+    resume_at = os.path.getsize(output_path) if os.path.exists(output_path) else 0
 
-        async def write(self, data: bytes) -> None:
-            if len(data) > 0:
-                self.f.write(data)
+    # Reopen the file in append mode and request only the remaining bytes.
+    with open(output_path, "ab") as file:
+        await sdk.download(file, shared_obj, DownloadOptions(offset=resume_at))
 
-        def close(self) -> None:
-            self.f.close()
-
-    resume_at = os.path.getsize("output.bin")
-    writer = BytesWriter("output.bin", mode="ab")
-
-    await sdk.download(writer, obj, DownloadOptions(offset=resume_at))
-    writer.close()
+    print("\nObject downloaded!")
+    print(" - Saved to:", output_path)
+    print(" - Resumed from byte:", resume_at)
     ```
 
 === "JavaScript"
@@ -373,22 +356,16 @@ Stream the decrypted bytes directly to disk:
 
 === "Python"
     ```python
-    from sia_storage_ffi import Writer, DownloadOptions
+    # -------------------------------------------------------
+    # DOWNLOAD AN OBJECT TO FILE
+    # -------------------------------------------------------
 
-    class BytesWriter(Writer):
-        def __init__(self, path: str, mode: str = "wb"):
-            self.f = open(path, mode)
+    # Stream the downloaded object directly to a file on disk
+    with open("output.bin", "wb") as file:
+        await sdk.download(file, shared_obj, DownloadOptions())
 
-        async def write(self, data: bytes) -> None:
-            if len(data) > 0:
-                self.f.write(data)
-
-        def close(self) -> None:
-            self.f.close()
-
-    writer = BytesWriter("output.bin", mode="wb")
-    await sdk.download(writer, obj, DownloadOptions())
-    writer.close()
+    print("\nObject downloaded!")
+    print(" - Saved to: output.bin")
     ```
 
 === "JavaScript"

@@ -25,24 +25,13 @@ Once you have established a successful connection, you’re ready to upload your
     import json
     from io import BytesIO
 
-    from sia_storage_ffi import (
+    from sia_storage import (
         Builder,
         AppMeta,
         AppKey,
         UploadOptions,
-        Reader,
         UploadProgressCallback,
     )
-
-    # Reader helper
-    class BytesReader(Reader):
-        def __init__(self, data: bytes, chunk_size: int = 65536):
-            self.buffer = BytesIO(data)
-            self.chunk_size = chunk_size
-
-        async def read(self) -> bytes:
-            # When the buffer is exhausted, this returns b"" (EOF).
-            return self.buffer.read(self.chunk_size)
 
     # Progress callback is optional and can be used to monitor the progress of the upload
     class PrintProgress(UploadProgressCallback):
@@ -93,7 +82,7 @@ Once you have established a successful connection, you’re ready to upload your
 
         # Upload the "Hello world!" data
         print("\nStarting upload...")
-        reader = BytesReader(b"Hello world!")
+        reader = BytesIO(b"Hello world!")
         obj = await sdk.upload(reader, upload_options)
 
         # Attach optional application metadata (encrypted before the indexer sees it).
@@ -106,7 +95,7 @@ Once you have established a successful connection, you’re ready to upload your
 
         print("\nUpload complete:")
         print(" - Size:", obj.size(), "bytes")
-        print(" - Object ID:", sealed.id)
+        print(" - Object ID:", obj.id())
 
     asyncio.run(main())
     ```
@@ -332,25 +321,25 @@ Upload packing is most useful when your app needs to store **many small files**,
     # Add several small objects to the packing session.
     for i in range(10):
         data = f"Contents of object {i + 1}."
-        reader = BytesReader(data.encode())
+        reader = BytesIO(data.encode())
 
-        # add() reads from the Reader and queues one logical object.
+        # add() reads from the file-like object and queues one logical object.
         size = await packed.add(reader)
 
-        # remaining() shows how much capacity is left in the current pack.
-        rem = await packed.remaining()
+        # remaining() returns the unused capacity left in the current pack.
+        # In the high-level Python SDK, this is a normal method, not an async one.
+        rem = packed.remaining()
         print(f"Object {i + 1} added: {size} bytes ({rem} remaining)")
 
     # Finalize the packed upload and get back one object handle per item added.
     objects = await packed.finalize()
 
-    # Each returned object still needs to be pinned to persist it in the indexer.
-    for i, obj in enumerate(objects, start=1):
-        obj.update_metadata(f'{{"File Name":"packed-{i}.txt"}}'.encode())
-        await sdk.pin_object(obj)
-
     elapsed = datetime.now(timezone.utc) - start
     print(f"\nPacked upload finished {len(objects)} objects in {elapsed}")
+
+    # Print the Object ID for each uploaded object.
+    for i, obj in enumerate(objects, start=1):
+        print(f" - Object {i} ID: {obj.id()}")
     ```
 === "JavaScript"
     *🚧 Coming soon*
@@ -416,23 +405,17 @@ Stream directly from disk instead of loading the entire object into memory first
 
 === "Python"
     ```python
-    import json
-    from sia_storage_ffi import Reader
+    # Upload the contents of a file from disk
+    print("\nStarting upload...")
+    with open("example.txt", "rb") as reader:
+        obj = await sdk.upload(reader, upload_options)
 
-    class BytesReader(Reader):
-        def __init__(self, path: str, chunk_size: int = 65536):
-            self.f = open(path, "rb")
-            self.chunk_size = chunk_size
-
-        async def read(self) -> bytes:
-            chunk = self.f.read(self.chunk_size)
-            if chunk == b"":
-                self.f.close()
-            return chunk
-
-    reader = BytesReader("example.txt")
-    obj = await sdk.upload(reader, upload_options)
+    # Attach optional application metadata (encrypted before the indexer sees it).
+    # This updates the local object before pinning persists it to the indexer.
     obj.update_metadata(json.dumps({"File Name": "example.txt"}).encode())
+
+    # Persist the object to the indexer.
+    # This stores the sealed object record and pins its slabs, including the metadata set above.
     await sdk.pin_object(obj)
     ```
 === "JavaScript"
