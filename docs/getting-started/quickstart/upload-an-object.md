@@ -454,6 +454,10 @@ Stream directly from disk instead of loading the entire object into memory first
 
 === "Python"
     ```python
+    #-------------------------------------------------------
+    # UPLOAD AN OBJECT FROM A FILE
+    #-------------------------------------------------------
+
     # Upload the contents of a file from disk
     print("\nStarting upload...")
     with open("example.txt", "rb") as reader:
@@ -472,7 +476,11 @@ Stream directly from disk instead of loading the entire object into memory first
 === "Rust"
     ```rust
     use sia_storage::UploadOptions;
-
+    
+    #-------------------------------------------------------
+    # UPLOAD AN OBJECT FROM A FILE
+    #-------------------------------------------------------
+    
     let options = UploadOptions::default();
 
     // Stream the file directly from disk
