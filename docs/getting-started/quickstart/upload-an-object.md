@@ -395,7 +395,61 @@ Upload packing is most useful when your app needs to store **many small files**,
     }
     ```
 === "Go"
-    *🚧 Coming soon*
+    ```go
+	//-------------------------------------------------------
+	// PACKED UPLOADS
+	//-------------------------------------------------------
+
+	start := time.Now()
+
+	// Create a packing session.
+	packed, err := client.UploadPacked()
+	if err != nil {
+		panic(err)
+	}
+	defer packed.Close()
+
+	// Add several small objects to the packing session.
+	for i := 0; i < 10; i++ {
+		data := fmt.Sprintf("Contents of object %d.", i+1)
+		reader := bytes.NewReader([]byte(data))
+
+		// Add reads from the reader and queues one logical object.
+		size, err := packed.Add(ctx, reader)
+		if err != nil {
+			panic(err)
+		}
+
+		// Remaining returns the unused capacity left in the current pack.
+		rem := packed.Remaining()
+		fmt.Printf("Object %d added: %d bytes (%d remaining)\n", i+1, size, rem)
+	}
+
+	// Finalize the packed upload and get back one object handle per item added.
+	objects, err := packed.Finalize(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	// Each returned object still needs to be pinned to persist it in the indexer.
+	for i := range objects {
+		// Attach optional metadata (encrypted with the object's master key).
+		objects[i].UpdateMetadata([]byte(fmt.Sprintf(`{"File Name":"packed-%d.txt"}`, i+1)))
+
+		// Pin the object to the indexer (stores encrypted metadata + layout).
+		if err := client.PinObject(ctx, objects[i]); err != nil {
+			panic(err)
+		}
+	}
+
+	elapsed := time.Since(start)
+	fmt.Printf("\nPacked upload finished %d objects in %s\n", len(objects), elapsed)
+
+	// Print the Object ID for each uploaded object.
+	for i, obj := range objects {
+		fmt.Printf(" - Object %d ID: %s\n", i+1, obj.ID())
+	}
+    ```
 === "Dart"
     *🚧 Coming soon*
 === "Swift"
@@ -476,7 +530,7 @@ Stream directly from disk instead of loading the entire object into memory first
 === "Rust"
     ```rust
     use sia_storage::UploadOptions;
-    
+
     #-------------------------------------------------------
     # UPLOAD AN OBJECT FROM A FILE
     #-------------------------------------------------------
@@ -494,7 +548,37 @@ Stream directly from disk instead of loading the entire object into memory first
     sdk.pin_object(&obj).await?;
     ```
 === "Go"
-    *🚧 Coming soon*
+    ```go
+	//-------------------------------------------------------
+	// UPLOAD AN OBJECT FROM A FILE
+	//-------------------------------------------------------
+
+	// Stream the contents of a file directly from disk.
+	fmt.Println("\nStarting upload...")
+
+	file, err := os.Open("example.txt")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	obj := sdk.NewEmptyObject()
+	if err := client.Upload(ctx, &obj, file); err != nil {
+		panic(err)
+	}
+
+	// Attach optional metadata (encrypted with the object's master key).
+	obj.UpdateMetadata([]byte(`{"File Name":"example.txt"}`))
+
+	// Pin the object to the indexer (stores encrypted metadata + layout).
+	if err := client.PinObject(ctx, obj); err != nil {
+		panic(err)
+	}
+
+	fmt.Println("\nUpload complete:")
+	fmt.Println(" - Size:", obj.Size(), "bytes")
+	fmt.Println(" - Object ID:", obj.ID())
+    ```
 === "Dart"
     *🚧 Coming soon*
 === "Swift"
