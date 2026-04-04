@@ -29,5 +29,6 @@
       { "title": "Pinning", "path": "core-concepts/pinning.md" },
       { "title": "Storage Providers", "path": "core-concepts/storage-providers.md" }
     ]
-  }
+  },
+  { "title": "Additional Resources", "path": "additional-resources.md" }
 ]
