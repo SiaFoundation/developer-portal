@@ -326,6 +326,14 @@ Upload packing is most useful when your app needs to store **many small files**,
     # Finalize the packed upload and get back one object handle per item added.
     objects = await packed.finalize()
 
+    # Each returned object still needs to be pinned to persist it in the indexer.
+    for i, obj in enumerate(objects, start=1):
+        # Attach optional metadata before pinning.
+        obj.update_metadata(json.dumps({"File Name": f"packed-{i}.txt"}).encode())
+
+        # Pin the object to the indexer (stores encrypted metadata + layout).
+        await sdk.pin_object(obj)
+
     elapsed = datetime.now(timezone.utc) - start
     print(f"\nPacked upload finished {len(objects)} objects in {elapsed}")
 
@@ -334,7 +342,7 @@ Upload packing is most useful when your app needs to store **many small files**,
         print(f" - Object {i} ID: {obj.id()}")
     ```
 === "Rust"
-    ```
+    ```rust
     use std::io::{Cursor};
     use std::time::Instant;
 
