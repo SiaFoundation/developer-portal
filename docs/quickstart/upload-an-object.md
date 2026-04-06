@@ -28,7 +28,7 @@ Once you have established a successful connection, you’re ready to upload your
     *Coming soon*
 === "Rust"
     ```rust
-    use sia_storage::{app_id, AppKey, AppMetadata, Builder, UploadOptions};
+    use sia_storage::{app_id, AppKey, AppMetadata, Builder, Object, UploadOptions};
     use std::io::{self, Write};
 
     const INDEXER_URL: &str = "https://sia.storage";
@@ -77,7 +77,8 @@ Once you have established a successful connection, you’re ready to upload your
         // Upload "Hello world!" from an in-memory reader
         let reader = std::io::Cursor::new(b"Hello world!");
         println!("\nStarting upload...");
-        let obj = sdk.upload(reader, UploadOptions::default()).await?;
+        let obj = Object::default();
+        let obj = sdk.upload(obj, reader, UploadOptions::default()).await?;
 
         // Pin the object — without this, the upload is not persisted
         sdk.pin_object(&obj).await?;

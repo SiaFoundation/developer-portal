@@ -32,10 +32,11 @@ Upload reads from any stream source, erasure-codes the data, and distributes enc
     *Coming soon*
 === "Rust"
     ```rust
-    use sia_storage::UploadOptions;
+    use sia_storage::{Object, UploadOptions};
 
     let reader = std::io::Cursor::new(b"hello, world!");
-    let obj = sdk.upload(reader, UploadOptions::default()).await?;
+    let obj = Object::default();
+    let obj = sdk.upload(obj, reader, UploadOptions::default()).await?;
     sdk.pin_object(&obj).await?;
     println!("Object ID: {}", obj.id());
     ```

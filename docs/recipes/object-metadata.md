@@ -13,7 +13,8 @@ Object metadata is application-defined and encrypted — the indexer never sees 
     *Coming soon*
 === "Rust"
     ```rust
-    let mut obj = sdk.upload(reader, UploadOptions::default()).await?;
+    let obj = Object::default();
+    let mut obj = sdk.upload(obj, reader, UploadOptions::default()).await?;
 
     obj.metadata = br#"{"File Name":"photo.jpg","mime":"image/jpeg"}"#.to_vec();
 

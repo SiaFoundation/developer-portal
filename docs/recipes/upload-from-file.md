@@ -11,10 +11,11 @@ Stream directly from disk instead of loading the entire object into memory.
     *Coming soon*
 === "Rust"
     ```rust
-    use sia_storage::UploadOptions;
+    use sia_storage::{Object, UploadOptions};
 
     let file = tokio::fs::File::open("example.txt").await?;
-    let mut obj = sdk.upload(file, UploadOptions::default()).await?;
+    let obj = Object::default();
+    let mut obj = sdk.upload(obj, file, UploadOptions::default()).await?;
 
     obj.metadata = br#"{"File Name":"example.txt"}"#.to_vec();
 
