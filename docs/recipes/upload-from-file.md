@@ -7,8 +7,6 @@ description: Stream a file directly from disk to the Sia network instead of load
 
 Stream directly from disk instead of loading the entire object into memory.
 
-=== "JavaScript"
-    *Coming soon*
 === "Rust"
     ```rust
     use sia_storage::{Object, UploadOptions};

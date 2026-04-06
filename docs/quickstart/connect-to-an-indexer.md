@@ -36,9 +36,6 @@ The resulting App Key is a public/private key pair. The public key is registered
 
 ## Example
 
-=== "JavaScript"
-    *Coming soon*
-
 === "Rust"
     ```rust
     use sia_storage::{app_id, generate_recovery_phrase, AppKey, AppMetadata, Builder};

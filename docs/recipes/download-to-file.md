@@ -7,8 +7,6 @@ description: Stream decrypted object data directly to a file on disk.
 
 Stream decrypted bytes directly to disk instead of buffering in memory.
 
-=== "JavaScript"
-    *Coming soon*
 === "Rust"
     ```rust
     use sia_storage::DownloadOptions;

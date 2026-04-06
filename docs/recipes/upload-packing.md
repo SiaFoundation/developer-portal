@@ -11,8 +11,6 @@ For apps that store many small files (chat messages, thumbnails, config blobs, e
 
 Each packed object still gets its own Object ID and can be pinned, downloaded, shared, or deleted independently.
 
-=== "JavaScript"
-    *Coming soon*
 === "Rust"
     ```rust
     use std::io::Cursor;
