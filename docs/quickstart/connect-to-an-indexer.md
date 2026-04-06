@@ -253,6 +253,3 @@ Approval can fail if:
 * The request expires before the user approves it
 * The user declines the request (the indexer will not approve it)
 * There is a network or connectivity issue while polling
-
-## Next Step
-[Upload an Object →](./upload-an-object.md)

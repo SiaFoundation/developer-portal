@@ -255,7 +255,3 @@ Once ready, you can download the object into memory, into a file, or into anothe
 
     asyncio.run(main())
     ```
-
-## Next Step
-
-That covers the core quickstart. Check out the [Recipes](../recipes/index.md) for more patterns like upload packing, sharing, metadata, and file streaming.

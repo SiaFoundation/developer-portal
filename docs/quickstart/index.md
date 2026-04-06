@@ -100,13 +100,3 @@ Download locates the object's shards, retrieves them from storage providers, ver
     await sdk.download(buffer, obj, DownloadOptions())
     print("Downloaded:", buffer.getvalue().decode())
     ```
-
-## Next Steps
-
-[Connect to an Indexer →](connect-to-an-indexer.md)
-
-Set up your app metadata, get an App Key, and start building.
-
-* [Upload an Object](upload-an-object.md) — full runnable upload example
-* [Download an Object](download-an-object.md) — full runnable download example
-* [Recipes](../recipes/index.md) — packing, file streaming, sharing, metadata, and more
