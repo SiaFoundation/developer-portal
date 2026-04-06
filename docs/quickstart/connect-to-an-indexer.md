@@ -9,18 +9,16 @@ Before your app can upload, download, or share data with Sia, it must first conn
 
 ## Prerequisites
 
-In order for your app to establish a connection to an indexer, you will need:
-
-* [**A valid indexer URL**](../README.md#indexer-url)
-* [**A unique 32-byte App ID (Generated once and persists forever)**](../README.md#app-id)
-* [**The Sia SDK**](../README.md#sia-sdk)
+* **An indexer URL** — The SDK can connect to any Sia indexer, whether your own or a third-party. We recommend using `https://sia.storage`.
+* **A unique 32-byte App ID** — Generate once per app and hardcode it. Changing it changes your users' derived keys and loses access to their data.
+* **The Sia Storage SDK** — See [Install the SDK](../index.md#install-the-sdk).
 
 ## Authentication Requirements
 
 Each new instance of your app will require a unique App Key, which is deterministically derived from:
 
 * **A BIP-39 recovery phrase**
-* [**A unique 32-byte App ID (Generated once and persists forever)**](../README.md#app-id)
+* **A unique 32-byte App ID**
 
 The resulting App Key is a public/private key pair. The public key is registered with the indexer during onboarding, while the private key should be stored securely by the app.
 
@@ -32,64 +30,15 @@ The resulting App Key is a public/private key pair. The public key is registered
 
 ## Example
 
-=== "Python"
-    ```python
-    import asyncio
+=== "JavaScript"
+    *Coming soon*
 
-    from sia_storage import (
-        generate_recovery_phrase,
-        Builder,
-        AppMeta,
-    )
-
-    async def main():
-        # Configure your app identity details
-        meta = AppMeta(
-            id=b"your-32-byte-app-id.............",
-            name="My App",
-            description="Demo application",
-            service_url="https://example.com",
-            logo_url=None,
-            callback_url=None
-        )
-
-        # Create a builder to manage the connection flow
-        builder = Builder("https://app.sia.storage", meta)
-
-        # Request app connection and get the approval URL
-        await builder.request_connection()
-        print("Open this URL to approve the app:", builder.response_url())
-
-        # Wait for the user to approve the request
-        try:
-            await builder.wait_for_approval()
-        except Exception as e:
-            raise Exception("\nApp was not approved (rejected or request expired)") from e
-
-        # Ask the user for their recovery phrase
-        recovery_phrase = input("\nEnter your recovery phrase (type `seed` to generate a new one): ").strip()
-
-        if recovery_phrase == "seed":
-            recovery_phrase = generate_recovery_phrase()
-            print("\nRecovery phrase:", recovery_phrase)
-
-        # Register an SDK instance with your recovery phrase.
-        sdk = await builder.register(recovery_phrase)
-
-        # The App Key should be exported and stored securely for future launches, but we don't demonstrate storage here.
-        app_key = sdk.app_key()
-        print("\nStore this App Key in your app's secure storage:", app_key.export().hex())
-
-        print("\nApp Connected!")
-
-    asyncio.run(main())
-    ```
 === "Rust"
     ```rust
-    use sia_storage::{app_id, generate_recovery_phrase, AppMetadata, Builder};
+    use sia_storage::{app_id, generate_recovery_phrase, AppKey, AppMetadata, Builder};
     use std::io::{self, Write};
 
-    const INDEXER_URL: &str = "https://app.sia.storage";
+    const INDEXER_URL: &str = "https://sia.storage";
 
     const APP_META: AppMetadata = AppMetadata {
         // Replace `app_id` with your real 32-byte App ID (hex-encoded, 64 chars).
@@ -129,12 +78,11 @@ The resulting App Key is a public/private key pair. The public key is registered
         // Register an SDK instance with your recovery phrase
         let sdk = builder.register(&recovery_phrase).await?;
 
-        // Export the App Key seed (32 bytes) and store it securely for future launches
-        let mut app_key_seed = [0u8; 32];
-        app_key_seed.copy_from_slice(&sdk.app_key().as_ref()[..32]);
+        // Export the App Key and store it securely for future launches
+        let app_key = sdk.app_key().export();
 
         println!("\nApp Connected!");
-        println!("App Key (hex): {}", hex::encode(app_key_seed));
+        println!("App Key (hex): {}", hex::encode(app_key));
 
         Ok(())
     }
@@ -155,7 +103,7 @@ The resulting App Key is a public/private key pair. The public key is registered
         "go.sia.tech/indexd/sdk"
     )
 
-    const indexerURL = "https://app.sia.storage"
+    const indexerURL = "https://sia.storage"
 
     // Replace this with your real 32-byte App ID (hex-encoded, 64 chars).
     // Generate this ONCE and keep it stable forever for your app.
@@ -223,6 +171,58 @@ The resulting App Key is a public/private key pair. The public key is registered
         fmt.Println("\nApp Connected!")
         fmt.Println("AppKey (save this securely):", appKeyHex)
     }
+    ```
+=== "Python"
+    ```python
+    import asyncio
+
+    from sia_storage import (
+        generate_recovery_phrase,
+        Builder,
+        AppMeta,
+    )
+
+    async def main():
+        # Configure your app identity details
+        meta = AppMeta(
+            id=b"your-32-byte-app-id.............",
+            name="My App",
+            description="Demo application",
+            service_url="https://example.com",
+            logo_url=None,
+            callback_url=None
+        )
+
+        # Create a builder to manage the connection flow
+        builder = Builder("https://sia.storage", meta)
+
+        # Request app connection and get the approval URL
+        await builder.request_connection()
+        print("Open this URL to approve the app:", builder.response_url())
+
+        # Wait for the user to approve the request
+        try:
+            await builder.wait_for_approval()
+        except Exception as e:
+            raise Exception("\nApp was not approved (rejected or request expired)") from e
+
+        # Ask the user for their recovery phrase
+        recovery_phrase = input("\nEnter your recovery phrase (type `seed` to generate a new one): ").strip()
+
+        if recovery_phrase == "seed":
+            recovery_phrase = generate_recovery_phrase()
+            print("\nRecovery phrase:", recovery_phrase)
+
+        # Register an SDK instance with your recovery phrase.
+        sdk = await builder.register(recovery_phrase)
+
+        # The App Key should be exported and stored securely for future launches, but we don't demonstrate storage here.
+        app_key = sdk.app_key()
+        print("\nStore this App Key in your app's secure storage:", app_key.export().hex())
+
+        print("\nApp Connected!")
+
+    asyncio.run(main())
     ```
 
 ## Deep Dive
