@@ -51,7 +51,7 @@ function findSection(
 ): string {
   for (const item of nav) {
     const sectionTitle = section ?? item.title;
-    if (item.path === filePath) return section ?? '';
+    if (item.path === filePath) return sectionTitle;
     if (item.children) {
       const found = findSection(item.children, filePath, sectionTitle);
       if (found) return found;
