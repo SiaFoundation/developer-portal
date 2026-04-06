@@ -241,6 +241,3 @@ In this quickstart flow, **upload and pin are separate steps**:
 The Object ID comes from the object’s slab layout, so you can read it directly after upload. Pinning encrypts and signs the object (a process called *sealing*) before sending it to the indexer — you don’t need to seal manually. See [Pinning](../core-concepts/pinning.md) and [Objects](../core-concepts/objects.md) for more.
 
 Metadata is **application-defined** and **encrypted**. See the [Object Metadata](../recipes/object-metadata.md) recipe for details.
-
-## Next Step
-[Download an Object →](./download-an-object.md)
