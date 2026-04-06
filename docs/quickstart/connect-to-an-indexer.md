@@ -3,9 +3,9 @@
 Before your app can upload, download, or share data with Sia, it must first connect to an indexer. An indexer acts as your application’s gateway to the Sia network. It handles:
 
   * Verifying your app’s identity.
-  * One-time approval flow.
+  * Managing the one-time approval flow.
   * Tracking your pinned objects and their metadata.
-  * Coordination with storage providers on the network.
+  * Coordinating with storage providers on the network.
 
 ## Prerequisites
 

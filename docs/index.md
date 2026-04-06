@@ -19,94 +19,6 @@ Sia is a decentralized storage network where all data is encrypted client-side, 
     pip install sia-storage
     ```
 
-## Create App Metadata
-
-Every app needs a unique 32-byte App ID and a set of metadata fields that identify it to the indexer. Generate the App ID once and hardcode it — changing it would change your users' derived keys and lose access to their data.
-
-=== "JavaScript"
-    *Coming soon*
-=== "Rust"
-    ```rust
-    use sia_storage::{app_id, AppMetadata, Builder};
-
-    const INDEXER_URL: &str = "https://sia.storage";
-
-    const APP_META: AppMetadata = AppMetadata {
-        id: app_id!("0000000000000000000000000000000000000000000000000000000000000000"),
-        name: "My App",
-        description: "Demo application",
-        service_url: "https://example.com",
-        logo_url: None,
-        callback_url: None,
-    };
-
-    let builder = Builder::new(INDEXER_URL, APP_META)?;
-    ```
-=== "Go"
-    ```go
-    import (
-        "go.sia.tech/core/types"
-        "go.sia.tech/indexd/sdk"
-    )
-
-    const indexerURL = "https://sia.storage"
-    const appIDHex = "0000000000000000000000000000000000000000000000000000000000000000"
-
-    var appID = func() (id types.Hash256) {
-        if err := id.UnmarshalText([]byte(appIDHex)); err != nil {
-            panic(err)
-        }
-        return
-    }()
-
-    builder := sdk.NewBuilder(indexerURL, sdk.AppMetadata{
-        ID:          appID,
-        Name:        "My App",
-        Description: "Demo application",
-        ServiceURL:  "https://example.com",
-    })
-    ```
-=== "Python"
-    ```python
-    from sia_storage import Builder, AppMeta
-
-    meta = AppMeta(
-        id=b"your-32-byte-app-id.............",
-        name="My App",
-        description="Demo application",
-        service_url="https://example.com",
-        logo_url=None,
-        callback_url=None,
-    )
-
-    builder = Builder("https://sia.storage", meta)
-    ```
-
-## Connect
-
-Don't have an App Key yet? See [Connect to an Indexer](quickstart/connect-to-an-indexer.md).
-
-=== "JavaScript"
-    *Coming soon*
-=== "Rust"
-    ```rust
-    use sia_storage::AppKey;
-
-    let app_key = AppKey::import(seed);
-    let sdk = builder.connected(&app_key).await?.expect("invalid App Key");
-    ```
-=== "Go"
-    ```go
-    client, err := builder.SDK(appKey)
-    ```
-=== "Python"
-    ```python
-    from sia_storage import AppKey
-
-    app_key = AppKey(seed)
-    sdk = await builder.connected(app_key)
-    ```
-
 ## Upload and Pin
 
 Upload reads from any stream source, erasure-codes the data, and distributes encrypted shards across the network. Pinning persists the object record in the indexer so it becomes listable, syncable, and eligible for repair.
@@ -117,7 +29,7 @@ Upload reads from any stream source, erasure-codes the data, and distributes enc
     ```rust
     use sia_storage::UploadOptions;
 
-    let reader = std::io::Cursor::new(b"hello, world!".to_vec());
+    let reader = std::io::Cursor::new(b"hello, world!");
     let obj = sdk.upload(reader, UploadOptions::default()).await?;
     sdk.pin_object(&obj).await?;
     println!("Object ID: {}", obj.id());
@@ -191,10 +103,10 @@ Download locates the object's shards, retrieves them from storage providers, ver
 
 ## Next Steps
 
-Need an App Key? Start with [Connect to an Indexer →](quickstart/connect-to-an-indexer.md){ .md-button }
+[Connect to an Indexer →](quickstart/connect-to-an-indexer.md){ .md-button }
 
-Or dive into the individual guides:
+Set up your app metadata, get an App Key, and start building.
 
-* [Upload an Object](quickstart/upload-an-object.md) — upload, pin, and manage objects
-* [Download an Object](quickstart/download-an-object.md) — ranged downloads, resume, streaming to disk
+* [Upload an Object](quickstart/upload-an-object.md) — full runnable upload example
+* [Download an Object](quickstart/download-an-object.md) — full runnable download example
 * [Recipes](recipes/index.md) — packing, file streaming, sharing, metadata, and more
