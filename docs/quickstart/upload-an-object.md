@@ -1,3 +1,8 @@
+---
+title: Upload an Object
+description: Upload and pin an object to the Sia network using the SDK.
+---
+
 # Upload an Object
 
 Uploading data is the core action your app will perform on the Sia network. When you upload a file through the SDK, the process is made secure by design:
@@ -239,4 +244,4 @@ The Object ID comes from the object’s slab layout, so you can read it directly
 Metadata is **application-defined** and **encrypted**. See the [Object Metadata](../recipes/object-metadata.md) recipe for details.
 
 ## Next Step
-[Download an Object →](./download-an-object.md){ .md-button }
+[Download an Object →](./download-an-object.md)

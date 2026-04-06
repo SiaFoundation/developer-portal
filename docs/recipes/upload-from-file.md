@@ -1,3 +1,8 @@
+---
+title: Upload from a File
+description: Stream a file directly from disk to the Sia network instead of loading it into memory.
+---
+
 # Upload from a File
 
 Stream directly from disk instead of loading the entire object into memory.

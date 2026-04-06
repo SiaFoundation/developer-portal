@@ -1,3 +1,8 @@
+---
+title: Recipes
+description: Short, focused code examples for common Sia SDK patterns including upload packing, file streaming, sharing, metadata, and object management.
+---
+
 # Recipes
 
 Short, focused examples that build on the [Quickstart](../quickstart/connect-to-an-indexer.md). Each assumes you have a connected SDK instance.

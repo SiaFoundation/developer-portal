@@ -1,3 +1,8 @@
+---
+title: Download to a File
+description: Stream decrypted object data directly to a file on disk.
+---
+
 # Download to a File
 
 Stream decrypted bytes directly to disk instead of buffering in memory.

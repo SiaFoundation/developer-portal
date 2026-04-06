@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
 
 export default function Home() {
-  redirect('/docs/getting-started');
+  redirect('/docs/quickstart');
 }
