@@ -1,3 +1,8 @@
+---
+title: Connect to an Indexer
+description: Set up your app's identity, get user approval, and derive an App Key to connect to a Sia indexer.
+---
+
 # Connect to an Indexer
 
 Before your app can upload, download, or share data with Sia, it must first connect to an indexer. An indexer acts as your application’s gateway to the Sia network. It handles:
@@ -11,7 +16,7 @@ Before your app can upload, download, or share data with Sia, it must first conn
 
 * **An indexer URL** — The SDK can connect to any Sia indexer, whether your own or a third-party. We recommend using `https://sia.storage`.
 * **A unique 32-byte App ID** — Generate once per app and hardcode it. Changing it changes your users' derived keys and loses access to their data.
-* **The Sia Storage SDK** — See [Install the SDK](../index.md#install-the-sdk).
+* **The Sia Storage SDK** — See [Install the SDK](index.md#install-the-sdk).
 
 ## Authentication Requirements
 
@@ -22,11 +27,12 @@ Each new instance of your app will require a unique App Key, which is determinis
 
 The resulting App Key is a public/private key pair. The public key is registered with the indexer during onboarding, while the private key should be stored securely by the app.
 
-!!! warning "**The BIP-39 recovery phrase should be treated as the user's master key.**"
-    
-    * The recovery phrase must **never** be stored by your application, but instead stored securely by the user.
-    * It should be used only once during onboarding to derive the App Key. 
-    * Your application should export and store the App Key securely for future sessions.
+> [!WARNING]
+> **The BIP-39 recovery phrase should be treated as the user's master key.**
+>
+> * The recovery phrase must **never** be stored by your application, but instead stored securely by the user.
+> * It should be used only once during onboarding to derive the App Key.
+> * Your application should export and store the App Key securely for future sessions.
 
 ## Example
 
@@ -252,4 +258,4 @@ Approval can fail if:
 * There is a network or connectivity issue while polling
 
 ## Next Step
-[Upload an Object →](./upload-an-object.md){ .md-button }
+[Upload an Object →](./upload-an-object.md)

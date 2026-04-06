@@ -1,3 +1,8 @@
+---
+title: Download an Object
+description: Download a pinned object from the Sia network by Object ID.
+---
+
 # Download an Object
 
 Once your application has uploaded an object to Sia, downloading is straightforward. The SDK handles all network coordination: locating slabs, downloading encrypted shards, verifying them, and decrypting your data locally.

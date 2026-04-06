@@ -1,11 +1,16 @@
+---
+title: Share an Object
+description: Generate public, time-limited download URLs for Sia objects and download shared objects.
+---
+
 # Share an Object
 
 Generate a time-limited URL that anyone can use to download an object.
 
-!!! warning "Share URLs are public links"
-    A share URL grants access to **anyone who has it**. There is no way to restrict it to specific users or revoke it once shared. Even after the URL expires, anyone who accessed it could have pinned the object into their own account.
-
-    If you need permissioned sharing, build your own access layer on top of pinned objects.
+> [!WARNING]
+> **Share URLs are public links.** A share URL grants access to **anyone who has it**. There is no way to restrict it to specific users or revoke it once shared. Even after the URL expires, anyone who accessed it could have pinned the object into their own account.
+>
+> If you need permissioned sharing, build your own access layer on top of pinned objects.
 
 ## Generate a share URL
 

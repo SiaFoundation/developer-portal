@@ -1,18 +1,23 @@
 [
   {
-    "title": "Getting Started",
+    "title": "Quickstart",
     "children": [
-      { "title": "Overview", "path": "getting-started/index.md" },
-      {
-        "title": "Quickstart",
-        "children": [
-          { "title": "Connect to an Indexer", "path": "getting-started/quickstart/connect-to-an-indexer.md" },
-          { "title": "Upload an Object", "path": "getting-started/quickstart/upload-an-object.md" },
-          { "title": "Share an Object", "path": "getting-started/quickstart/share-an-object.md" },
-          { "title": "Download an Object", "path": "getting-started/quickstart/download-an-object.md" }
-        ]
-      },
-      { "title": "Troubleshooting", "path": "getting-started/troubleshooting.md" }
+      { "title": "Hello, Sia!", "path": "quickstart/index.md" },
+      { "title": "Connect to an Indexer", "path": "quickstart/connect-to-an-indexer.md" },
+      { "title": "Upload an Object", "path": "quickstart/upload-an-object.md" },
+      { "title": "Download an Object", "path": "quickstart/download-an-object.md" }
+    ]
+  },
+  {
+    "title": "Recipes",
+    "children": [
+      { "title": "Upload Packing", "path": "recipes/upload-packing.md" },
+      { "title": "Upload from a File", "path": "recipes/upload-from-file.md" },
+      { "title": "Resume a Download", "path": "recipes/resume-download.md" },
+      { "title": "Download to a File", "path": "recipes/download-to-file.md" },
+      { "title": "Object Metadata", "path": "recipes/object-metadata.md" },
+      { "title": "Share an Object", "path": "recipes/share-an-object.md" },
+      { "title": "Delete and Prune", "path": "recipes/delete-and-prune.md" }
     ]
   },
   {
@@ -20,28 +25,9 @@
     "children": [
       { "title": "Apps", "path": "core-concepts/apps.md" },
       { "title": "Indexers", "path": "core-concepts/indexers.md" },
-      { "title": "Pinning", "path": "core-concepts/pinning.md" },
-      { "title": "Events", "path": "core-concepts/events.md" },
-      { "title": "Storage Providers", "path": "core-concepts/storage-providers.md" },
       { "title": "Objects", "path": "core-concepts/objects.md" },
-      {
-        "title": "Advanced",
-        "children": [
-          { "title": "Redundancy", "path": "core-concepts/advanced/redundancy.md" },
-          { "title": "Slabs", "path": "core-concepts/advanced/slabs.md" }
-        ]
-      }
-    ]
-  },
-  {
-    "title": "Tutorials",
-    "children": [
-      { "title": "Go", "path": "tutorials/go.md" },
-      { "title": "Kotlin", "path": "tutorials/kotlin.md" },
-      { "title": "Python", "path": "tutorials/python.md" },
-      { "title": "React Native", "path": "tutorials/react-native.md" },
-      { "title": "Rust", "path": "tutorials/rust.md" },
-      { "title": "Swift", "path": "tutorials/swift.md" }
+      { "title": "Pinning", "path": "core-concepts/pinning.md" },
+      { "title": "Storage Providers", "path": "core-concepts/storage-providers.md" }
     ]
   }
 ]

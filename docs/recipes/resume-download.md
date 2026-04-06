@@ -1,3 +1,8 @@
+---
+title: Resume a Download
+description: Continue a partial download using byte offsets and append mode.
+---
+
 # Resume a Download
 
 Measure how many bytes you already have, reopen the destination in append mode, and request only the remaining byte range.

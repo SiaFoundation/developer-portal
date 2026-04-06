@@ -1,9 +1,9 @@
 ---
-title: Sia Developer Portal
-description: Get started building with Sia's decentralized, privacy-preserving storage network. Learn how to create an app key, connect to an indexer, and upload, download, and share encrypted data.
+title: Quickstart
+description: Get started building with Sia's decentralized, privacy-preserving storage network. Install the SDK, upload an object, and download it back.
 ---
 
-# Sia Developer Portal
+# Quickstart
 
 Sia is a decentralized storage network where all data is encrypted client-side, erasure-coded into redundant shards, and distributed across independent storage providers worldwide. An indexer coordinates uploads, downloads, and object management without ever seeing your data.
 
@@ -108,10 +108,10 @@ Download locates the object's shards, retrieves them from storage providers, ver
 
 ## Next Steps
 
-[Connect to an Indexer →](quickstart/connect-to-an-indexer.md){ .md-button }
+[Connect to an Indexer →](connect-to-an-indexer.md)
 
 Set up your app metadata, get an App Key, and start building.
 
-* [Upload an Object](quickstart/upload-an-object.md) — full runnable upload example
-* [Download an Object](quickstart/download-an-object.md) — full runnable download example
-* [Recipes](recipes/index.md) — packing, file streaming, sharing, metadata, and more
+* [Upload an Object](upload-an-object.md) — full runnable upload example
+* [Download an Object](download-an-object.md) — full runnable download example
+* [Recipes](../recipes/index.md) — packing, file streaming, sharing, metadata, and more

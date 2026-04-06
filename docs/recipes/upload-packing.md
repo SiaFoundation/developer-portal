@@ -1,3 +1,8 @@
+---
+title: Upload Packing
+description: Batch many small objects into a single upload session to share slab overhead with the Sia SDK.
+---
+
 # Upload Packing
 
 Sia erasure-codes every upload into a fixed number of shards (by default, 10 data + 20 parity = 30 shards). Each shard is a fixed-size sector stored on a different storage provider. This means even a 1-byte file occupies a full slab — the same storage footprint as a file that fills the entire slab's data capacity.

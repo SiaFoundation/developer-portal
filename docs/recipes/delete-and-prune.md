@@ -1,3 +1,8 @@
+---
+title: Delete and Prune
+description: Delete objects from the indexer and prune unreferenced slabs to free storage.
+---
+
 # Delete an Object and Prune Slabs
 
 Delete an object from the indexer, then prune any slabs that are no longer referenced by other objects.
