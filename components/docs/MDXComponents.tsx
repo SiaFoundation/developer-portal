@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import Link from 'next/link';
 import { Callout } from './Callout';
 import { CodeBlock } from './CodeBlock';
 import { Mermaid } from './Mermaid';
@@ -27,7 +28,7 @@ export const mdxComponents = {
       const fullHref = converted.startsWith('/')
         ? `/docs${converted}`
         : converted;
-      return <a href={fullHref}>{children}</a>;
+      return <Link href={fullHref}>{children}</Link>;
     }
     if (href?.startsWith('http')) {
       return (

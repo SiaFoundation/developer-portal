@@ -19,6 +19,7 @@ export function Mermaid({ encoded }: { encoded: string }) {
         const mermaid = (await import('mermaid')).default;
         mermaid.initialize({
           startOnLoad: false,
+          securityLevel: 'strict',
           theme: isLight ? 'default' : 'dark',
           fontFamily: 'inherit',
         });

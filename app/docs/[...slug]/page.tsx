@@ -1,5 +1,6 @@
 import { h } from 'hastscript';
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { compileMDX } from 'next-mdx-remote/rsc';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypePrettyCode from 'rehype-pretty-code';
@@ -49,7 +50,9 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const { frontmatter } = getDocBySlug(slug);
+  const doc = getDocBySlug(slug);
+  if (!doc) return { title: 'Not Found - Sia Developer Docs' };
+  const { frontmatter } = doc;
   const title = `${frontmatter.title || slug[slug.length - 1]} - Sia Developer Docs`;
   const description =
     frontmatter.description || 'Sia developer documentation and guides.';
@@ -71,7 +74,9 @@ export async function generateMetadata({
 
 export default async function DocPage({ params }: PageProps) {
   const { slug } = await params;
-  const { content, toc } = getDocBySlug(slug);
+  const doc = getDocBySlug(slug);
+  if (!doc) notFound();
+  const { content, toc } = doc;
 
   const source = transformMermaid(transformAlerts(transformTabs(content)));
 
