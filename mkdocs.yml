@@ -29,6 +29,7 @@ plugins:
   # - redirects
 
 nav:
+  - Home: index.md
   - Quickstart:
       - Connect to an Indexer: quickstart/connect-to-an-indexer.md
       - Upload an Object: quickstart/upload-an-object.md
@@ -45,7 +46,7 @@ nav:
   - Troubleshooting: troubleshooting.md
 
   - Core Concepts:
-      #- Overview: core-concepts/index.md
+      - Overview: core-concepts/index.md
       - Apps: core-concepts/apps.md
       - Indexers: core-concepts/indexers.md
       - Pinning: core-concepts/pinning.md
@@ -56,14 +57,6 @@ nav:
           - Redundancy: core-concepts/advanced/redundancy.md
           - Slabs: core-concepts/advanced/slabs.md
 
-  - Tutorials:
-      #- Overview: tutorials/README.md
-      - Go: tutorials/go/README.md
-      - Kotlin: tutorials/kotlin/README.md
-      - Python: tutorials/python/README.md
-      - React Native: tutorials/react-native/README.md
-      - Rust: tutorials/rust/README.md
-      - Swift: tutorials/swift/README.md
 
 markdown_extensions:
   - admonition

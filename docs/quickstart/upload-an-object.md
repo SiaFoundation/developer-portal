@@ -2,12 +2,12 @@
 
 Uploading data is the core action your app will perform on the Sia network. When you upload a file through the SDK, the process is made secure by design:
 
-  * All data is encrypted client-side by the user before it leaves the device.
+  * All data is encrypted client-side before it leaves the device.
   * Data is erasure-coded into multiple redundant shards.
   * Each shard is uploaded to independent storage providers located [across the globe](https://siascan.com/map).
   * The indexer stores encrypted object records and coordinates uploads, downloads, and object management. It never sees plaintext data.
 
-This means that even if some hosts go offline—or a malicious actor attempts to intercept user data—all data will remain private and recoverable.
+Encryption keeps data private even if intercepted. Erasure coding keeps it recoverable even if some hosts go offline.
 
 ## Prerequisites
 
@@ -70,11 +70,11 @@ Once you have established a successful connection, you’re ready to upload your
         println!("\nApp Connected!");
 
         // Upload "Hello world!" from an in-memory reader
-        let reader = std::io::Cursor::new(b"Hello world!".to_vec());
+        let reader = std::io::Cursor::new(b"Hello world!");
         println!("\nStarting upload...");
         let obj = sdk.upload(reader, UploadOptions::default()).await?;
 
-        // Pin the object to the indexer
+        // Pin the object — without this, the upload is not persisted
         sdk.pin_object(&obj).await?;
 
         println!("\nUpload complete:");
@@ -159,7 +159,7 @@ Once you have established a successful connection, you’re ready to upload your
             panic(err)
         }
 
-        // Pin the object to the indexer.
+        // Pin the object — without this, the upload is not persisted.
         if err := client.PinObject(ctx, obj); err != nil {
             panic(err)
         }
@@ -214,7 +214,7 @@ Once you have established a successful connection, you’re ready to upload your
         reader = BytesIO(b"Hello world!")
         obj = await sdk.upload(reader, UploadOptions())
 
-        # Pin the object to the indexer
+        # Pin the object — without this, the upload is not persisted
         await sdk.pin_object(obj)
 
         print("\nUpload complete:")
@@ -227,14 +227,14 @@ Once you have established a successful connection, you’re ready to upload your
 ## Deep Dive
 #### Objects & Metadata
 
-Uploading returns an object handle you can work with immediately (for example, to seal it, share it, or download it later).
+Uploading returns an object handle you can work with immediately (for example, to pin it, share it, or download it later).
 
 In this quickstart flow, **upload and pin are separate steps**:
 
 * **Upload** sends shards to storage providers and builds the object’s layout.
-* **Pinning** (`await sdk.pin_object(obj)`) persists the sealed object record in the indexer and pins the underlying slabs so the object becomes listable/syncable and eligible for repair.
+* **Pinning** persists the sealed object record in the indexer and pins the underlying slabs so the object becomes listable, syncable, and eligible for repair.
 
-The Object ID comes from the object’s slab layout, so you can read it directly with obj.id() after upload. Sealing is only needed when you want a sealed object for offline storage or manual transport; `sdk.pin_object(...)` handles sealing internally.
+The Object ID comes from the object’s slab layout, so you can read it directly after upload. Sealing is only needed when you want a sealed object for offline storage or manual transport; pinning handles sealing internally. See [Pinning](../core-concepts/pinning.md) and [Objects](../core-concepts/objects.md) for more.
 
 Metadata is **application-defined** and **encrypted**. See the [Object Metadata](../recipes/object-metadata.md) recipe for details.
 
