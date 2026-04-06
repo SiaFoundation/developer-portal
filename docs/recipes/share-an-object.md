@@ -14,8 +14,6 @@ Generate a time-limited URL that anyone can use to download an object.
 
 ## Generate a share URL
 
-=== "JavaScript"
-    *Coming soon*
 === "Rust"
     ```rust
     use chrono::{Duration, Utc};
@@ -51,8 +49,6 @@ Generate a time-limited URL that anyone can use to download an object.
 
 ## Download from a share URL
 
-=== "JavaScript"
-    *Coming soon*
 === "Rust"
     ```rust
     use sia_storage::DownloadOptions;

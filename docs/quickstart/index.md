@@ -9,8 +9,6 @@ Sia is a decentralized storage network where all data is encrypted client-side, 
 
 ## Install the SDK
 
-=== "JavaScript"
-    *Coming soon*
 === "Rust"
     ```sh
     cargo add sia_storage
@@ -28,8 +26,6 @@ Sia is a decentralized storage network where all data is encrypted client-side, 
 
 Upload reads from any stream source, erasure-codes the data, and distributes encrypted shards across the network. Pinning persists the object record in the indexer so it becomes listable, syncable, and eligible for repair.
 
-=== "JavaScript"
-    *Coming soon*
 === "Rust"
     ```rust
     use sia_storage::{Object, UploadOptions};
@@ -65,8 +61,6 @@ Upload reads from any stream source, erasure-codes the data, and distributes enc
 
 Download locates the object's shards, retrieves them from storage providers, verifies integrity, and decrypts the data locally. The decrypted bytes stream into any writable destination.
 
-=== "JavaScript"
-    *Coming soon*
 === "Rust"
     ```rust
     use sia_storage::DownloadOptions;

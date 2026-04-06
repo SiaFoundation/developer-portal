@@ -7,8 +7,6 @@ description: Continue a partial download using byte offsets and append mode.
 
 Measure how many bytes you already have, reopen the destination in append mode, and request only the remaining byte range.
 
-=== "JavaScript"
-    *Coming soon*
 === "Rust"
     ```rust
     use sia_storage::DownloadOptions;

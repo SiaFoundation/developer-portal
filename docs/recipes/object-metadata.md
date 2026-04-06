@@ -9,8 +9,6 @@ Object metadata is application-defined and encrypted — the indexer never sees 
 
 ## Attach metadata before pinning
 
-=== "JavaScript"
-    *Coming soon*
 === "Rust"
     ```rust
     let obj = Object::default();
@@ -44,8 +42,6 @@ Object metadata is application-defined and encrypted — the indexer never sees 
 
 ## Update metadata on a pinned object
 
-=== "JavaScript"
-    *Coming soon*
 === "Rust"
     ```rust
     let mut obj = sdk.object(&object_id).await?;

@@ -20,8 +20,6 @@ Once ready, you can download the object into memory, into a file, or into anothe
 
 ## Example
 
-=== "JavaScript"
-    *Coming soon*
 === "Rust"
     ```rust
     use sia_storage::{app_id, AppKey, AppMetadata, Builder, DownloadOptions, Hash256};

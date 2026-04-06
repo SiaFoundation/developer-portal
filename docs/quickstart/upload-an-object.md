@@ -24,8 +24,6 @@ Once you have established a successful connection, you’re ready to upload your
 
 ## Example
 
-=== "JavaScript"
-    *Coming soon*
 === "Rust"
     ```rust
     use sia_storage::{app_id, AppKey, AppMetadata, Builder, Object, UploadOptions};

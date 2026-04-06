@@ -7,8 +7,6 @@ description: Delete objects from the indexer and prune unreferenced slabs to fre
 
 Delete an object from the indexer, then prune any slabs that are no longer referenced by other objects.
 
-=== "JavaScript"
-    *Coming soon*
 === "Rust"
     ```rust
     use sia_storage::Hash256;
