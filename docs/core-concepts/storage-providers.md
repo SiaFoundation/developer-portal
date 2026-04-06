@@ -16,7 +16,7 @@ A storage provider:
 - stores encrypted shards of user data for the duration of those contracts
 - submits storage proofs showing the data is still available
 
-As long as the storage provider meets its contract terms, it receives payments in SC. If it fails, it risks losing expected revenue and any **collateral** it locked into those contracts.
+As long as the storage provider meets its contract terms, it receives payments in SC. If it fails to submit storage proofs, it forfeits the **collateral** it locked into those contracts and does not receive payment.
 
 ## Who are they?
 

@@ -51,7 +51,7 @@ Objects can become pinned in several ways:
 
 ### During Upload
 
-Objects uploaded through the SDK are automatically pinned when the upload completes successfully.
+After uploading, the app calls `pin_object()` to persist the object record in the indexer. Upload and pin are separate steps — pinning is not automatic.
 
 ### Pinning a Shared Object
 
@@ -79,7 +79,7 @@ Pinning does not consume storage on hosts, but it does add entries to the indexe
 When you delete a pinned object:
 
 * The indexer marks it as deleted
-* `sdk.objects()` returns `{ deleted: true }`
+* It no longer appears in object listings
 * It stops generating events
 * The underlying shards on hosts may remain until contract expiry
 
@@ -95,8 +95,8 @@ Every pinned object contributes to an event stream:
 stateDiagram-v2
     [*] --> Uploaded
 
-    Uploaded: SDK upload() + finalize()
-    Uploaded --> Pinned: Indexer registers object
+    Uploaded: SDK upload()
+    Uploaded --> Pinned: SDK pin_object()
 
     Pinned --> Shared: sdk.share_object()
     Shared --> Resolved: sdk.shared_object(url)
