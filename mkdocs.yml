@@ -29,15 +29,20 @@ plugins:
   # - redirects
 
 nav:
-  - Getting Started:
-      - Overview: getting-started/README.md
-      - Quickstart:
-          #- Overview: getting-started/quickstart/README.md
-          - Connect to an Indexer: getting-started/quickstart/connect-to-an-indexer.md
-          - Upload an Object: getting-started/quickstart/upload-an-object.md
-          - Share an Object: getting-started/quickstart/share-an-object.md
-          - Download an Object: getting-started/quickstart/download-an-object.md
-      - Troubleshooting: getting-started/troubleshooting.md
+  - Quickstart:
+      - Connect to an Indexer: quickstart/connect-to-an-indexer.md
+      - Upload an Object: quickstart/upload-an-object.md
+      - Download an Object: quickstart/download-an-object.md
+  - Recipes:
+      - Overview: recipes/index.md
+      - Upload Packing: recipes/upload-packing.md
+      - Upload from a File: recipes/upload-from-file.md
+      - Resume a Download: recipes/resume-download.md
+      - Download to a File: recipes/download-to-file.md
+      - Object Metadata: recipes/object-metadata.md
+      - Share an Object: recipes/share-an-object.md
+      - Delete and Prune: recipes/delete-and-prune.md
+  - Troubleshooting: troubleshooting.md
 
   - Core Concepts:
       #- Overview: core-concepts/index.md
