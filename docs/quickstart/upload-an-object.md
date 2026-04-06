@@ -234,7 +234,7 @@ In this quickstart flow, **upload and pin are separate steps**:
 * **Upload** sends shards to storage providers and builds the object’s layout.
 * **Pinning** persists the sealed object record in the indexer and pins the underlying slabs so the object becomes listable, syncable, and eligible for repair.
 
-The Object ID comes from the object’s slab layout, so you can read it directly after upload. Sealing is only needed when you want a sealed object for offline storage or manual transport; pinning handles sealing internally. See [Pinning](../core-concepts/pinning.md) and [Objects](../core-concepts/objects.md) for more.
+The Object ID comes from the object’s slab layout, so you can read it directly after upload. Pinning encrypts and signs the object (a process called *sealing*) before sending it to the indexer — you don’t need to seal manually. See [Pinning](../core-concepts/pinning.md) and [Objects](../core-concepts/objects.md) for more.
 
 Metadata is **application-defined** and **encrypted**. See the [Object Metadata](../recipes/object-metadata.md) recipe for details.
 

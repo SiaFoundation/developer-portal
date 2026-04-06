@@ -1,6 +1,10 @@
 # Upload Packing
 
-Pack many small objects into a single upload session so they share underlying storage more efficiently.
+Sia erasure-codes every upload into a fixed number of shards (by default, 10 data + 20 parity = 30 shards). Each shard is a fixed-size sector stored on a different storage provider. This means even a 1-byte file occupies a full slab — the same storage footprint as a file that fills the entire slab's data capacity.
+
+For apps that store many small files (chat messages, thumbnails, config blobs, etc.), uploading each one individually wastes most of every slab. Packed uploads solve this by combining multiple small objects into a shared slab before erasure coding, so they split the overhead instead of each paying the full cost.
+
+Each packed object still gets its own Object ID and can be pinned, downloaded, shared, or deleted independently.
 
 === "JavaScript"
     *Coming soon*

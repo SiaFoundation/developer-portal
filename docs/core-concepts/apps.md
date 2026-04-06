@@ -47,7 +47,7 @@ The indexer stores only the corresponding ***public key***.
 
 ## Recovery Phrase
 
-During onboarding, the user provides (or generates) a ***BIP-32 recovery phrase***.
+During onboarding, the user provides (or generates) a ***BIP-39 recovery phrase***.
 
 This phrase:
 
@@ -60,7 +60,7 @@ After onboarding, the app only needs the derived App Key.
 
 ## App Approval
 
-Before an app can access user data, it must be approved by the user through the indexer using an ***Application Connect Key***.
+Before an app can access user data, it must be approved by the user through the indexer.
 
 Approval ensures that:
 

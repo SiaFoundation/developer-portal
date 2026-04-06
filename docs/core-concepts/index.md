@@ -9,11 +9,3 @@ Key concepts for understanding how the Sia storage network works.
 | [Objects](objects.md) | Encrypted data, metadata, and content-derived object IDs |
 | [Pinning](pinning.md) | How objects are tracked, synced, and maintained by the indexer |
 | [Storage Providers](storage-providers.md) | Nodes that store data and earn Siacoin |
-| [Events](events.md) | Object lifecycle events for state sync |
-
-#### Advanced
-
-| Concept | Description |
-|---------|-------------|
-| [Redundancy](advanced/redundancy.md) | Erasure coding and data durability |
-| [Slabs](advanced/slabs.md) | The storage unit underlying objects |

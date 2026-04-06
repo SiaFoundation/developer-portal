@@ -50,12 +50,8 @@ nav:
       - Apps: core-concepts/apps.md
       - Indexers: core-concepts/indexers.md
       - Pinning: core-concepts/pinning.md
-      - Events: core-concepts/events.md
       - Storage Providers: core-concepts/storage-providers.md
       - Objects: core-concepts/objects.md
-      - Advanced:
-          - Redundancy: core-concepts/advanced/redundancy.md
-          - Slabs: core-concepts/advanced/slabs.md
 
 
 markdown_extensions:

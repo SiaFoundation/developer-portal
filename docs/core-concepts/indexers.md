@@ -53,7 +53,7 @@ flowchart LR
     O --> S --> H
 ```
 
-Using this mapping, an indexer periodically scans storage providers to measure availability, tracks how many shards for each slab remain healthy, and initiates repairs by re-encoding data and uploading new shards when redundancy falls below a target threshold. When applications unpin or remove objects, the indexer deletes the associated slabs.
+Using this mapping, an indexer periodically scans storage providers to measure availability, tracks how many shards for each slab remain healthy, and initiates repairs by re-encoding data and uploading new shards when redundancy falls below a target threshold. When applications unpin or remove objects, the indexer stops tracking the associated slabs. The underlying shards on hosts may remain until their contracts expire.
 
 If an indexer server crashes or is offline, its database is not lost, but health checks and repair coordination do not run. During this time, existing redundancy remains intact, but no new repairs are scheduled until the indexer is back online. If downtime is prolonged, it may be necessary to migrate to a new server so repairs can resume before redundancy drops below safe levels.
 
@@ -82,8 +82,7 @@ Indexers **cannot** see:
 * The structure or fields of metadata
 * Application-level concepts like filenames, folders, tags, or document semantics
 
-This boundary lets indexers manage data placement and health without learning
-what the data actually is.
+This boundary lets indexers manage data placement and health without learning what the data actually is.
 
 ## What indexers don’t do
 
