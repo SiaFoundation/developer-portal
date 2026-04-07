@@ -25,7 +25,6 @@ Once ready, you can download the object into memory, into a file, or into anothe
     use sia_storage::{app_id, AppKey, AppMetadata, Builder, DownloadOptions, Hash256};
     use std::io::{self, Write};
     use std::str::FromStr;
-    use tokio::io::AsyncReadExt;
 
     const INDEXER_URL: &str = "https://sia.storage";
 
@@ -80,24 +79,9 @@ Once ready, you can download the object into memory, into a file, or into anothe
         // Look up the object from the indexer
         let obj = sdk.object(&object_id).await?;
 
-        // Use an in-memory duplex stream so we can download into memory
-        // without writing a temporary file to disk.
-        let (mut writer, mut reader) = tokio::io::duplex(64 * 1024);
-
-        let download_fut = async {
-            sdk.download(&mut writer, &obj, DownloadOptions::default())
-                .await?;
-            drop(writer);
-            Ok::<(), Box<dyn std::error::Error>>(())
-        };
-
-        let read_fut = async {
-            let mut bytes = Vec::new();
-            reader.read_to_end(&mut bytes).await?;
-            Ok::<Vec<u8>, Box<dyn std::error::Error>>(bytes)
-        };
-
-        let (_, bytes) = tokio::try_join!(download_fut, read_fut)?;
+        // Download the object into memory
+        let mut bytes = Vec::new();
+        sdk.download(&mut bytes, &obj, DownloadOptions::default()).await?;
 
         println!("\nObject downloaded!");
         println!(" - Contents: {}", String::from_utf8_lossy(&bytes));

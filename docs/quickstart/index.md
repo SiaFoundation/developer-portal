@@ -64,23 +64,9 @@ Download locates the object's shards, retrieves them from storage providers, ver
 === "Rust"
     ```rust
     use sia_storage::DownloadOptions;
-    use tokio::io::AsyncReadExt;
 
-    let (mut writer, mut reader) = tokio::io::duplex(64 * 1024);
-
-    let download_fut = async {
-        sdk.download(&mut writer, &obj, DownloadOptions::default()).await?;
-        drop(writer);
-        Ok::<(), Box<dyn std::error::Error>>(())
-    };
-
-    let read_fut = async {
-        let mut bytes = Vec::new();
-        reader.read_to_end(&mut bytes).await?;
-        Ok::<Vec<u8>, Box<dyn std::error::Error>>(bytes)
-    };
-
-    let (_, bytes) = tokio::try_join!(download_fut, read_fut)?;
+    let mut bytes = Vec::new();
+    sdk.download(&mut bytes, &obj, DownloadOptions::default()).await?;
     println!("Downloaded: {}", String::from_utf8_lossy(&bytes));
     ```
 === "Go"
