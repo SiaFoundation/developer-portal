@@ -62,7 +62,7 @@ Measure how many bytes you already have, reopen the destination in append mode, 
     defer file.Close()
 
     remaining := obj.Size() - resumeAt
-    if err := client.Download(ctx, file, obj, sdk.WithDownloadRange(resumeAt, remaining)); err != nil {
+    if err := client.Download(ctx, file, obj, siastorage.WithDownloadRange(resumeAt, remaining)); err != nil {
         panic(err)
     }
 

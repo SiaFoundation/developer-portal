@@ -27,7 +27,7 @@ Stream directly from disk instead of loading the entire object into memory.
     }
     defer file.Close()
 
-    obj := sdk.NewEmptyObject()
+    obj := siastorage.NewEmptyObject()
     if err := client.Upload(ctx, &obj, file); err != nil {
         panic(err)
     }

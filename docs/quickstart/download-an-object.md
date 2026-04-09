@@ -103,7 +103,7 @@ Once ready, you can download the object into memory, into a file, or into anothe
         "strings"
 
         "go.sia.tech/core/types"
-        "go.sia.tech/indexd/sdk"
+        "go.sia.tech/siastorage"
     )
 
     const indexerURL = "https://sia.storage"
@@ -125,7 +125,7 @@ Once ready, you can download the object into memory, into a file, or into anothe
         ctx := context.Background()
 
         // Create a builder to manage SDK access.
-        builder := sdk.NewBuilder(indexerURL, sdk.AppMetadata{
+        builder := siastorage.NewBuilder(indexerURL, siastorage.AppMetadata{
             ID:          appID,
             Name:        "My App",
             Description: "Demo application",

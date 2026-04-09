@@ -103,7 +103,7 @@ The resulting App Key is a public/private key pair. The public key is registered
         "strings"
 
         "go.sia.tech/core/types"
-        "go.sia.tech/indexd/sdk"
+        "go.sia.tech/siastorage"
     )
 
     const indexerURL = "https://sia.storage"
@@ -124,7 +124,7 @@ The resulting App Key is a public/private key pair. The public key is registered
         ctx := context.Background()
 
         // Create a builder to manage the connection flow.
-        builder := sdk.NewBuilder(indexerURL, sdk.AppMetadata{
+        builder := siastorage.NewBuilder(indexerURL, siastorage.AppMetadata{
             ID:          appID,
             Name:        "My App",
             Description: "Demo application",
@@ -156,7 +156,7 @@ The resulting App Key is a public/private key pair. The public key is registered
         recoveryPhrase = strings.TrimSpace(recoveryPhrase)
 
         if recoveryPhrase == "seed" {
-            recoveryPhrase = sdk.NewSeedPhrase()
+            recoveryPhrase = siastorage.NewSeedPhrase()
             fmt.Printf("\nRecovery phrase:\n%s\n\n", recoveryPhrase)
         }
 

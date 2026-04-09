@@ -20,7 +20,7 @@ Object metadata is application-defined and encrypted — the indexer never sees 
     ```
 === "Go"
     ```go
-    obj := sdk.NewEmptyObject()
+    obj := siastorage.NewEmptyObject()
     if err := client.Upload(ctx, &obj, reader); err != nil {
         panic(err)
     }
