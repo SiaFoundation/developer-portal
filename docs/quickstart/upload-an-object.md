@@ -101,7 +101,7 @@ Once you have established a successful connection, you’re ready to upload your
         "strings"
 
         "go.sia.tech/core/types"
-        "go.sia.tech/indexd/sdk"
+        "go.sia.tech/siastorage"
     )
 
     const indexerURL = "https://sia.storage"
@@ -123,7 +123,7 @@ Once you have established a successful connection, you’re ready to upload your
         ctx := context.Background()
 
         // Create a builder to manage SDK access.
-        builder := sdk.NewBuilder(indexerURL, sdk.AppMetadata{
+        builder := siastorage.NewBuilder(indexerURL, siastorage.AppMetadata{
             ID:          appID,
             Name:        "My App",
             Description: "Demo application",
@@ -158,7 +158,7 @@ Once you have established a successful connection, you’re ready to upload your
         // Upload "Hello world!" from an in-memory reader.
         fmt.Println("\nStarting upload...")
 
-        obj := sdk.NewEmptyObject()
+        obj := siastorage.NewEmptyObject()
         if err := client.Upload(ctx, &obj, strings.NewReader("Hello world!")); err != nil {
             panic(err)
         }

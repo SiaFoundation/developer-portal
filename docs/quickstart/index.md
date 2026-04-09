@@ -15,7 +15,7 @@ Sia is a decentralized storage network where all data is encrypted client-side, 
     ```
 === "Go"
     ```sh
-    go get go.sia.tech/indexd/sdk@latest
+    go get go.sia.tech/siastorage@latest
     ```
 === "Python"
     ```sh
@@ -38,7 +38,7 @@ Upload reads from any stream source, erasure-codes the data, and distributes enc
     ```
 === "Go"
     ```go
-    obj := sdk.NewEmptyObject()
+    obj := siastorage.NewEmptyObject()
     if err := client.Upload(ctx, &obj, strings.NewReader("hello, world!")); err != nil {
         panic(err)
     }
