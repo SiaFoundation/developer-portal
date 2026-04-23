@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { FathomAnalytics } from '@/components/Fathom';
 import { ThemeProvider } from '@/lib/theme';
 import './globals.css';
 
@@ -23,6 +24,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="bg-[#0f0f0f] light:bg-white m-0">
+        <FathomAnalytics />
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
