@@ -55,8 +55,9 @@ Generate a time-limited URL that anyone can use to download an object.
 
     let shared_obj = sdk.shared_object(share_url).await?;
 
+    let mut reader = sdk.download(&shared_obj, DownloadOptions::default())?;
     let mut bytes = Vec::new();
-    sdk.download(&mut bytes, &shared_obj, DownloadOptions::default()).await?;
+    tokio::io::copy(&mut reader, &mut bytes).await?;
     println!("Downloaded: {}", String::from_utf8_lossy(&bytes));
     ```
 === "Go"

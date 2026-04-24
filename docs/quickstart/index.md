@@ -65,8 +65,9 @@ Download locates the object's shards, retrieves them from storage providers, ver
     ```rust
     use sia_storage::DownloadOptions;
 
+    let mut reader = sdk.download(&obj, DownloadOptions::default())?;
     let mut bytes = Vec::new();
-    sdk.download(&mut bytes, &obj, DownloadOptions::default()).await?;
+    tokio::io::copy(&mut reader, &mut bytes).await?;
     println!("Downloaded: {}", String::from_utf8_lossy(&bytes));
     ```
 === "Go"

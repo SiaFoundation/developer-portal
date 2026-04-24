@@ -80,8 +80,9 @@ Once ready, you can download the object into memory, into a file, or into anothe
         let obj = sdk.object(&object_id).await?;
 
         // Download the object into memory
+        let mut reader = sdk.download(&obj, DownloadOptions::default())?;
         let mut bytes = Vec::new();
-        sdk.download(&mut bytes, &obj, DownloadOptions::default()).await?;
+        tokio::io::copy(&mut reader, &mut bytes).await?;
 
         println!("\nObject downloaded!");
         println!(" - Contents: {}", String::from_utf8_lossy(&bytes));
