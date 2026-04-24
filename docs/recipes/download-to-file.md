@@ -12,7 +12,8 @@ Stream decrypted bytes directly to disk instead of buffering in memory.
     use sia_storage::DownloadOptions;
 
     let mut file = tokio::fs::File::create("output.bin").await?;
-    sdk.download(&mut file, &obj, DownloadOptions::default()).await?;
+    let mut reader = sdk.download(&obj, DownloadOptions::default())?;
+    tokio::io::copy(&mut reader, &mut file).await?;
     ```
 === "Go"
     ```go

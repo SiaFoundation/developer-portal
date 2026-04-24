@@ -36,7 +36,8 @@ Measure how many bytes you already have, reopen the destination in append mode, 
         ..Default::default()
     };
 
-    sdk.download(&mut out, &obj, opts).await?;
+    let mut reader = sdk.download(&obj, opts)?;
+    tokio::io::copy(&mut reader, &mut out).await?;
 
     println!("Resumed from byte: {}", resume_at);
     ```
