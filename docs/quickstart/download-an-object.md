@@ -7,7 +7,7 @@ description: Download a pinned object from the Sia network by Object ID.
 
 Once your application has uploaded an object to Sia, downloading is straightforward. The SDK handles all network coordination: locating slabs, downloading encrypted shards, verifying them, and decrypting your data locally.
 
-Downloads stream decrypted bytes into a writable destination. Depending on the SDK, that destination might be a custom `Writer`, an in-memory buffer, or a file handle. This makes it easy to download small objects into memory or stream large objects directly to disk.
+Downloads return a reader that streams decrypted bytes as they arrive. Copy the reader into any destination — an in-memory buffer, a file, or another writable sink — so you can pull small objects fully into memory or stream large ones straight to disk.
 
 ## Prerequisites
 
@@ -232,11 +232,12 @@ Once ready, you can download the object into memory, into a file, or into anothe
         # Look up the object from the indexer
         obj = await sdk.object(object_id)
 
-        buffer = BytesIO()
-        await sdk.download(buffer, obj, DownloadOptions())
+        # Download returns an async handle; read it into memory
+        async with sdk.download(obj, DownloadOptions()) as d:
+            data = await d.read_all()
 
         print("\nObject downloaded!")
-        print(" - Contents:", buffer.getvalue().decode())
+        print(" - Contents:", data.decode())
 
     asyncio.run(main())
     ```

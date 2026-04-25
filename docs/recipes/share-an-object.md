@@ -75,8 +75,8 @@ Generate a time-limited URL that anyone can use to download an object.
 
     shared_obj = await sdk.shared_object(share_url)
 
-    buffer = BytesIO()
-    await sdk.download(buffer, shared_obj, DownloadOptions())
+    async with sdk.download(shared_obj, DownloadOptions()) as d:
+        buffer = await d.read_all()
 
-    print("Downloaded:", buffer.getvalue().decode())
+    print("Downloaded:", buffer.decode())
     ```

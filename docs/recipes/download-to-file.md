@@ -29,6 +29,7 @@ Stream decrypted bytes directly to disk instead of buffering in memory.
     ```
 === "Python"
     ```python
-    with open("output.bin", "wb") as file:
-        await sdk.download(file, obj, DownloadOptions())
+    async with sdk.download(obj, DownloadOptions()) as d:
+        with open("output.bin", "wb") as file:
+            await d.write_to(file)
     ```
