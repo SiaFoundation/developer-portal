@@ -80,7 +80,6 @@ Download locates the object's shards, retrieves them from storage providers, ver
     ```
 === "Python"
     ```python
-    from io import BytesIO
     from sia_storage import DownloadOptions
 
     async with sdk.download(obj, DownloadOptions()) as d:

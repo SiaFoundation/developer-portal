@@ -71,8 +71,6 @@ Generate a time-limited URL that anyone can use to download an object.
     ```
 === "Python"
     ```python
-    from io import BytesIO
-
     shared_obj = await sdk.shared_object(share_url)
 
     async with sdk.download(shared_obj, DownloadOptions()) as d:
