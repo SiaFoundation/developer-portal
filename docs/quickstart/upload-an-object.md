@@ -182,6 +182,7 @@ Once you have established a successful connection, you’re ready to upload your
         Builder,
         AppMeta,
         AppKey,
+        PinnedObject,
         UploadOptions,
     )
 
@@ -216,7 +217,7 @@ Once you have established a successful connection, you’re ready to upload your
         # Upload "Hello world!"
         print("\nStarting upload...")
         reader = BytesIO(b"Hello world!")
-        obj = await sdk.upload(reader, UploadOptions())
+        obj = await sdk.upload(PinnedObject(), reader, UploadOptions())
 
         # Pin the object — without this, the upload is not persisted
         await sdk.pin_object(obj)

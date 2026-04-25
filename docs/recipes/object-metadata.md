@@ -33,7 +33,7 @@ Object metadata is application-defined and encrypted — the indexer never sees 
     ```
 === "Python"
     ```python
-    obj = await sdk.upload(reader, UploadOptions())
+    obj = await sdk.upload(PinnedObject(), reader, UploadOptions())
 
     obj.update_metadata(json.dumps({"File Name": "photo.jpg", "mime": "image/jpeg"}).encode())
 
