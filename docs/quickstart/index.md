@@ -83,7 +83,7 @@ Download locates the object's shards, retrieves them from storage providers, ver
     from io import BytesIO
     from sia_storage import DownloadOptions
 
-    buffer = BytesIO()
-    await sdk.download(buffer, obj, DownloadOptions())
-    print("Downloaded:", buffer.getvalue().decode())
+    async with sdk.download(obj, DownloadOptions()) as d:
+        buffer = await d.read_all()
+    print("Downloaded:", buffer.decode())
     ```

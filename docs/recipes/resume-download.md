@@ -76,8 +76,9 @@ Measure how many bytes you already have, reopen the destination in append mode, 
     output_path = "output.bin"
     resume_at = os.path.getsize(output_path) if os.path.exists(output_path) else 0
 
-    with open(output_path, "ab") as file:
-        await sdk.download(file, obj, DownloadOptions(offset=resume_at))
+    async with sdk.download(obj, DownloadOptions(offset=resume_at)) as d:
+        with open(output_path, "ab") as file:
+            await d.write_to(file)
 
     print("Resumed from byte:", resume_at)
     ```
