@@ -59,7 +59,7 @@ Upload reads from any stream source, erasure-codes the data, and distributes enc
 
 ## Download
 
-Download locates the object's shards, retrieves them from storage providers, verifies integrity, and decrypts the data locally. The decrypted bytes stream into any writable destination.
+Download locates the object's shards, retrieves them from storage providers, verifies integrity, and decrypts the data locally. It returns a reader that streams decrypted bytes into any destination.
 
 === "Rust"
     ```rust
