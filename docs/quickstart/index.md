@@ -50,9 +50,9 @@ Upload reads from any stream source, erasure-codes the data, and distributes enc
 === "Python"
     ```python
     from io import BytesIO
-    from sia_storage import UploadOptions
+    from sia_storage import UploadOptions, PinnedObject
 
-    obj = await sdk.upload(BytesIO(b"hello, world!"), UploadOptions())
+    obj = await sdk.upload(PinnedObject(), BytesIO(b"hello, world!"), UploadOptions())
     await sdk.pin_object(obj)
     print("Object ID:", obj.id())
     ```

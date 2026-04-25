@@ -41,7 +41,7 @@ Stream directly from disk instead of loading the entire object into memory.
 === "Python"
     ```python
     with open("example.txt", "rb") as reader:
-        obj = await sdk.upload(reader, UploadOptions())
+        obj = await sdk.upload(PinnedObject(), reader, UploadOptions())
 
     obj.update_metadata(json.dumps({"File Name": "example.txt"}).encode())
 
