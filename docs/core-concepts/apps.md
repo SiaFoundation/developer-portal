@@ -1,105 +1,61 @@
 ---
 title: Apps
-description: Understand the App identity model in the Sia ecosystem, including App IDs, App Keys, recovery phrases, user approval, and the authorization model.
+description: Understand the App identity model: App IDs, App Keys, sandboxing, and the user-approval flow.
 ---
 
 # Apps
 
-In the Sia ecosystem, an ***App*** represents the identity of software interacting with the network.
-Apps authenticate requests, manage encrypted objects, and operate on behalf of a user.
+In the Sia ecosystem, an ***App*** is the cryptographic identity of software acting on a user's behalf. Apps aren't user accounts, wallets, or [storage providers](./storage-providers.md) — they're separate, user-approved identities that authenticate requests and operate on encrypted [objects](./objects.md).
 
-All interactions with the indexer—uploads, downloads, sharing, and syncing—are performed by an app.
+## Sandboxed by design
 
-## What Is an App?
+Each App has its own keypair, derived from the user's recovery phrase **and** the developer-chosen App ID. Different App IDs produce different keys, so two apps from the same user cannot see or modify each other's data — even though both are acting for the same person.
 
-An App is a cryptographic identity defined by:
+This isolation is structural, enforced by the cryptographic key derivation. An object [pinned](./pinning.md) under App A's key is invisible to App B; revoking App B's access doesn't affect App A.
 
-* A 32-byte App ID, chosen by the developer
-* A derived App Key, used to sign requests
-* User approval via an indexer
+## App ID
 
-Apps are not user accounts, wallets, or storage providers.
-They are trusted software identities with explicit, user-granted permissions to access data.
+The App ID is a 32-byte identifier the developer chooses **once** and ships with the app.
 
-## App Identity Components
+- It's the same across all installs of your software.
+- It's an input to App Key derivation, so changing it invalidates all existing user data. Never change it after release.
+- Generate it once with `openssl rand -hex 32` (or any cryptographically random 32 bytes).
 
-### App ID
+## App Key
 
-The App ID is a 32-byte identifier chosen by the developer.
+The App Key is the per-user signing key derived during onboarding from the recovery phrase and the App ID. It:
 
-* It uniquely identifies your application
-* It must remain stable for the lifetime of the app
-* It is shared across all installations of the same software
+- Is unique per (user, app) pair.
+- Is stored by your app (keychain, keystore, encrypted file, etc.).
+- Authenticates every subsequent request as that app, for that user.
 
-Changing the App ID invalidates all previously derived App Keys and will break user access to existing objects.
+Only the corresponding public key is visible outside the app. If a user's device is lost, they can re-derive the App Key on a new device with their recovery phrase.
 
-### App Key
+## Recovery phrase
 
-The App Key is a 32-byte private key used to authenticate and sign all requests to the indexer.
+Onboarding asks the user for a BIP-39 recovery phrase (or generates one). The phrase is the user's master secret. Combined with the App ID, it derives the App Key.
 
-It is:
+The app should never store or transmit the recovery phrase. After onboarding, only the derived App Key is needed for ongoing operation; the phrase itself is only used to re-derive the key on a new device.
 
-* Deterministically derived during onboarding
-* Stored securely by the application
-* Used to authenticate future requests
-* Represented by a public key known to the indexer
+## User approval
 
-The indexer stores only the corresponding ***public key***.
+Before an app can act for a user, the user explicitly approves it. Approval binds the app to the user's account, happens once per (user, app) pair, and can be revoked at any time. Revocation immediately cuts off that app's access. Subsequent connections after approval are silent.
 
-## Recovery Phrase
+See [Connect to an Indexer](../quickstart/connect-to-an-indexer.md) for the approval flow.
 
-During onboarding, the user provides (or generates) a ***BIP-39 recovery phrase***.
+## Apps vs. users
 
-This phrase:
+| Concept       | Meaning                                  |
+|---------------|------------------------------------------|
+| User          | Owner of the recovery phrase and data    |
+| App           | Software acting with user permission     |
+| App ID        | Developer-chosen, stable across releases |
+| App Key       | Per-user signing key                     |
 
-* Acts as the user’s master secret
-* Is used to derive the App Key
-* Should never be stored by the app
-* Can be reused to recover access if the App Key is lost
+## Best practices
 
-After onboarding, the app only needs the derived App Key.
-
-## App Approval
-
-Before an app can access user data, it must be approved by the user through the indexer.
-
-Approval ensures that:
-
-* The user explicitly consents to the app
-* The app’s identity is bound to the user
-* Unauthorized software cannot access data
-
-This approval process happens once per app and user. Subsequent connections are automatic.
-
-## Authorization Model
-
-Once approved:
-
-* The indexer recognizes the app’s public key
-* Signed requests from that app are authorized
-* The app may upload, download, share, and manage objects
-
-If approval is revoked, the app immediately loses access.
-
-## Apps vs Users
-
-| Concept | Meaning |
-|------|--------|
-| User | Owner of data and recovery phrase |
-| App | Software acting with user permission |
-| App ID | Stable identifier chosen by the developer |
-| App Key | Per-user signing key |
-| Indexer | Authorization and coordination layer |
-
-## Best Practices
-
-* Generate the App ID once and never change it
-* Store the App Key securely (Keychain, Keystore, encrypted file)
-* Never store or transmit the recovery phrase
-* Always attempt silent reconnection before triggering approval
-* Clearly explain approval to users
-
-## Summary
-
-Apps are the core identity layer of the Sia ecosystem.
-They enable secure, user-approved, cryptographically authenticated access to decentralized storage—without accounts, passwords, or centralized identity providers.
+- Generate the App ID once and never change it.
+- Store the App Key in a secure store (Keychain, Keystore, encrypted file).
+- Never store or transmit the recovery phrase.
+- Attempt silent reconnection before triggering approval.
+- Make the approval prompt clear about what the app will do.

@@ -5,7 +5,7 @@ description: Attach or update encrypted application-defined metadata on Sia obje
 
 # Object Metadata
 
-Object metadata is application-defined and encrypted — the indexer never sees the plaintext. Attach metadata before pinning a new object, or update it on an already-pinned object.
+[Object](../core-concepts/objects.md) metadata is application-defined and encrypted client-side. Attach it before [pinning](../core-concepts/pinning.md) a new object, or update it on an already-pinned one.
 
 ## Attach metadata before pinning
 

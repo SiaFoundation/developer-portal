@@ -9,6 +9,7 @@ Measure how many bytes you already have, reopen the destination in append mode, 
 
 === "Rust"
     ```rust
+    use std::io;
     use sia_storage::DownloadOptions;
 
     let output_path = "output.bin";
@@ -32,7 +33,6 @@ Measure how many bytes you already have, reopen the destination in append mode, 
 
     let opts = DownloadOptions {
         offset: resume_at,
-        length: Some(obj.size() - resume_at),
         ..Default::default()
     };
 
@@ -75,6 +75,10 @@ Measure how many bytes you already have, reopen the destination in append mode, 
 
     output_path = "output.bin"
     resume_at = os.path.getsize(output_path) if os.path.exists(output_path) else 0
+
+    if resume_at >= obj.size():
+        print("Download already complete.")
+        return
 
     async with sdk.download(obj, DownloadOptions(offset=resume_at)) as d:
         with open(output_path, "ab") as file:

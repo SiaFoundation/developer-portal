@@ -15,15 +15,17 @@
       { "title": "Upload from a File", "path": "recipes/upload-from-file.md" },
       { "title": "Resume a Download", "path": "recipes/resume-download.md" },
       { "title": "Download to a File", "path": "recipes/download-to-file.md" },
+      { "title": "Track Progress", "path": "recipes/track-progress.md" },
       { "title": "Object Metadata", "path": "recipes/object-metadata.md" },
       { "title": "Share an Object", "path": "recipes/share-an-object.md" },
-      { "title": "Delete and Prune", "path": "recipes/delete-and-prune.md" }
+      { "title": "Delete Objects", "path": "recipes/delete-objects.md" }
     ]
   },
   {
     "title": "Core Concepts",
     "children": [
       { "title": "Apps", "path": "core-concepts/apps.md" },
+      { "title": "Erasure Coding", "path": "core-concepts/erasure-coding.md" },
       { "title": "Indexers", "path": "core-concepts/indexers.md" },
       { "title": "Objects", "path": "core-concepts/objects.md" },
       { "title": "Pinning", "path": "core-concepts/pinning.md" },

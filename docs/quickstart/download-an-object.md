@@ -231,7 +231,6 @@ Once ready, you can download the object into memory, into a file, or into anothe
         # Look up the object from the indexer
         obj = await sdk.object(object_id)
 
-        # Download returns an async handle; read it into memory
         async with sdk.download(obj, DownloadOptions()) as d:
             data = await d.read_all()
 
