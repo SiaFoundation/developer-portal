@@ -1,6 +1,6 @@
 ---
 title: Apps
-description: Understand the App identity model: App IDs, App Keys, sandboxing, and the user-approval flow.
+description: "Understand the App identity model: App IDs, App Keys, sandboxing, and the user-approval flow."
 ---
 
 # Apps
