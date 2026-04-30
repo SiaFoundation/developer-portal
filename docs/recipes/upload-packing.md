@@ -114,3 +114,33 @@ Each packed object still gets its own Object ID and can be [pinned](../core-conc
     for i, obj in enumerate(objects, start=1):
         print(f" - Object {i} ID: {obj.id()}")
     ```
+=== "JavaScript"
+    ```javascript
+    const start = Date.now()
+
+    const packed = sdk.uploadPacked()
+
+    for (let i = 1; i <= 10; i++) {
+      const data = new Blob([`Contents of object ${i}.`]).stream()
+
+      const size = await packed.add(data)
+      const rem = packed.remaining()
+      console.log(`Object ${i} added: ${size} bytes (${rem} remaining)`)
+    }
+
+    const objects = await packed.finalize()
+
+    for (const [i, obj] of objects.entries()) {
+      obj.updateMetadata(
+        new TextEncoder().encode(JSON.stringify({ 'File Name': `packed-${i + 1}.txt` })),
+      )
+      await sdk.pinObject(obj)
+    }
+
+    const elapsedMs = Date.now() - start
+    console.log(`\nPacked upload finished ${objects.length} objects in ${elapsedMs}ms`)
+
+    for (const [i, obj] of objects.entries()) {
+      console.log(` - Object ${i + 1} ID: ${obj.id()}`)
+    }
+    ```

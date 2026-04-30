@@ -227,6 +227,60 @@ The resulting App Key is a public/private key pair. The public key is registered
 
     asyncio.run(main())
     ```
+=== "JavaScript"
+    ```javascript
+    mport { Builder, generateRecoveryPhrase, initSia } from '@siafoundation/sia-storage'
+    import { createInterface } from 'node:readline/promises'
+    import { stdin as input, stdout as output } from 'node:process'
+
+    // Initialize the SDK (loads the WASM module in browser environments).
+    await initSia()
+
+    const appMeta = {
+      // Replace `appId` with your real 32-byte App ID (hex-encoded, 64 chars).
+      // Generate this ONCE and keep it stable forever for your app.
+      id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'),
+      name: 'My App',
+      description: 'Demo application',
+      serviceUrl: 'https://example.com',
+    }
+
+    const rl = createInterface({ input, output })
+
+    // Create a builder to manage the connection flow
+    const builder = new Builder('https://sia.storage', appMeta)
+
+    // Request app connection and get the approval URL
+    await builder.requestConnection()
+    console.log('Open this URL to approve the app:', builder.responseUrl())
+
+    // Wait for the user to approve the request
+    await builder.waitForApproval()
+
+    // Ask the user for their recovery phrase
+    let phrase = (
+      await rl.question('\nEnter your recovery phrase (type `seed` to generate a new one): ')
+    ).trim()
+
+    if (phrase === 'seed') {
+      phrase = generateRecoveryPhrase()
+      console.log('\nRecovery phrase:')
+      console.log(phrase)
+      console.log()
+    }
+
+    // Register an SDK instance with your recovery phrase
+    const sdk = await builder.register(phrase)
+
+    // Export the App Key and store it securely for future launches
+    const appKeyBytes = sdk.appKey().export()
+    const appKeyHex = Buffer.from(appKeyBytes).toString('hex')
+
+    console.log('\nApp Connected!')
+    console.log('App Key (hex):', appKeyHex)
+
+    rl.close()
+    ```
 
 ## Deep Dive
 #### Why approval is required

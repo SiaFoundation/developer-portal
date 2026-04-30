@@ -50,3 +50,11 @@ Delete is a **soft delete**: the [object](../core-concepts/objects.md) disappear
     await sdk.prune_slabs()
     print("Unused slabs pruned.")
     ```
+=== "JavaScript"
+    ```javascript
+    await sdk.deleteObject(objectId)
+    console.log('Object deleted.')
+
+    await sdk.pruneSlabs()
+    console.log('Unused slabs pruned.')
+    ```

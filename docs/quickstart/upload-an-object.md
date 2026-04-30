@@ -228,6 +228,55 @@ Once you have established a successful connection, you’re ready to upload your
 
     asyncio.run(main())
     ```
+=== "JavaScript"
+    ```javascript
+    import { Builder, AppKey, PinnedObject, initSia } from '@siafoundation/sia-storage'
+    import { createInterface } from 'node:readline/promises'
+    import { stdin as input, stdout as output } from 'node:process'
+
+    // Initialize the SDK (loads the WASM module in browser environments).
+    await initSia()
+
+    const appMeta = {
+      // Replace `appId` with your real 32-byte App ID (hex-encoded, 64 chars).
+      // Generate this ONCE and keep it stable forever for your app.
+      id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'),
+      name: 'My App',
+      description: 'Demo application',
+      serviceUrl: 'https://example.com',
+    }
+
+    const rl = createInterface({ input, output })
+
+    // Ask the user for their App Key
+    const appKeyHex = (await rl.question('\nEnter your App Key (hex): ')).trim()
+    const appKey = new AppKey(Buffer.from(appKeyHex, 'hex'))
+
+    // Reconnect using the App Key
+    const sdk = await new Builder('https://sia.storage', appMeta).connected(appKey)
+    if (!sdk) {
+      throw new Error(
+        'App Key is not connected to this app on this indexer.\n' +
+          'Run connect-to-an-indexer.js first to approve and register the app.',
+      )
+    }
+
+    console.log('\nApp Connected!')
+
+    // Upload "Hello world!" from an in-memory stream
+    console.log('\nStarting upload...')
+    const data = new Blob(['Hello world!']).stream()
+    const obj = await sdk.upload(new PinnedObject(), data)
+
+    // Pin the object — without this, the upload is not persisted
+    await sdk.pinObject(obj)
+
+    console.log('\nUpload complete:')
+    console.log(' - Size:', obj.size().toString(), 'bytes')
+    console.log(' - Object ID:', obj.id())
+
+    rl.close()
+    ```
 
 ## Deep Dive
 #### Objects & Metadata

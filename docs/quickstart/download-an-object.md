@@ -239,3 +239,53 @@ Once ready, you can download the object into memory, into a file, or into anothe
 
     asyncio.run(main())
     ```
+=== "JavaScript"
+    ```javascript
+    import { Builder, AppKey, initSia } from '@siafoundation/sia-storage'
+    import { createInterface } from 'node:readline/promises'
+    import { stdin as input, stdout as output } from 'node:process'
+
+    // Initialize the SDK (loads the WASM module in browser environments).
+    await initSia()
+
+    const appMeta = {
+      // Replace `appId` with your real 32-byte App ID (hex-encoded, 64 chars).
+      // Generate this ONCE and keep it stable forever for your app.
+      id: Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex'),
+      name: 'My App',
+      description: 'Demo application',
+      serviceUrl: 'https://example.com',
+    }
+
+    const rl = createInterface({ input, output })
+
+    // Ask the user for their App Key
+    const appKeyHex = (await rl.question('\nEnter your App Key (hex): ')).trim()
+    const appKey = new AppKey(Buffer.from(appKeyHex, 'hex'))
+
+    // Reconnect using the App Key
+    const sdk = await new Builder('https://sia.storage', appMeta).connected(appKey)
+    if (!sdk) {
+      throw new Error(
+        'App Key is not connected to this app on this indexer.\n' +
+          'Run connect-to-an-indexer.js first to approve and register the app.',
+      )
+    }
+
+    console.log('\nApp Connected!')
+
+    // Ask the user for the Object ID to download
+    const objectId = (await rl.question('\nEnter the Object ID to download: ')).trim()
+
+    // Look up the object from the indexer
+    const obj = await sdk.object(objectId)
+
+    // Download returns a ReadableStream; collect the bytes into a string
+    const stream = sdk.download(obj)
+    const text = await new Response(stream).text()
+
+    console.log('\nObject downloaded!')
+    console.log(' - Contents:', text)
+
+    rl.close()
+    ```
