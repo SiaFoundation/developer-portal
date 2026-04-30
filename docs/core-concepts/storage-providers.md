@@ -29,7 +29,7 @@ On the network, they all look the same: each storage provider announces its capa
 
 Storage providers are what make Sia’s decentralized storage layer real. Instead of trusting a single cloud vendor, the network relies on many independent nodes that turn raw disk and bandwidth into verifiable storage. They exist to:
 
-- **Distribute control and failure domains:** data is encrypted, erasure-coded, and spread across many unrelated storage providers so no single operator or outage can take it offline.
+- **Distribute control and failure domains:** data is encrypted, [erasure-coded](./erasure-coding.md), and spread across many unrelated storage providers so no single operator or outage can take it offline.
 - **Back durability with incentives:** storage providers lock collateral into contracts and must submit proofs; losing data can burn collateral, while honest uptime is rewarded in Siacoin (SC).
 - **Create an open storage marketplace:** anyone with excess capacity can join, set prices, and compete for renter demand instead of relying on a single provider’s pricing and policies.
 

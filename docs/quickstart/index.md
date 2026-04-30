@@ -54,9 +54,9 @@ Upload reads from any stream source, erasure-codes the data, and distributes enc
 === "Python"
     ```python
     from io import BytesIO
-    from sia_storage import UploadOptions
+    from sia_storage import UploadOptions, PinnedObject
 
-    obj = await sdk.upload(BytesIO(b"hello, world!"), UploadOptions())
+    obj = await sdk.upload(PinnedObject(), BytesIO(b"hello, world!"), UploadOptions())
     await sdk.pin_object(obj)
     print("Object ID:", obj.id())
     ```
@@ -72,14 +72,15 @@ Upload reads from any stream source, erasure-codes the data, and distributes enc
 
 ## Download
 
-Download locates the object's shards, retrieves them from storage providers, verifies integrity, and decrypts the data locally. The decrypted bytes stream into any writable destination.
+Download locates the object's shards, retrieves them from storage providers, verifies integrity, and decrypts the data locally. It returns a reader that streams decrypted bytes into any destination.
 
 === "Rust"
     ```rust
     use sia_storage::DownloadOptions;
 
+    let mut reader = sdk.download(&obj, DownloadOptions::default())?;
     let mut bytes = Vec::new();
-    sdk.download(&mut bytes, &obj, DownloadOptions::default()).await?;
+    tokio::io::copy(&mut reader, &mut bytes).await?;
     println!("Downloaded: {}", String::from_utf8_lossy(&bytes));
     ```
 === "Go"
@@ -92,12 +93,11 @@ Download locates the object's shards, retrieves them from storage providers, ver
     ```
 === "Python"
     ```python
-    from io import BytesIO
     from sia_storage import DownloadOptions
 
-    buffer = BytesIO()
-    await sdk.download(buffer, obj, DownloadOptions())
-    print("Downloaded:", buffer.getvalue().decode())
+    async with sdk.download(obj, DownloadOptions()) as d:
+        buffer = await d.read_all()
+    print("Downloaded:", buffer.decode())
     ```
 === "JavaScript"
     ```javascript

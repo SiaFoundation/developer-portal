@@ -5,13 +5,13 @@ description: Learn how indexers work in the Sia ecosystem, including metadata ma
 
 # Indexers
 
-An **indexer** is a service that sits between applications and storage providers. It tracks where objects live on the Sia network, coordinates ongoing repairs, and enforces a simple access model so apps don’t need to manage storage providers or contracts themselves.
+An **indexer** is a service that sits between [apps](./apps.md) and [storage providers](./storage-providers.md). It tracks where [objects](./objects.md) live on the Sia network, coordinates ongoing repairs, and enforces a simple access model so apps don’t need to manage storage providers or contracts themselves.
 
 Applications talk to the indexer for object IDs, metadata, storage layout, and access control, and the SDK coordinates uploads and downloads to storage providers using information supplied by the indexer.
 
 ## What does an indexer do?
 
-An indexer stores object records keyed by object ID, including encrypted metadata and slab layouts. It tracks which slabs—and their shards on storage providers—belong to each object, monitors slab health, and coordinates repairs when redundancy drops. Indexers also manage registered app identities so multiple applications can safely share the same service. They expose an API and SDK that allow apps to save, list, and fetch objects without dealing with storage providers or contracts directly.
+An indexer stores object records keyed by object ID, including encrypted metadata and slab layouts. It tracks which slabs (and their shards on storage providers) belong to each object, monitors slab health, and coordinates repairs when redundancy drops. Indexers also manage registered app identities so multiple applications can safely share the same service. They expose an API and SDK that allow apps to save, list, and fetch objects without dealing with storage providers or contracts directly.
 
 You can think of it as the “object directory and health manager” for a set of applications using the Sia network.
 
@@ -23,9 +23,9 @@ Indexers know just enough about each object to track and maintain it. For every 
 
 The metadata itself is:
 
-* **Application-Defined** — the app chooses the structure and fields.
-* **Encrypted** — the indexer never sees it in plaintext.
-* **Opaque** — the indexer cannot derive any meaning from it.
+* **Application-Defined**: the app chooses the structure and fields.
+* **Encrypted**: the indexer never sees it in plaintext.
+* **Opaque**: the indexer cannot derive any meaning from it.
 
 Indexers **do not** know filenames, paths, tags, content types, versions, or any other semantic information about objects. If you want to search or filter by those things, you build that logic in your application.
 
@@ -114,4 +114,4 @@ Indexers centralize that complexity into a reusable service:
 * **For developers:** they provide a small, stable API focused on objects and metadata, instead of forcing each app to manage storage providers and contracts.
 * **For operators:** they cleanly separate “run indexers and storage providers” from “build applications,” so infrastructure and apps can evolve independently.
 
-By staying narrow—tracking objects, preserving privacy, managing data health, and enforcing a simple access model—indexers make Sia’s decentralized storage layer feel like a straightforward, user-friendly object service.
+By staying narrow (tracking objects, preserving privacy, managing data health, and enforcing a simple access model), indexers make Sia’s decentralized storage layer feel like a straightforward, user-friendly object service.

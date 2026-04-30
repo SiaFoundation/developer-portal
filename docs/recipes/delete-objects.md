@@ -1,11 +1,13 @@
 ---
-title: Delete and Prune
-description: Delete objects from the indexer and prune unreferenced slabs to free storage.
+title: Delete Objects
+description: Delete objects and prune their slabs to free storage.
 ---
 
-# Delete an Object and Prune Slabs
+# Delete Objects
 
-Delete an object from the indexer, then prune any slabs that are no longer referenced by other objects.
+Delete is a **soft delete**: the [object](../core-concepts/objects.md) disappears from your app's listings, but the slabs it referenced aren't reclaimed automatically. Slabs can be shared between objects, so they only get freed when no object still points to them.
+
+`prune_slabs()` is the cleanup step. It releases any slab that no remaining object references. Run it after deletes, or periodically.
 
 === "Rust"
     ```rust

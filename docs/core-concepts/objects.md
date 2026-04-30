@@ -34,7 +34,7 @@ The **object ID** depends only on the content layout. If the data changes and th
 
 Traditional file systems identify data by a mutable path like `/home/user/photos/...` and let you edit bytes in place while keeping that path. In `indexd`, an object is identified only by its **object ID**, a hash of its slabs; if the data changes, the slabs and the object ID change, so objects are immutable.
 
-An object’s data is stored in **slabs** that are erasure-coded into encrypted **shards** and spread across many hosts. `indexd` tracks those shards and repairs slabs in the background, so applications just read and write whole objects via the SDK instead of managing hosts or files directly.
+An object’s data is stored in **slabs** that are [erasure-coded](./erasure-coding.md) into encrypted **shards** and spread across many [storage providers](./storage-providers.md). `indexd` tracks those shards and repairs slabs in the background, so applications just read and write whole objects via the SDK instead of managing hosts or files directly.
 
 ## Are objects mutable?
 

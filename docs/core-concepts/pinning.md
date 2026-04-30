@@ -10,12 +10,12 @@ It determines which objects your application wants the indexer to track, synchro
 
 ## What “Pinning” Means
 
-When an object is *pinned*, it is registered with the indexer and becomes part of the indexer’s tracked state for your application.
+When an [object](./objects.md) is *pinned*, it is registered with the [indexer](./indexers.md) and becomes part of the indexer’s tracked state for your [app](./apps.md).
 
 Pinning means:
 
 * The object’s encrypted metadata is recorded by the indexer.
-* The indexer records how that object maps to encrypted slabs stored on hosts.
+* The indexer records how that object maps to encrypted slabs stored on [hosts](./storage-providers.md).
 * The object becomes part of the app’s tracked object set.
 
 As a result, a pinned object:
@@ -56,7 +56,7 @@ Objects can become pinned in several ways:
 
 ### During Upload
 
-After uploading, the app calls `pin_object()` to persist the object record in the indexer. Upload and pin are separate steps — pinning is not automatic.
+After uploading, the app calls `pin_object()` to persist the object record in the indexer. Upload and pin are separate steps; pinning is not automatic.
 
 ### Pinning a Shared Object
 
@@ -88,7 +88,7 @@ When you delete a pinned object:
 * It stops generating events
 * The underlying shards on hosts may remain until contract expiry
 
-The SDK currently treats “delete” and “unpin” as the same operation—removing the object from your app’s indexer state.
+The SDK currently treats “delete” and “unpin” as the same operation, removing the object from your app’s indexer state.
 
 ## Pinning and Syncing
 
