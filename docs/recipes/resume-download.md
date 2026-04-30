@@ -80,3 +80,28 @@ Measure how many bytes you already have, reopen the destination in append mode, 
 
     print("Resumed from byte:", resume_at)
     ```
+=== "JavaScript"
+    ```javascript
+    import { stat, open } from 'node:fs/promises'
+    import { Writable } from 'node:stream'
+
+    const outputPath = 'output.bin'
+
+    let resumeAt = 0
+    try {
+      resumeAt = (await stat(outputPath)).size
+    } catch (err) {
+      if (err.code !== 'ENOENT') throw err
+    }
+
+    if (BigInt(resumeAt) >= obj.size()) {
+      console.log('Download already complete.')
+    } else {
+      const file = await open(outputPath, 'a')
+      const stream = sdk.download(obj, { offset: BigInt(resumeAt) })
+      await stream.pipeTo(Writable.toWeb(file.createWriteStream()))
+      await file.close()
+
+      console.log('Resumed from byte:', resumeAt)
+    }
+    ```

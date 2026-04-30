@@ -48,3 +48,11 @@ Delete an object from the indexer, then prune any slabs that are no longer refer
     await sdk.prune_slabs()
     print("Unused slabs pruned.")
     ```
+=== "JavaScript"
+    ```javascript
+    await sdk.deleteObject(objectId)
+    console.log('Object deleted.')
+
+    await sdk.pruneSlabs()
+    console.log('Unused slabs pruned.')
+    ```

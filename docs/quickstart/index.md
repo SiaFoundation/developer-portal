@@ -21,6 +21,10 @@ Sia is a decentralized storage network where all data is encrypted client-side, 
     ```sh
     pip install sia-storage
     ```
+=== "JavaScript"
+    ```sh
+    npm install @siafoundation/sia-storage
+    ```
 
 ## Upload and Pin
 
@@ -56,6 +60,15 @@ Upload reads from any stream source, erasure-codes the data, and distributes enc
     await sdk.pin_object(obj)
     print("Object ID:", obj.id())
     ```
+=== "JavaScript"
+    ```javascript
+    import { PinnedObject } from '@siafoundation/sia-storage'
+
+    const data = new Blob(['hello, world!']).stream()
+    const obj = await sdk.upload(new PinnedObject(), data)
+    await sdk.pinObject(obj)
+    console.log('Object ID:', obj.id())
+    ```
 
 ## Download
 
@@ -85,4 +98,10 @@ Download locates the object's shards, retrieves them from storage providers, ver
     buffer = BytesIO()
     await sdk.download(buffer, obj, DownloadOptions())
     print("Downloaded:", buffer.getvalue().decode())
+    ```
+=== "JavaScript"
+    ```javascript
+    const stream = sdk.download(obj)
+    const text = await new Response(stream).text()
+    console.log('Downloaded:', text)
     ```

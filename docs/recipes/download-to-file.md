@@ -31,3 +31,13 @@ Stream decrypted bytes directly to disk instead of buffering in memory.
     with open("output.bin", "wb") as file:
         await sdk.download(file, obj, DownloadOptions())
     ```
+=== "JavaScript"
+    ```javascript
+    import { open } from 'node:fs/promises'
+    import { Writable } from 'node:stream'
+
+    const file = await open('output.bin', 'w')
+    const stream = sdk.download(obj)
+    await stream.pipeTo(Writable.toWeb(file.createWriteStream()))
+    await file.close()
+    ```

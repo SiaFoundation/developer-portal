@@ -39,6 +39,20 @@ Object metadata is application-defined and encrypted — the indexer never sees 
 
     await sdk.pin_object(obj)
     ```
+=== "JavaScript"
+    ```javascript
+    import { PinnedObject } from '@siafoundation/sia-storage'
+
+    const obj = await sdk.upload(new PinnedObject(), reader)
+
+    obj.updateMetadata(
+      new TextEncoder().encode(
+        JSON.stringify({ 'File Name': 'photo.jpg', mime: 'image/jpeg' }),
+      ),
+    )
+
+    await sdk.pinObject(obj)
+    ```
 
 ## Update metadata on a pinned object
 
@@ -70,4 +84,16 @@ Object metadata is application-defined and encrypted — the indexer never sees 
     obj.update_metadata(json.dumps({"File Name": "renamed.jpg", "mime": "image/jpeg"}).encode())
 
     await sdk.update_object_metadata(obj)
+    ```
+=== "JavaScript"
+    ```javascript
+    const obj = await sdk.object(objectId)
+
+    obj.updateMetadata(
+      new TextEncoder().encode(
+        JSON.stringify({ 'File Name': 'renamed.jpg', mime: 'image/jpeg' }),
+      ),
+    )
+
+    await sdk.updateObjectMetadata(obj)
     ```
