@@ -229,7 +229,7 @@ The resulting App Key is a public/private key pair. The public key is registered
     ```
 === "JavaScript"
     ```javascript
-    mport { Builder, generateRecoveryPhrase, initSia } from '@siafoundation/sia-storage'
+    import { Builder, generateRecoveryPhrase, initSia } from '@siafoundation/sia-storage'
     import { createInterface } from 'node:readline/promises'
     import { stdin as input, stdout as output } from 'node:process'
 
