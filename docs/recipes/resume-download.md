@@ -111,7 +111,7 @@ Measure how many bytes you already have, reopen the destination in append mode, 
       console.log('Resumed from byte:', resumeAt)
     }
     ```
-    === "JavaScript (Browser)"
+=== "JavaScript (Browser)"
     ```javascript
     // Track the bytes you've already saved (e.g. via a previous download)
     const resumeAt = previouslySavedBytes.length
