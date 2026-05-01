@@ -62,7 +62,7 @@ Stream directly from disk instead of loading the entire object into memory.
 
     await sdk.pinObject(obj)
     ```
-    === "JavaScript (Browser)"
+=== "JavaScript (Browser)"
     ```javascript
     import { PinnedObject } from '@siafoundation/sia-storage'
  
