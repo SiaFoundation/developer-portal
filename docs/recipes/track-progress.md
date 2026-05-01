@@ -60,6 +60,59 @@ The upload callback fires for every shard the SDK pushes — **data shards plus 
 
     await sdk.pin_object(obj)
     ```
+=== "JavaScript (Node)"
+    ```javascript
+        import { encodedSize, PinnedObject } from '@siafoundation/sia-storage'
+        import { openAsBlob } from 'node:fs'
+        import { stat } from 'node:fs/promises'
+
+        const DATA_SHARDS = 10
+        const PARITY_SHARDS = 20
+
+        const rawSize = BigInt((await stat('example.bin')).size)
+        const total = encodedSize(rawSize, DATA_SHARDS, PARITY_SHARDS)
+
+        let uploaded = 0n
+        const blob = await openAsBlob('example.bin')
+
+        const obj = await sdk.upload(new PinnedObject(), blob.stream(), {
+        dataShards: DATA_SHARDS,
+        parityShards: PARITY_SHARDS,
+        onShardUploaded: (p) => {
+            uploaded += p.shardSize
+            const pct = ((Number(uploaded) / Number(total)) * 100).toFixed(1)
+            console.log(`uploaded ${uploaded} / ${total} bytes (${pct}%)`)
+        },
+        })
+
+        await sdk.pinObject(obj)
+    ```
+=== "JavaScript (Browser)"
+    ```javascript
+        import { encodedSize, PinnedObject } from '@siafoundation/sia-storage'
+
+        const DATA_SHARDS = 10
+        const PARITY_SHARDS = 20
+
+        // Get a File from an  element
+        const input = document.querySelector('input[type=file]')
+        const file = input.files[0]
+
+        const total = encodedSize(file.size, DATA_SHARDS, PARITY_SHARDS)
+
+        let uploaded = 0
+        const obj = await sdk.upload(new PinnedObject(), file.stream(), {
+        dataShards: DATA_SHARDS,
+        parityShards: PARITY_SHARDS,
+        onShardUploaded: (p) => {
+            uploaded += p.shardSize
+            const pct = ((uploaded / total) * 100).toFixed(1)
+            console.log(`uploaded ${uploaded} / ${total} bytes (${pct}%)`)
+        },
+        })
+
+        await sdk.pinObject(obj)
+    ```
 
 ## Download
 
@@ -100,4 +153,38 @@ The download callback fires per recovered shard. Parity is only fetched if a dat
 
     async with sdk.download(obj, opts) as d:
         data = await d.read_all()
+    ```
+=== "JavaScript (Node)"
+    ```javascript
+        const total = obj.size()
+
+        let downloaded = 0n
+        const stream = sdk.download(obj, {
+        onShardDownloaded: (p) => {
+            downloaded += p.shardSize
+            const pct = ((Number(downloaded) / Number(total)) * 100).toFixed(1)
+            console.log(`downloaded ${downloaded} / ${total} bytes (${pct}%)`)
+        },
+        })
+
+        // Drain the stream so the callbacks actually fire.
+        // Replace this with whatever destination you need (file, buffer, etc.).
+        await new Response(stream).arrayBuffer()
+    ```
+=== "JavaScript (Browser)"
+    ```javascript
+        const total = obj.size()
+
+        let downloaded = 0
+        const stream = sdk.download(obj, {
+        onShardDownloaded: (p) => {
+            downloaded += p.shardSize
+            const pct = ((downloaded / total) * 100).toFixed(1)
+            console.log(`downloaded ${downloaded} / ${total} bytes (${pct}%)`)
+        },
+        })
+
+        // Drain the stream so the callbacks actually fire.
+        // Replace this with whatever destination you need (Blob, file, etc.).
+        await new Response(stream).arrayBuffer()
     ```

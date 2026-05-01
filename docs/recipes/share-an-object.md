@@ -46,7 +46,16 @@ Generate a time-limited URL that anyone can use to download an [object](../core-
 
     print("Share URL:", share_url)
     ```
-=== "JavaScript"
+=== "JavaScript (Node)"
+    ```javascript
+    const obj = await sdk.object(objectId)
+
+    const expires = new Date(Date.now() + 60 * 60 * 1000)
+    const shareUrl = sdk.shareObject(obj, expires)
+
+    console.log('Share URL:', shareUrl)
+    ```
+=== "JavaScript (Browser)"
     ```javascript
     const obj = await sdk.object(objectId)
 
@@ -87,7 +96,15 @@ Generate a time-limited URL that anyone can use to download an [object](../core-
 
     print("Downloaded:", buffer.decode())
     ```
-=== "JavaScript"
+=== "JavaScript (Node)"
+    ```javascript
+    const sharedObj = await sdk.sharedObject(shareUrl)
+
+    const stream = sdk.download(sharedObj)
+    const text = await new Response(stream).text()
+    console.log('Downloaded:', text)
+    ```
+=== "JavaScript (Browser)"
     ```javascript
     const sharedObj = await sdk.sharedObject(shareUrl)
 

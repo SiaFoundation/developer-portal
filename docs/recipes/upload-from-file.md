@@ -47,7 +47,7 @@ Stream directly from disk instead of loading the entire object into memory.
 
     await sdk.pin_object(obj)
     ```
-=== "JavaScript"
+=== "JavaScript (Node)"
     ```javascript
     import { PinnedObject } from '@siafoundation/sia-storage'
     import { createReadStream } from 'node:fs'
@@ -60,5 +60,21 @@ Stream directly from disk instead of loading the entire object into memory.
       new TextEncoder().encode(JSON.stringify({ 'File Name': 'example.txt' })),
     )
 
+    await sdk.pinObject(obj)
+    ```
+    === "JavaScript (Browser)"
+    ```javascript
+    import { PinnedObject } from '@siafoundation/sia-storage'
+ 
+    // Get a File from an <input type="file"> element
+    const input = document.querySelector('input[type=file]')
+    const file = input.files[0]
+ 
+    const obj = await sdk.upload(new PinnedObject(), file.stream())
+ 
+    obj.updateMetadata(
+      new TextEncoder().encode(JSON.stringify({ 'File Name': file.name })),
+    )
+ 
     await sdk.pinObject(obj)
     ```

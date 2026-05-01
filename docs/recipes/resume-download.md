@@ -86,7 +86,7 @@ Measure how many bytes you already have, reopen the destination in append mode, 
 
     print("Resumed from byte:", resume_at)
     ```
-=== "JavaScript"
+=== "JavaScript (Node)"
     ```javascript
     import { stat, open } from 'node:fs/promises'
     import { Writable } from 'node:stream'
@@ -108,6 +108,25 @@ Measure how many bytes you already have, reopen the destination in append mode, 
       await stream.pipeTo(Writable.toWeb(file.createWriteStream()))
       await file.close()
 
+      console.log('Resumed from byte:', resumeAt)
+    }
+    ```
+    === "JavaScript (Browser)"
+    ```javascript
+    // Track the bytes you've already saved (e.g. via a previous download)
+    const resumeAt = previouslySavedBytes.length
+ 
+    if (resumeAt >= obj.size()) {
+      console.log('Download already complete.')
+    } else {
+      const stream = sdk.download(obj, { offset: resumeAt })
+      const remaining = await new Response(stream).arrayBuffer()
+ 
+      // Concatenate with what you already have, then save (e.g. trigger a download)
+      const full = new Uint8Array(resumeAt + remaining.byteLength)
+      full.set(previouslySavedBytes, 0)
+      full.set(new Uint8Array(remaining), resumeAt)
+ 
       console.log('Resumed from byte:', resumeAt)
     }
     ```
