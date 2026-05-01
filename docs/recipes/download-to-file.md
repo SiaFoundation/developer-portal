@@ -33,7 +33,7 @@ Stream decrypted bytes directly to disk instead of buffering in memory.
         async with sdk.download(obj, DownloadOptions()) as d:
             await d.write_to(file)
     ```
-=== "JavaScript"
+=== "JavaScript (Node)"
     ```javascript
     import { open } from 'node:fs/promises'
     import { Writable } from 'node:stream'
@@ -42,4 +42,18 @@ Stream decrypted bytes directly to disk instead of buffering in memory.
     const stream = sdk.download(obj)
     await stream.pipeTo(Writable.toWeb(file.createWriteStream()))
     await file.close()
+    ```
+=== "JavaScript (Browser)"
+    ```javascript
+    // Collect the stream into a Blob, then trigger a browser download.
+    const stream = sdk.download(obj)
+    const blob = await new Response(stream).blob()
+ 
+    const url = URL.createObjectURL(blob)
+    const a = Object.assign(document.createElement('a'), {
+      href: url,
+      download: 'output.bin',
+    })
+    a.click()
+    URL.revokeObjectURL(url)
     ```

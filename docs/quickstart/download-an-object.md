@@ -239,7 +239,7 @@ Once ready, you can download the object into memory, into a file, or into anothe
 
     asyncio.run(main())
     ```
-=== "JavaScript"
+=== "JavaScript (Node)"
     ```javascript
     import { Builder, AppKey, initSia } from '@siafoundation/sia-storage'
     import { createInterface } from 'node:readline/promises'
@@ -288,4 +288,48 @@ Once ready, you can download the object into memory, into a file, or into anothe
     console.log(' - Contents:', text)
 
     rl.close()
+    ```
+=== "JavaScript (Browser)"
+    ```javascript
+    import { Builder, AppKey, initSia } from '@siafoundation/sia-storage'
+ 
+    // Initialize the SDK (loads the WASM module).
+    await initSia()
+ 
+    const appMeta = {
+      // Replace `appId` with your real 32-byte App ID (hex-encoded, 64 chars).
+      // Generate this ONCE and keep it stable forever for your app.
+      appId: '0000000000000000000000000000000000000000000000000000000000000000',
+      name: 'My App',
+      description: 'Demo application',
+      serviceUrl: 'https://example.com',
+    }
+ 
+    // Load the App Key from wherever you stored it during connect
+    const appKeyHex = localStorage.getItem('appKey')
+    if (!appKeyHex) {
+      throw new Error('No App Key stored. Run the Connect to an Indexer flow first.')
+    }
+    const appKey = new AppKey(Uint8Array.fromHex(appKeyHex))
+ 
+    // Reconnect using the App Key
+    const sdk = await new Builder('https://sia.storage', appMeta).connected(appKey)
+    if (!sdk) {
+      throw new Error('App Key is not connected to this app on this indexer.')
+    }
+ 
+    console.log('App Connected!')
+ 
+    // Ask the user for the Object ID to download
+    const objectId = (prompt('Enter the Object ID to download:') ?? '').trim()
+ 
+    // Look up the object from the indexer
+    const obj = await sdk.object(objectId)
+ 
+    // Download returns a ReadableStream; collect the bytes into a string
+    const stream = sdk.download(obj)
+    const text = await new Response(stream).text()
+ 
+    console.log('Object downloaded!')
+    console.log(' - Contents:', text)
     ```

@@ -228,7 +228,7 @@ Once you have established a successful connection, you’re ready to upload your
 
     asyncio.run(main())
     ```
-=== "JavaScript"
+=== "JavaScript (Node)"
     ```javascript
     import { Builder, AppKey, PinnedObject, initSia } from '@siafoundation/sia-storage'
     import { createInterface } from 'node:readline/promises'
@@ -276,6 +276,49 @@ Once you have established a successful connection, you’re ready to upload your
     console.log(' - Object ID:', obj.id())
 
     rl.close()
+    ```
+=== "JavaScript (Browser)"
+    ```javascript
+    import { Builder, AppKey, PinnedObject, initSia } from '@siafoundation/sia-storage'
+ 
+    // Initialize the SDK (loads the WASM module).
+    await initSia()
+ 
+    const appMeta = {
+      // Replace `appId` with your real 32-byte App ID (hex-encoded, 64 chars).
+      // Generate this ONCE and keep it stable forever for your app.
+      appId: '0000000000000000000000000000000000000000000000000000000000000000',
+      name: 'My App',
+      description: 'Demo application',
+      serviceUrl: 'https://example.com',
+    }
+ 
+    // Load the App Key from wherever you stored it during connect
+    const appKeyHex = localStorage.getItem('appKey')
+    if (!appKeyHex) {
+      throw new Error('No App Key stored. Run the Connect to an Indexer flow first.')
+    }
+    const appKey = new AppKey(Uint8Array.fromHex(appKeyHex))
+ 
+    // Reconnect using the App Key
+    const sdk = await new Builder('https://sia.storage', appMeta).connected(appKey)
+    if (!sdk) {
+      throw new Error('App Key is not connected to this app on this indexer.')
+    }
+ 
+    console.log('App Connected!')
+ 
+    // Upload "Hello world!" from an in-memory stream
+    console.log('Starting upload...')
+    const data = new Blob(['Hello world!']).stream()
+    const obj = await sdk.upload(new PinnedObject(), data)
+ 
+    // Pin the object — without this, the upload is not persisted
+    await sdk.pinObject(obj)
+ 
+    console.log('Upload complete:')
+    console.log(' - Size:', obj.size(), 'bytes')
+    console.log(' - Object ID:', obj.id())
     ```
 
 ## Deep Dive

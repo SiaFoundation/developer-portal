@@ -227,7 +227,7 @@ The resulting App Key is a public/private key pair. The public key is registered
 
     asyncio.run(main())
     ```
-=== "JavaScript"
+=== "JavaScript (Node)"
     ```javascript
     import { Builder, generateRecoveryPhrase, initSia } from '@siafoundation/sia-storage'
     import { createInterface } from 'node:readline/promises'
@@ -280,6 +280,54 @@ The resulting App Key is a public/private key pair. The public key is registered
     console.log('App Key (hex):', appKeyHex)
 
     rl.close()
+    ```
+=== "JavaScript (Browser)"
+    ```javascript
+    import { Builder, generateRecoveryPhrase, initSia } from '@siafoundation/sia-storage'
+ 
+    // Initialize the SDK (loads the WASM module).
+    await initSia()
+ 
+    const appMeta = {
+      // Replace `appId` with your real 32-byte App ID (hex-encoded, 64 chars).
+      // Generate this ONCE and keep it stable forever for your app.
+      appId: '0000000000000000000000000000000000000000000000000000000000000000',
+      name: 'My App',
+      description: 'Demo application',
+      serviceUrl: 'https://example.com',
+    }
+ 
+    // Create a builder to manage the connection flow
+    const builder = new Builder('https://sia.storage', appMeta)
+ 
+    // Request app connection and get the approval URL
+    await builder.requestConnection()
+    console.log('Open this URL to approve the app:', builder.responseUrl())
+    window.open(builder.responseUrl(), '_blank')
+ 
+    // Wait for the user to approve the request
+    await builder.waitForApproval()
+ 
+    // Ask the user for their recovery phrase
+    let phrase = (
+      prompt('Enter your recovery phrase (leave blank to generate a new one):') ?? ''
+    ).trim()
+ 
+    if (!phrase) {
+      phrase = generateRecoveryPhrase()
+      console.log('\nRecovery phrase (save this securely):')
+      console.log(phrase)
+    }
+ 
+    // Register an SDK instance with your recovery phrase
+    const sdk = await builder.register(phrase)
+ 
+    // Export the App Key and store it securely for future visits
+    const appKeyHex = sdk.appKey().export().toHex()
+    localStorage.setItem('appKey', appKeyHex)
+ 
+    console.log('\nApp Connected!')
+    console.log('App Key (hex):', appKeyHex)
     ```
 
 ## Deep Dive

@@ -39,7 +39,21 @@ description: Attach or update encrypted application-defined metadata on Sia obje
 
     await sdk.pin_object(obj)
     ```
-=== "JavaScript"
+=== "JavaScript (Node)"
+    ```javascript
+    import { PinnedObject } from '@siafoundation/sia-storage'
+
+    const obj = await sdk.upload(new PinnedObject(), reader)
+
+    obj.updateMetadata(
+      new TextEncoder().encode(
+        JSON.stringify({ 'File Name': 'photo.jpg', mime: 'image/jpeg' }),
+      ),
+    )
+
+    await sdk.pinObject(obj)
+    ```
+=== "JavaScript (Browser)"
     ```javascript
     import { PinnedObject } from '@siafoundation/sia-storage'
 
@@ -85,7 +99,19 @@ description: Attach or update encrypted application-defined metadata on Sia obje
 
     await sdk.update_object_metadata(obj)
     ```
-=== "JavaScript"
+=== "JavaScript (Node)"
+    ```javascript
+    const obj = await sdk.object(objectId)
+
+    obj.updateMetadata(
+      new TextEncoder().encode(
+        JSON.stringify({ 'File Name': 'renamed.jpg', mime: 'image/jpeg' }),
+      ),
+    )
+
+    await sdk.updateObjectMetadata(obj)
+    ```
+=== "JavaScript (Browser)"
     ```javascript
     const obj = await sdk.object(objectId)
 
