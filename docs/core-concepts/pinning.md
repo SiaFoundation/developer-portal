@@ -105,7 +105,7 @@ stateDiagram-v2
 
     Pinned --> Shared: sdk.share_object()
     Shared --> Resolved: sdk.shared_object(url)
-    Resolved --> PinnedByRecipient: sdk.pin_shared()
+    Resolved --> PinnedByRecipient: sdk.pinObject()
 
     Pinned --> Deleted: sdk.delete_object() or unpin
     Deleted --> [*]
@@ -117,7 +117,7 @@ stateDiagram-v2
 These events are returned via:
 
 ```plaintext
-sdk.objects(AppObjectsQuery { cursor, ... })
+sdk.objectEvents(cursor, limit)
 ```
 
 This allows your app to synchronize its local state with the indexer efficiently and incrementally.
