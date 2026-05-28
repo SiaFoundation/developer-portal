@@ -177,9 +177,16 @@ Once ready, you can download the object into memory, into a file, or into anothe
             panic(err)
         }
 
-        // Download the object into an in-memory buffer.
+        // Download returns an io.ReadCloser; always close it to release resources.
+        rc, err := client.Download(obj)
+        if err != nil {
+            panic(err)
+        }
+        defer rc.Close()
+
+        // Copy the decrypted stream into an in-memory buffer.
         var buf bytes.Buffer
-        if err := client.Download(ctx, &buf, obj); err != nil {
+        if _, err := io.Copy(&buf, rc); err != nil {
             panic(err)
         }
 
