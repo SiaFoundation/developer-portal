@@ -105,7 +105,7 @@ stateDiagram-v2
 
     Pinned --> Shared: sdk.share_object()
     Shared --> Resolved: sdk.shared_object(url)
-    Resolved --> PinnedByRecipient: sdk.pinObject()
+    Resolved --> PinnedByRecipient: sdk.pin_object()
 
     Pinned --> Deleted: sdk.delete_object() or unpin
     Deleted --> [*]
