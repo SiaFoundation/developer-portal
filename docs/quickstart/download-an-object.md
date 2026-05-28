@@ -317,9 +317,10 @@ Once ready, you can download the object into memory, into a file, or into anothe
     // Load the App Key from wherever you stored it during connect
     const appKeyHex = localStorage.getItem('appKey')
     if (!appKeyHex) {
-      throw new Error('No App Key stored. Run the Connect to an Indexer flow first.')
+    throw new Error('No App Key stored. Run the Connect to an Indexer flow first.')
     }
-    const appKey = new AppKey(Uint8Array.fromHex(appKeyHex))
+    const appKeyBytes = Uint8Array.from(appKeyHex.match(/.{2}/g).map((b) => parseInt(b, 16)))
+    const appKey = new AppKey(appKeyBytes)
  
     // Reconnect using the App Key
     const sdk = await new Builder('https://sia.storage', appMeta).connected(appKey)
