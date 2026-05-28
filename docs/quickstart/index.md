@@ -85,8 +85,14 @@ Download locates the object's shards, retrieves them from storage providers, ver
     ```
 === "Go"
     ```go
+    rc, err := client.Download(obj)
+    if err != nil {
+        panic(err)
+    }
+    defer rc.Close()
+
     var buf bytes.Buffer
-    if err := client.Download(ctx, &buf, obj); err != nil {
+    if _, err := io.Copy(&buf, rc); err != nil {
         panic(err)
     }
     fmt.Println("Downloaded:", buf.String())

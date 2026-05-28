@@ -62,8 +62,16 @@ Measure how many bytes you already have, reopen the destination in append mode, 
     }
     defer file.Close()
 
+    // Request only the bytes we don't already have.
     remaining := obj.Size() - resumeAt
-    if err := client.Download(ctx, file, obj, siastorage.WithDownloadRange(resumeAt, remaining)); err != nil {
+    rc, err := client.Download(obj, siastorage.WithDownloadRange(resumeAt, remaining))
+    if err != nil {
+        panic(err)
+    }
+    defer rc.Close()
+
+    // Append the remaining bytes to the file.
+    if _, err := io.Copy(file, rc); err != nil {
         panic(err)
     }
 

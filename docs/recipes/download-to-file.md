@@ -23,7 +23,15 @@ Stream decrypted bytes directly to disk instead of buffering in memory.
     }
     defer file.Close()
 
-    if err := client.Download(ctx, file, obj); err != nil {
+    // Download returns an io.ReadCloser; always close it to release resources.
+    rc, err := client.Download(obj)
+    if err != nil {
+        panic(err)
+    }
+    defer rc.Close()
+
+    // Stream the decrypted bytes straight to disk.
+    if _, err := io.Copy(file, rc); err != nil {
         panic(err)
     }
     ```
