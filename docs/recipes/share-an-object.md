@@ -80,8 +80,14 @@ Generate a time-limited URL that anyone can use to download an [object](../core-
     ```
 === "Go"
     ```go
+    rc, err := client.DownloadSharedObject(ctx, shareURL)
+    if err != nil {
+        panic(err)
+    }
+    defer rc.Close()
+
     var buf bytes.Buffer
-    if err := client.DownloadSharedObject(ctx, &buf, shareURL); err != nil {
+    if _, err := io.Copy(&buf, rc); err != nil {
         panic(err)
     }
 
