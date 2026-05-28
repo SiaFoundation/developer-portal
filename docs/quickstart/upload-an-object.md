@@ -180,7 +180,7 @@ Once you have established a successful connection, you’re ready to upload your
 
     from sia_storage import (
         Builder,
-        AppMeta,
+        AppMetadata,
         AppKey,
         PinnedObject,
         UploadOptions,
@@ -188,7 +188,7 @@ Once you have established a successful connection, you’re ready to upload your
 
     async def main():
         # Configure your app identity details
-        meta = AppMeta(
+        meta = AppMetadata(
             id=b"your-32-byte-app-id.............",
             name="My App",
             description="Demo application",

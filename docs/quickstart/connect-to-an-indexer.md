@@ -182,12 +182,12 @@ The resulting App Key is a public/private key pair. The public key is registered
     from sia_storage import (
         generate_recovery_phrase,
         Builder,
-        AppMeta,
+        AppMetadata,
     )
 
     async def main():
         # Configure your app identity details
-        meta = AppMeta(
+        meta = AppMetadata(
             id=b"your-32-byte-app-id.............",
             name="My App",
             description="Demo application",
