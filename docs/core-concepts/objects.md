@@ -18,6 +18,12 @@ An object carries four pieces of information:
 
 The **object ID** depends only on the content layout. If the data changes and the slabs change, the object ID changes as well.
 
+> [!NOTE]
+> The SDK type representing an object is named `Object` in the Rust SDK and
+> `PinnedObject` in the Python, JavaScript, Swift, Kotlin, and React Native
+> bindings. They refer to the same concept; the bindings use `PinnedObject`
+> to avoid clashing with built-in `Object` types in those languages.
+
 ### Sealed objects (`indexd` view)
 
 `indexd` never sees plaintext data or plaintext metadata. Before an object is sent to `indexd`, the SDK encrypts the data and metadata and produces a **sealed object** that contains:
