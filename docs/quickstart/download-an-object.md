@@ -193,14 +193,14 @@ Once ready, you can download the object into memory, into a file, or into anothe
 
     from sia_storage import (
         Builder,
-        AppMeta,
+        AppMetadata,
         AppKey,
         DownloadOptions,
     )
 
     async def main():
         # Configure your app identity details
-        meta = AppMeta(
+        meta = AppMetadata(
             id=b"your-32-byte-app-id.............",
             name="My App",
             description="Demo application",
