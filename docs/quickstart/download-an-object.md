@@ -186,7 +186,7 @@ Once ready, you can download the object into memory, into a file, or into anothe
 
         // Copy the decrypted stream into an in-memory buffer.
         var buf bytes.Buffer
-        if _, err := io.Copy(&buf, rc); err != nil {
+        if _, err := buf.ReadFrom(rc); err != nil {
             panic(err)
         }
 
