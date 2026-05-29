@@ -210,7 +210,7 @@ Once ready, you can download the object into memory, into a file, or into anothe
         meta = AppMetadata(
             # Replace `appId` with your real 32-byte App ID (hex-encoded, 64 chars).
             # Generate this ONCE and keep it stable forever for your app.
-            id=bytes.fromhex("0000000000000000000000000000000000000000000000000000000000000000"),
+            id=b"your-32-byte-app-id.............",
             name="My App",
             description="Demo application",
             service_url="https://example.com",
