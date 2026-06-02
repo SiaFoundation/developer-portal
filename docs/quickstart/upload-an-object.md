@@ -300,9 +300,7 @@ Once you have established a successful connection, you’re ready to upload your
     if (!appKeyHex) {
       throw new Error('No App Key stored. Run the Connect to an Indexer flow first.')
     }
-    if (!/^[0-9a-f]{64}$/i.test(appKeyHex)) throw new Error('App Key must be 64 hex characters (32 bytes)')
-    const appKeyBytes = Uint8Array.from(appKeyHex.match(/.{2}/g).map((b) => parseInt(b, 16)))
-    const appKey = new AppKey(appKeyBytes)
+    const appKey = new AppKey(Uint8Array.fromHex(appKeyHex))
  
     // Reconnect using the App Key
     const sdk = await new Builder('https://sia.storage', appMeta).connected(appKey)
