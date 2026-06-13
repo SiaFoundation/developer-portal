@@ -93,25 +93,26 @@ The resulting App Key is a public/private key pair. The public key is registered
 === "Go"
     ```go
     package main
-
+    
     import (
         "bufio"
         "context"
         "encoding/hex"
+        "errors"
         "fmt"
         "os"
         "strings"
-
+    
         "go.sia.tech/core/types"
         "go.sia.tech/siastorage"
     )
-
+    
     const indexerURL = "https://sia.storage"
-
+    
     // Replace this with your real 32-byte App ID (hex-encoded, 64 chars).
     // Generate this ONCE and keep it stable forever for your app.
     const appIDHex = "0000000000000000000000000000000000000000000000000000000000000000"
-
+    
     // Parse the App ID once at startup.
     var appID = func() (id types.Hash256) {
         if err := id.UnmarshalText([]byte(appIDHex)); err != nil {
@@ -119,10 +120,10 @@ The resulting App Key is a public/private key pair. The public key is registered
         }
         return
     }()
-
+    
     func main() {
         ctx := context.Background()
-
+    
         // Create a builder to manage the connection flow.
         builder := siastorage.NewBuilder(indexerURL, siastorage.AppMetadata{
             ID:          appID,
@@ -130,23 +131,21 @@ The resulting App Key is a public/private key pair. The public key is registered
             Description: "Demo application",
             ServiceURL:  "https://example.com",
         })
-
+    
         // Request app connection and get the approval URL.
         responseURL, err := builder.RequestConnection(ctx)
         if err != nil {
             panic(err)
         }
         fmt.Println("Open this URL to approve the app:", responseURL)
-
+    
         // Wait for the user to approve the request.
-        approved, err := builder.WaitForApproval(ctx)
-        if err != nil {
+        if err := builder.WaitForApproval(ctx); errors.Is(err, siastorage.ErrUserRejected) {
+            panic("app connection was rejected")
+        } else if err != nil {
             panic(err)
         }
-        if !approved {
-            panic("app connection was rejected")
-        }
-
+    
         // Ask the user for their recovery phrase.
         fmt.Print("Enter your recovery phrase (type `seed` to generate a new one): ")
         recoveryPhrase, err := bufio.NewReader(os.Stdin).ReadString('\n')
@@ -154,23 +153,23 @@ The resulting App Key is a public/private key pair. The public key is registered
             panic(err)
         }
         recoveryPhrase = strings.TrimSpace(recoveryPhrase)
-
+    
         if recoveryPhrase == "seed" {
             recoveryPhrase = siastorage.NewSeedPhrase()
             fmt.Printf("\nRecovery phrase:\n%s\n\n", recoveryPhrase)
         }
-
+    
         // Register an SDK instance with your recovery phrase.
         client, err := builder.Register(ctx, recoveryPhrase)
         if err != nil {
             panic(err)
         }
         defer client.Close()
-
+    
         // The App Key should be stored securely for future launches,
         // but we do not demonstrate app key storage here.
         appKeyHex := hex.EncodeToString(client.AppKey()[:32])
-
+    
         fmt.Println("\nApp Connected!")
         fmt.Println("AppKey (save this securely):", appKeyHex)
     }
