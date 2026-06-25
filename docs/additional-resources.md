@@ -3,7 +3,9 @@
 ## SDK Reference
 
 - [Rust SDK (docs.rs)](https://docs.rs/sia_storage)
-- [Go SDK (pkg.go.dev)](https://pkg.go.dev/go.sia.tech/indexd/sdk)
+- [Go SDK (pkg.go.dev)](https://pkg.go.dev/go.sia.tech/siastorage)
+- [Python SDK (PyPI)](https://pypi.org/project/sia-storage/)
+- [JavaScript SDK (npm)](https://www.npmjs.com/package/@siafoundation/sia-storage)
 
 ## Grants Program
 

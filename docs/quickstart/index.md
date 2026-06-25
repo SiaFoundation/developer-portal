@@ -26,6 +26,8 @@ Sia is a decentralized storage network where all data is encrypted client-side, 
     npm install @siafoundation/sia-storage
     ```
 
+> The snippets below assume a connected `sdk` instance. If you haven't connected yet, start with [Connect to an Indexer](connect-to-an-indexer.md).
+
 ## Upload and Pin
 
 Upload reads from any stream source, erasure-codes the data, and distributes encrypted shards across the network. Pinning persists the object record in the indexer so it becomes listable, syncable, and eligible for repair.

@@ -14,7 +14,7 @@ Before your app can upload, download, or share data with Sia, it must first conn
 
 ## Prerequisites
 
-* **An indexer URL** — The SDK can connect to any Sia indexer, whether your own or a third-party. We recommend using `https://sia.storage`.
+* **An indexer URL** — The SDK can connect to any Sia indexer, whether your own or a third-party. We recommend `https://sia.storage`, a hosted indexer that requires no setup and includes a 50GB free tier to get started.
 * **A unique 32-byte App ID** — Generate once per app and hardcode it. Changing it changes your users' derived keys and loses access to their data.
 * **The Sia Storage SDK** — See [Install the SDK](index.md#install-the-sdk).
 
