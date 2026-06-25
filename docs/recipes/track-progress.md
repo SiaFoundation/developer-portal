@@ -133,7 +133,7 @@ The upload callback fires for every shard the SDK pushes — **data shards plus 
         dataShards: DATA_SHARDS,
         parityShards: PARITY_SHARDS,
         onShardUploaded: (p) => {
-            uploaded += p.shardSize
+            uploaded += BigInt(p.shardSize)
             const pct = ((Number(uploaded) / Number(total)) * 100).toFixed(1)
             console.log(`uploaded ${uploaded} / ${total} bytes (${pct}%)`)
         },
@@ -248,7 +248,7 @@ The download callback fires per recovered shard. Parity is only fetched if a dat
         let downloaded = 0n
         const stream = sdk.download(obj, {
         onShardDownloaded: (p) => {
-            downloaded += p.shardSize
+            downloaded += BigInt(p.shardSize)
             const pct = ((Number(downloaded) / Number(total)) * 100).toFixed(1)
             console.log(`downloaded ${downloaded} / ${total} bytes (${pct}%)`)
         },

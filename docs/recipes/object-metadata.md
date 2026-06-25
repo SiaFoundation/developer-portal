@@ -87,7 +87,8 @@ description: Attach or update encrypted application-defined metadata on Sia obje
 
     obj.UpdateMetadata([]byte(`{"File Name":"renamed.jpg","mime":"image/jpeg"}`))
 
-    if err := client.UpdateObjectMetadata(ctx, obj); err != nil {
+    // Re-pin to persist the updated metadata to the indexer.
+    if err := client.PinObject(ctx, obj); err != nil {
         panic(err)
     }
     ```
