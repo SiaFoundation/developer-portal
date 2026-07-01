@@ -50,6 +50,17 @@ Delete is a **soft delete**: the [object](../core-concepts/objects.md) disappear
     await sdk.prune_slabs()
     print("Unused slabs pruned.")
     ```
+=== "Dart"
+    ```dart
+    import 'package:sia_storage/sia_storage.dart';
+
+    await sdk.deleteObject(key: objectId);
+    print('Object deleted.');
+
+    // Remove slabs that are no longer referenced by any pinned object.
+    await sdk.pruneSlabs();
+    print('Unused slabs pruned.');
+    ```
 === "JavaScript (Node)"
     ```javascript
     await sdk.deleteObject(objectId)

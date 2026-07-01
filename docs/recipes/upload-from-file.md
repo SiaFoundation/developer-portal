@@ -47,6 +47,25 @@ Stream directly from disk instead of loading the entire object into memory.
 
     await sdk.pin_object(obj)
     ```
+=== "Dart"
+    ```dart
+    import 'dart:convert';
+    import 'dart:io';
+    import 'package:sia_storage/sia_storage.dart';
+
+    final file = File('example.txt');
+    final upload = sdk.upload(
+      object: PinnedObject(),
+      source: file.openRead(),
+    );
+    final obj = await upload.result;
+
+    obj.updateMetadata(
+      metadata: utf8.encode('{"File Name":"example.txt"}'),
+    );
+
+    await sdk.pinObject(object: obj);
+    ```
 === "JavaScript (Node)"
     ```javascript
     import { PinnedObject } from '@siafoundation/sia-storage'

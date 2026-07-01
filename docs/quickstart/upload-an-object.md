@@ -230,6 +230,67 @@ Once you have established a successful connection, you’re ready to upload your
 
     asyncio.run(main())
     ```
+=== "Dart"
+    ```dart
+    import 'dart:convert';
+    import 'dart:io';
+    import 'dart:typed_data';
+    import 'package:convert/convert.dart';
+    import 'package:sia_storage/sia_storage.dart';
+
+    // Replace with your real 32-byte App ID (hex-encoded, 64 chars).
+    // Generate this ONCE and keep it stable forever for your app.
+    const appIdHex =
+        '0000000000000000000000000000000000000000000000000000000000000000';
+
+    Future<void> main() async {
+      final appMeta = AppMetadata(
+        id: Uint8List.fromList(hex.decode(appIdHex)),
+        name: 'My App',
+        description: 'Demo application',
+        serviceUrl: 'https://example.com',
+      );
+
+      final builder = await Sia.builder(
+        indexerUrl: 'https://sia.storage',
+        appMeta: appMeta,
+      );
+
+      // Ask the user for their App Key
+      stdout.write('Enter your App Key (hex): ');
+      final appKeyHex = stdin.readLineSync()?.trim() ?? '';
+      final appKey = await Sia.appKey(Uint8List.fromList(hex.decode(appKeyHex)));
+
+      // Reconnect using the App Key
+      final sdk = await builder.connected(appKey: appKey);
+      if (sdk == null) {
+        stderr.writeln(
+          'App Key is not connected to this app on this indexer.\n'
+          'Run connect-to-an-indexer.dart first to approve and register the app.',
+        );
+        exit(1);
+      }
+
+      print('\nApp Connected!');
+
+      // Upload "Hello world!" from an in-memory stream
+      print('\nStarting upload...');
+      final upload = sdk.upload(
+        object: PinnedObject(),
+        source: Stream.value(utf8.encode('Hello world!')),
+      );
+      final obj = await upload.result;
+
+      // Pin the object — without this, the upload is not persisted
+      await sdk.pinObject(object: obj);
+
+      print('\nUpload complete:');
+      print(' - Size: ${obj.size()} bytes');
+      print(' - Object ID: ${obj.id()}');
+
+      Sia.dispose();
+    }
+    ```
 === "JavaScript (Node)"
     ```javascript
     import { Builder, AppKey, PinnedObject, initSia } from '@siafoundation/sia-storage'

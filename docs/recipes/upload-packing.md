@@ -114,6 +114,39 @@ Each packed object still gets its own Object ID and can be [pinned](../core-conc
     for i, obj in enumerate(objects, start=1):
         print(f" - Object {i} ID: {obj.id()}")
     ```
+=== "Dart"
+    ```dart
+    import 'dart:convert';
+    import 'package:sia_storage/sia_storage.dart';
+
+    final start = DateTime.now();
+
+    final session = sdk.uploadPacked();
+
+    for (var i = 0; i < 10; i++) {
+      final data = utf8.encode('Contents of object ${i + 1}.');
+
+      final size = await session.upload.add(Stream.value(data));
+      final rem = session.upload.remaining();
+      print('Object ${i + 1} added: $size bytes ($rem remaining)');
+    }
+
+    final objects = await session.upload.finalize();
+
+    for (var i = 0; i < objects.length; i++) {
+      objects[i].updateMetadata(
+        metadata: utf8.encode('{"File Name":"packed-${i + 1}.txt"}'),
+      );
+      await sdk.pinObject(object: objects[i]);
+    }
+
+    final elapsed = DateTime.now().difference(start);
+    print('\nPacked upload finished ${objects.length} objects in $elapsed');
+
+    for (var i = 0; i < objects.length; i++) {
+      print(' - Object ${i + 1} ID: ${objects[i].id()}');
+    }
+    ```
 === "JavaScript (Node)"
     ```javascript
     const start = Date.now()

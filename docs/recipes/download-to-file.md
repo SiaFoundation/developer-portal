@@ -41,6 +41,16 @@ Stream decrypted bytes directly to disk instead of buffering in memory.
         async with sdk.download(obj, DownloadOptions()) as d:
             await d.write_to(file)
     ```
+=== "Dart"
+    ```dart
+    import 'dart:io';
+    import 'package:sia_storage/sia_storage.dart';
+
+    final sink = File('output.bin').openWrite();
+    final dl = sdk.download(object: obj);
+    await sink.addStream(dl.data);
+    await sink.close();
+    ```
 === "JavaScript (Node)"
     ```javascript
     import { open } from 'node:fs/promises'

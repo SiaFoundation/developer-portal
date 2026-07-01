@@ -248,6 +248,69 @@ Once ready, you can download the object into memory, into a file, or into anothe
 
     asyncio.run(main())
     ```
+=== "Dart"
+    ```dart
+    import 'dart:convert';
+    import 'dart:io';
+    import 'dart:typed_data';
+    import 'package:convert/convert.dart';
+    import 'package:sia_storage/sia_storage.dart';
+
+    // Replace with your real 32-byte App ID (hex-encoded, 64 chars).
+    // Generate this ONCE and keep it stable forever for your app.
+    const appIdHex =
+        '0000000000000000000000000000000000000000000000000000000000000000';
+
+    Future<void> main() async {
+      final appMeta = AppMetadata(
+        id: Uint8List.fromList(hex.decode(appIdHex)),
+        name: 'My App',
+        description: 'Demo application',
+        serviceUrl: 'https://example.com',
+      );
+
+      final builder = await Sia.builder(
+        indexerUrl: 'https://sia.storage',
+        appMeta: appMeta,
+      );
+
+      // Ask the user for their App Key
+      stdout.write('Enter your App Key (hex): ');
+      final appKeyHex = stdin.readLineSync()?.trim() ?? '';
+      final appKey = await Sia.appKey(Uint8List.fromList(hex.decode(appKeyHex)));
+
+      // Reconnect using the App Key
+      final sdk = await builder.connected(appKey: appKey);
+      if (sdk == null) {
+        stderr.writeln(
+          'App Key is not connected to this app on this indexer.\n'
+          'Run connect-to-an-indexer.dart first to approve and register the app.',
+        );
+        exit(1);
+      }
+
+      print('\nApp Connected!');
+
+      // Ask the user for the Object ID to download
+      stdout.write('Enter the Object ID to download: ');
+      final objectId = stdin.readLineSync()?.trim() ?? '';
+
+      // Look up the object from the indexer
+      final obj = await sdk.object(key: objectId);
+
+      // Download the object into memory
+      final dl = sdk.download(object: obj);
+      final buffer = <int>[];
+      await for (final chunk in dl.data) {
+        buffer.addAll(chunk);
+      }
+
+      print('\nObject downloaded!');
+      print(' - Contents: ${utf8.decode(Uint8List.fromList(buffer))}');
+
+      Sia.dispose();
+    }
+    ```
 === "JavaScript (Node)"
     ```javascript
     import { Builder, AppKey, initSia } from '@siafoundation/sia-storage'

@@ -114,6 +114,40 @@ The upload callback fires for every shard the SDK pushes — **data shards plus 
 
     await sdk.pin_object(obj)
     ```
+=== "Dart"
+    ```dart
+    import 'dart:io';
+    import 'package:sia_storage/sia_storage.dart';
+
+    const dataShards = 10;
+    const parityShards = 20;
+
+    final file = File('example.bin');
+    final rawSize = BigInt.from(await file.length());
+    final total = encodedSize(
+      size: rawSize,
+      dataShards: dataShards,
+      parityShards: parityShards,
+    );
+
+    var uploaded = BigInt.zero;
+
+    final upload = sdk.upload(
+      object: PinnedObject(),
+      source: file.openRead(),
+      options: const UploadOptions(dataShards: dataShards, parityShards: parityShards),
+    );
+
+    // Subscribe before awaiting result to avoid missing early events
+    upload.progress.listen((p) {
+      uploaded += BigInt.from(p.shardSize);
+      final pct = (uploaded.toDouble() / total.toDouble() * 100).toStringAsFixed(1);
+      print('uploaded $uploaded / $total bytes ($pct%)');
+    });
+
+    final obj = await upload.result;
+    await sdk.pinObject(object: obj);
+    ```
 === "JavaScript (Node)"
     ```javascript
         import { encodedSize, PinnedObject } from '@siafoundation/sia-storage'
@@ -240,6 +274,30 @@ The download callback fires per recovered shard. Parity is only fetched if a dat
 
     async with sdk.download(obj, opts) as d:
         data = await d.read_all()
+    ```
+=== "Dart"
+    ```dart
+    import 'dart:typed_data';
+    import 'package:sia_storage/sia_storage.dart';
+
+    final total = obj.size();
+    var downloaded = BigInt.zero;
+
+    final dl = sdk.download(object: obj);
+
+    // Subscribe before reading data to avoid missing early events
+    dl.progress.listen((p) {
+      downloaded += BigInt.from(p.shardSize);
+      final pct = (downloaded.toDouble() / total.toDouble() * 100).toStringAsFixed(1);
+      print('downloaded $downloaded / $total bytes ($pct%)');
+    });
+
+    // Drain the stream so the callbacks actually fire.
+    // Replace with your real destination (file, buffer, etc.).
+    final buffer = <int>[];
+    await for (final chunk in dl.data) {
+      buffer.addAll(chunk);
+    }
     ```
 === "JavaScript (Node)"
     ```javascript

@@ -21,6 +21,10 @@ Sia is a decentralized storage network where all data is encrypted client-side, 
     ```sh
     pip install sia-storage
     ```
+=== "Dart"
+    ```sh
+    dart pub add sia_storage
+    ```
 === "JavaScript"
     ```sh
     npm install @siafoundation/sia-storage
@@ -61,6 +65,19 @@ Upload reads from any stream source, erasure-codes the data, and distributes enc
     obj = await sdk.upload(PinnedObject(), BytesIO(b"hello, world!"), UploadOptions())
     await sdk.pin_object(obj)
     print("Object ID:", obj.id())
+    ```
+=== "Dart"
+    ```dart
+    import 'dart:convert';
+    import 'package:sia_storage/sia_storage.dart';
+
+    final upload = sdk.upload(
+      object: PinnedObject(),
+      source: Stream.value(utf8.encode('hello, world!')),
+    );
+    final obj = await upload.result;
+    await sdk.pinObject(object: obj);
+    print('Object ID: ${obj.id()}');
     ```
 === "JavaScript"
     ```javascript
@@ -106,6 +123,19 @@ Download locates the object's shards, retrieves them from storage providers, ver
     async with sdk.download(obj, DownloadOptions()) as d:
         buffer = await d.read_all()
     print("Downloaded:", buffer.decode())
+    ```
+=== "Dart"
+    ```dart
+    import 'dart:convert';
+    import 'dart:typed_data';
+    import 'package:sia_storage/sia_storage.dart';
+
+    final dl = sdk.download(object: obj);
+    final buffer = <int>[];
+    await for (final chunk in dl.data) {
+      buffer.addAll(chunk);
+    }
+    print('Downloaded: ${utf8.decode(Uint8List.fromList(buffer))}');
     ```
 === "JavaScript"
     ```javascript

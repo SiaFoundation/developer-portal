@@ -228,6 +228,63 @@ The resulting App Key is a public/private key pair. The public key is registered
 
     asyncio.run(main())
     ```
+=== "Dart"
+    ```dart
+    import 'dart:io';
+    import 'dart:typed_data';
+    import 'package:convert/convert.dart';
+    import 'package:sia_storage/sia_storage.dart';
+
+    // Replace with your real 32-byte App ID (hex-encoded, 64 chars).
+    // Generate this ONCE and keep it stable forever for your app.
+    const appIdHex =
+        '0000000000000000000000000000000000000000000000000000000000000000';
+
+    Future<void> main() async {
+      final appMeta = AppMetadata(
+        id: Uint8List.fromList(hex.decode(appIdHex)),
+        name: 'My App',
+        description: 'Demo application',
+        serviceUrl: 'https://example.com',
+      );
+
+      // Create a builder to manage the connection flow
+      final builder = await Sia.builder(
+        indexerUrl: 'https://sia.storage',
+        appMeta: appMeta,
+      );
+
+      // Request app connection and get the approval URL
+      await builder.requestConnection();
+      print('Open this URL to approve the app: ${builder.responseUrl()}');
+
+      // Wait for the user to approve the request
+      await builder.waitForApproval();
+
+      // Ask the user for their recovery phrase
+      stdout.write(
+        '\nEnter your recovery phrase (type `seed` to generate a new one): ',
+      );
+      var phrase = stdin.readLineSync()?.trim() ?? '';
+
+      if (phrase == 'seed') {
+        phrase = await Sia.generateRecoveryPhrase();
+        print('\nRecovery phrase:\n$phrase\n');
+      }
+
+      // Register an SDK instance with your recovery phrase
+      final sdk = await builder.register(mnemonic: phrase);
+
+      // Export the App Key and store it securely for future launches
+      final appKeyBytes = sdk.appKey().export_();
+      final appKeyHex = hex.encode(appKeyBytes);
+
+      print('\nApp Connected!');
+      print('App Key (hex): $appKeyHex');
+
+      Sia.dispose();
+    }
+    ```
 === "JavaScript (Node)"
     ```javascript
     import { Builder, generateRecoveryPhrase, initSia } from '@siafoundation/sia-storage'
