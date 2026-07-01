@@ -46,6 +46,17 @@ Generate a time-limited URL that anyone can use to download an [object](../core-
 
     print("Share URL:", share_url)
     ```
+=== "Dart"
+    ```dart
+    import 'package:sia_storage/sia_storage.dart';
+
+    final obj = await sdk.object(key: objectId);
+
+    final expires = DateTime.now().add(const Duration(hours: 1));
+    final shareUrl = sdk.shareObject(object: obj, validUntil: expires);
+
+    print('Share URL: $shareUrl');
+    ```
 === "JavaScript (Node)"
     ```javascript
     const obj = await sdk.object(objectId)
@@ -101,6 +112,21 @@ Generate a time-limited URL that anyone can use to download an [object](../core-
         buffer = await d.read_all()
 
     print("Downloaded:", buffer.decode())
+    ```
+=== "Dart"
+    ```dart
+    import 'dart:convert';
+    import 'dart:typed_data';
+    import 'package:sia_storage/sia_storage.dart';
+
+    final sharedObj = await sdk.sharedObject(sharedUrl: shareUrl);
+
+    final dl = sdk.download(object: sharedObj);
+    final buffer = <int>[];
+    await for (final chunk in dl.data) {
+      buffer.addAll(chunk);
+    }
+    print('Downloaded: ${utf8.decode(Uint8List.fromList(buffer))}');
     ```
 === "JavaScript (Node)"
     ```javascript

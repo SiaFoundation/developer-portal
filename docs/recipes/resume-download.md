@@ -94,6 +94,33 @@ Measure how many bytes you already have, reopen the destination in append mode, 
 
     print("Resumed from byte:", resume_at)
     ```
+=== "Dart"
+    ```dart
+    import 'dart:io';
+    import 'package:sia_storage/sia_storage.dart';
+
+    const outputPath = 'output.bin';
+    final outputFile = File(outputPath);
+
+    var resumeAt = BigInt.zero;
+    if (await outputFile.exists()) {
+      resumeAt = BigInt.from(await outputFile.length());
+    }
+
+    if (resumeAt >= obj.size()) {
+      print('Download already complete.');
+    } else {
+      final sink = outputFile.openWrite(mode: FileMode.append);
+      final dl = sdk.download(
+        object: obj,
+        options: DownloadOptions(offset: resumeAt),
+      );
+      await sink.addStream(dl.data);
+      await sink.close();
+
+      print('Resumed from byte: $resumeAt');
+    }
+    ```
 === "JavaScript (Node)"
     ```javascript
     import { stat, open } from 'node:fs/promises'
