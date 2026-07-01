@@ -277,7 +277,6 @@ The download callback fires per recovered shard. Parity is only fetched if a dat
     ```
 === "Dart"
     ```dart
-    import 'dart:typed_data';
     import 'package:sia_storage/sia_storage.dart';
 
     final total = obj.size();
