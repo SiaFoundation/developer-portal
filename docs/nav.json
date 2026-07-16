@@ -3,8 +3,8 @@
     "title": "Quickstart",
     "children": [
       { "title": "Hello, Sia!", "path": "quickstart/index.md" },
-      { "title": "Connect to an Indexer", "path": "quickstart/connect-to-an-indexer.md" },
-      { "title": "Upload an Object", "path": "quickstart/upload-an-object.md" },
+      { "title": "Connect a Storage Account", "path": "quickstart/connect-to-an-indexer.md" },
+      { "title": "Store an Object", "path": "quickstart/upload-an-object.md" },
       { "title": "Download an Object", "path": "quickstart/download-an-object.md" }
     ]
   },
@@ -24,6 +24,7 @@
   {
     "title": "Core Concepts",
     "children": [
+      { "title": "Trust & Deployment", "path": "core-concepts/trust-and-deployment.md" },
       { "title": "Apps", "path": "core-concepts/apps.md" },
       { "title": "Erasure Coding", "path": "core-concepts/erasure-coding.md" },
       { "title": "Indexers", "path": "core-concepts/indexers.md" },

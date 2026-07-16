@@ -41,7 +41,7 @@ The app should never store or transmit the recovery phrase. After onboarding, on
 
 Before an app can act for a user, the user explicitly approves it. Approval binds the app to the user's account, happens once per (user, app) pair, and can be revoked at any time. Revocation immediately cuts off that app's access. Subsequent connections after approval are silent.
 
-See [Connect to an Indexer](../quickstart/connect-to-an-indexer.md) for the approval flow.
+See [Connect a Storage Account](../quickstart/connect-to-an-indexer.md) for the approval flow.
 
 ## Apps vs. users
 

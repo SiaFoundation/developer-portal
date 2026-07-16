@@ -45,7 +45,7 @@ function NavSection({
           className={`w-full flex items-center justify-between text-left text-[13px] font-medium py-1.5 transition-colors ${
             depth === 0
               ? 'text-[#e7e7e7] light:text-[#1a1a1a]'
-              : 'text-[#999] light:text-[#666] hover:text-[#e7e7e7] light:hover:text-[#1a1a1a]'
+              : 'text-[#999] light:text-[#374151] hover:text-[#e7e7e7] light:hover:text-[#1a1a1a]'
           }`}
         >
           {item.title}
@@ -87,8 +87,8 @@ function NavSection({
         onClick={onNavigate}
         className={`block text-[13px] py-1.5 transition-colors no-underline ${
           isActive
-            ? 'text-[#0099ff] font-medium'
-            : 'text-[#999] light:text-[#666] hover:text-[#e7e7e7] light:hover:text-[#1a1a1a]'
+            ? 'text-(--accent) font-medium'
+            : 'text-[#999] light:text-[#374151] hover:text-[#e7e7e7] light:hover:text-[#1a1a1a]'
         }`}
       >
         {item.title}

@@ -1,3 +1,4 @@
+import { GeistMono } from 'geist/font/mono';
 import type { Metadata } from 'next';
 import { FathomAnalytics } from '@/components/Fathom';
 import { ThemeProvider } from '@/lib/theme';
@@ -5,8 +6,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Sia Developer Documentation',
-  description:
-    'Developer documentation for Sia — decentralized cloud storage.',
+  description: 'Developer documentation for Sia — decentralized cloud storage.',
   icons: '/logo.png',
 };
 
@@ -19,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={GeistMono.variable}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

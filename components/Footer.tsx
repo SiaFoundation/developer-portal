@@ -76,7 +76,7 @@ export function Footer() {
         <button
           type="button"
           onClick={toggleTheme}
-          className="p-1.5 rounded-md text-[#757575] light:text-[#999] hover:text-[#e7e7e7] light:hover:text-[#1a1a1a] hover:bg-[#1a1a1a] light:hover:bg-[#f3f4f6] transition-colors"
+          className="p-1.5 rounded-md text-[#757575] light:text-[#999] hover:text-[#e7e7e7] light:hover:text-[#1a1a1a] hover:bg-[#2d2d2d] light:hover:bg-[#f3f4f6] transition-colors"
           aria-label={isLight ? 'Switch to dark mode' : 'Switch to light mode'}
         >
           {isLight ? <MoonIcon /> : <SunIcon />}

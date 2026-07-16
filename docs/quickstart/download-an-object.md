@@ -5,7 +5,7 @@ description: Download a pinned object from the Sia network by Object ID.
 
 # Download an Object
 
-Once your application has uploaded an object to Sia, downloading is straightforward. The SDK handles all network coordination: locating slabs, downloading encrypted shards, verifying them, and decrypting your data locally.
+Once your app has stored an object, getting it back is straightforward: look it up by its Object ID and download it. The SDK handles all network coordination — it finds the object’s encrypted pieces, fetches them from storage providers, verifies them, and decrypts the data locally.
 
 Downloads return a reader that streams decrypted bytes as they arrive. Copy the reader into any destination — an in-memory buffer, a file, or another writable sink — so you can pull small objects fully into memory or stream large ones straight to disk.
 
@@ -380,7 +380,7 @@ Once ready, you can download the object into memory, into a file, or into anothe
     // Load the App Key from wherever you stored it during connect
     const appKeyHex = localStorage.getItem('appKey')
     if (!appKeyHex) {
-      throw new Error('No App Key stored. Run the Connect to an Indexer flow first.')
+      throw new Error('No App Key stored. Run the Connect a Storage Account flow first.')
     }
     const appKey = new AppKey(Uint8Array.fromHex(appKeyHex))
  
@@ -405,3 +405,15 @@ Once ready, you can download the object into memory, into a file, or into anothe
     console.log('Object downloaded!')
     console.log(' - Contents:', text)
     ```
+
+## Understand what happened
+
+The object came back without the indexer or any storage provider ever seeing its contents. Along the way, the SDK:
+
+* Looked up the object’s slab layout from the indexer using the Object ID.
+* Fetched encrypted shards from storage providers and verified their integrity.
+* Reconstructed and decrypted the data locally, on the device.
+
+Because objects are [erasure-coded](../core-concepts/erasure-coding.md), the SDK only needs a subset of each slab’s shards to reconstruct the data — under normal conditions it fetches just the data shards, so download bandwidth tracks the raw size and unreachable providers don’t block the download.
+
+From here, you can attach application-defined, encrypted metadata with the [Object Metadata](../recipes/object-metadata.md) recipe, [share an object](../recipes/share-an-object.md) with a link, or read how [indexers](../core-concepts/indexers.md) keep your data healthy.

@@ -30,7 +30,7 @@ function highlight(text: string, query: string): React.ReactNode {
   return (
     <>
       {text.slice(0, idx)}
-      <mark className="bg-[#0099ff]/20 text-inherit rounded-sm px-0.5">
+      <mark className="bg-(--accent)/20 text-inherit rounded-sm px-0.5">
         {text.slice(idx, idx + query.length)}
       </mark>
       {text.slice(idx + query.length)}
@@ -69,11 +69,11 @@ export function SearchButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 p-2 xl:px-3 xl:h-[30px] text-[12px] text-[#757575] light:text-[#999] xl:bg-[#1a1a1a] xl:light:bg-[#f3f4f6] xl:border xl:border-[#2d2d2d] xl:light:border-[#e0e0e0] rounded-md hover:text-[#e7e7e7] light:hover:text-[#1a1a1a] xl:hover:text-[#757575] xl:hover:border-[#404040] xl:light:hover:border-[#ccc] transition-colors cursor-pointer"
+        className="flex items-center gap-2 p-2 xl:px-3 xl:h-[30px] text-[12px] text-[#757575] light:text-[#999] xl:bg-[#2d2d2d] xl:light:bg-[#f3f4f6] xl:border xl:border-[#2d2d2d] xl:light:border-[#e0e0e0] rounded-md hover:text-[#e7e7e7] light:hover:text-[#1a1a1a] xl:hover:text-[#757575] xl:hover:border-[#2d2d2d] xl:light:hover:border-[#ccc] transition-colors cursor-pointer"
       >
         <SearchIcon className="shrink-0" />
         <span className="hidden xl:inline">Search...</span>
-        <kbd className="hidden xl:inline text-[10px] text-[#555] light:text-[#aaa] ml-1 px-1.5 py-0.5 bg-[#0f0f0f] light:bg-white border border-[#2d2d2d] light:border-[#d1d5db] rounded">
+        <kbd className="hidden xl:inline text-[10px] text-[#2d2d2d] light:text-[#757575] ml-1 px-1.5 py-0.5 bg-[#0f0f0f] light:bg-white border border-[#2d2d2d] light:border-[#e0e0e0] rounded">
           ⌘K
         </kbd>
       </button>
@@ -164,7 +164,7 @@ function SearchDialog({ onClose }: { onClose: () => void }) {
     >
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
       <div
-        className="relative w-full max-w-lg mx-2 sm:mx-4 bg-[#1a1a1a] light:bg-white border border-[#2d2d2d] light:border-[#e0e0e0] rounded-xl shadow-2xl overflow-hidden"
+        className="relative w-full max-w-lg mx-2 sm:mx-4 bg-[#2d2d2d] light:bg-white border border-[#2d2d2d] light:border-[#e0e0e0] rounded-xl shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-3 px-3 sm:px-4 py-3 border-b border-[#2d2d2d] light:border-[#e0e0e0]">
@@ -176,7 +176,7 @@ function SearchDialog({ onClose }: { onClose: () => void }) {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onKeyDown}
             placeholder="Search documentation..."
-            className="flex-1 bg-transparent text-[14px] text-[#e7e7e7] light:text-[#1a1a1a] placeholder-[#555] light:placeholder-[#aaa] outline-none min-w-0"
+            className="flex-1 bg-transparent text-[14px] text-[#e7e7e7] light:text-[#1a1a1a] placeholder-[#2d2d2d] light:placeholder-[#757575] outline-none min-w-0"
           />
           <button
             type="button"
@@ -195,7 +195,7 @@ function SearchDialog({ onClose }: { onClose: () => void }) {
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </button>
-          <kbd className="hidden sm:inline-block shrink-0 text-[10px] text-[#555] light:text-[#aaa] px-1.5 py-0.5 bg-[#0f0f0f] light:bg-[#f3f4f6] border border-[#2d2d2d] light:border-[#d1d5db] rounded">
+          <kbd className="hidden sm:inline-block shrink-0 text-[10px] text-[#2d2d2d] light:text-[#757575] px-1.5 py-0.5 bg-[#0f0f0f] light:bg-[#f3f4f6] border border-[#2d2d2d] light:border-[#e0e0e0] rounded">
             ESC
           </kbd>
         </div>
@@ -214,14 +214,14 @@ function SearchDialog({ onClose }: { onClose: () => void }) {
                       type="button"
                       className={`w-full text-left px-3 sm:px-4 py-3 transition-colors ${
                         i === selected
-                          ? 'bg-[#0099ff]/10 light:bg-[#0099ff]/5'
-                          : 'hover:bg-[#252525] light:hover:bg-[#f5f5f5]'
+                          ? 'bg-(--accent)/10 light:bg-(--accent)/5'
+                          : 'hover:bg-[#2d2d2d] light:hover:bg-[#f3f4f6]'
                       }`}
                       onClick={() => navigate(entry.slug)}
                       onMouseEnter={() => setSelected(i)}
                     >
                       {entry.section && (
-                        <div className="text-[10px] text-[#555] light:text-[#aaa] uppercase tracking-wider mb-0.5">
+                        <div className="text-[10px] text-[#2d2d2d] light:text-[#757575] uppercase tracking-wider mb-0.5">
                           {entry.section}
                         </div>
                       )}
@@ -240,7 +240,7 @@ function SearchDialog({ onClose }: { onClose: () => void }) {
         )}
 
         {query.length < 2 && (
-          <div className="px-4 py-6 text-center text-[12px] text-[#555] light:text-[#aaa]">
+          <div className="px-4 py-6 text-center text-[12px] text-[#2d2d2d] light:text-[#757575]">
             Type at least 2 characters to search
           </div>
         )}

@@ -44,7 +44,10 @@ export function Header({ onMenuToggle, menuOpen }: HeaderProps) {
           </button>
         )}
 
-        <Link href="/" className="shrink-0 mr-4 flex items-center gap-2 no-underline">
+        <Link
+          href="/"
+          className="shrink-0 mr-4 flex items-center gap-2 no-underline"
+        >
           <img src="/logo.png" alt="Sia" className="h-5 w-5" />
           <span className="text-[13px] font-medium text-[#e7e7e7] light:text-[#1a1a1a]">
             Sia Developer Portal

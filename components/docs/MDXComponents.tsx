@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import { Callout } from './Callout';
 import { CodeBlock } from './CodeBlock';
 import { Mermaid } from './Mermaid';
@@ -17,7 +17,7 @@ export const mdxComponents = {
   },
   blockquote: ({ children }: { children: ReactNode }) => {
     return (
-      <blockquote className="border-l-4 border-[#2d2d2d] light:border-[#e0e0e0] pl-4 text-[#999] light:text-[#6b7280] italic">
+      <blockquote className="border-l-4 border-[#2d2d2d] light:border-[#e0e0e0] pl-4 text-[#999] light:text-[#374151] italic">
         {children}
       </blockquote>
     );

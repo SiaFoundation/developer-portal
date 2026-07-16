@@ -1,16 +1,13 @@
 ---
-title: Connect to an Indexer
-description: Set up your app's identity, get user approval, and derive an App Key to connect to a Sia indexer.
+title: Connect a Storage Account
+description: Connect your app to a user's storage account — get one-time approval from the user and derive the App Key your app uses from then on.
 ---
 
-# Connect to an Indexer
+# Connect a Storage Account
 
-Before your app can upload, download, or share data with Sia, it must first connect to an indexer. An indexer acts as your application’s gateway to the Sia network. It handles:
+Before your app can store or retrieve anything, it connects to the user's storage account. In Sia terms, this means connecting to an **indexer** — the service that verifies your app's identity and tracks the user's stored data.
 
-  * Verifying your app’s identity.
-  * Managing the one-time approval flow.
-  * Tracking your pinned objects and their metadata.
-  * Coordinating with storage providers on the network.
+The flow is short: your app requests a connection, the user approves it once, and the SDK derives an **App Key** — the credential your app stores and uses for every session after that.
 
 ## Prerequisites
 
@@ -18,17 +15,8 @@ Before your app can upload, download, or share data with Sia, it must first conn
 * **A unique 32-byte App ID** — Generate once per app and hardcode it. Changing it changes your users' derived keys and loses access to their data.
 * **The Sia Storage SDK** — See [Install the SDK](index.md#install-the-sdk).
 
-## Authentication Requirements
-
-Each new instance of your app will require a unique App Key, which is deterministically derived from:
-
-* **A BIP-39 recovery phrase**
-* **A unique 32-byte App ID**
-
-The resulting App Key is a public/private key pair. The public key is registered with the indexer during onboarding, while the private key should be stored securely by the app.
-
 > [!WARNING]
-> **The BIP-39 recovery phrase should be treated as the user's master key.**
+> **The user's BIP-39 recovery phrase is their master key.**
 >
 > * The recovery phrase must **never** be stored by your application, but instead stored securely by the user.
 > * It should be used only once during onboarding to derive the App Key.
@@ -388,16 +376,13 @@ The resulting App Key is a public/private key pair. The public key is registered
     console.log('App Key (hex):', appKeyHex)
     ```
 
-## Deep Dive
-#### Why approval is required
+## Understand what happened
 
-The indexer enforces a one-time authorization step, so the user must explicitly grant your app access to their account.
+What each step of the flow did:
 
-After approval, the SDK can connect without user interaction using the stored app key.
+#### Your app's identity
 
-#### App Metadata
-
-During `request_connection`, you supply metadata that will be displayed during app approval:
+Your app is identified by its App ID and the metadata you supplied during `request_connection`, which is displayed to the user during approval:
 
 * `id` — A 32-byte App ID (Generated once and persists forever)
 * `name` — Name of your application
@@ -405,6 +390,24 @@ During `request_connection`, you supply metadata that will be displayed during a
 * `service_url` — The URL representing your app
 * `logo_url` *(optional)* — An icon shown to the user
 * `callback_url` *(optional)* — Used if your approval flow involves redirects
+
+See [Apps](../core-concepts/apps.md) for the full identity model.
+
+#### Why approval is required
+
+The indexer enforces a one-time authorization step, so the user must explicitly grant your app access to their account.
+
+After approval, the SDK can connect without user interaction using the stored app key.
+
+#### The recovery phrase and the App Key
+
+The App Key is deterministically derived from two inputs: the user's **BIP-39 recovery phrase** and your app's **32-byte App ID**. It is a public/private key pair — the public key is registered with the indexer during onboarding, and the private key is what your app stores securely and signs requests with from then on.
+
+Because the derivation is deterministic, a user who loses a device can re-derive the same App Key on a new one from their recovery phrase. And because the App ID is an input, different apps derive different keys — one app can never read another app's data, even for the same user.
+
+#### What the indexer does
+
+The indexer verifies your app's identity, manages the approval flow, tracks the user's pinned objects and their encrypted metadata, and coordinates with storage providers — all without ever seeing plaintext data. See [Indexers](../core-concepts/indexers.md) and the [Trust & Deployment Model](../core-concepts/trust-and-deployment.md) for what it can and cannot see.
 
 #### Approval failures
 

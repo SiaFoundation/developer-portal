@@ -126,9 +126,7 @@ export default async function DocPage({ params }: PageProps) {
   return (
     <div className="flex justify-center flex-1 min-w-0">
       <article className="w-full max-w-3xl px-4 md:px-8 py-10 overflow-x-hidden">
-        <div className="prose prose-sm max-w-none">
-          {mdxContent}
-        </div>
+        <div className="prose prose-sm max-w-none">{mdxContent}</div>
         <NextPrevLinks prev={prev} next={next} />
       </article>
       <TableOfContents items={toc} />

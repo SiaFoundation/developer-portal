@@ -4,6 +4,53 @@
 /* Light mode variant */
 @custom-variant light (&:where(.light-mode, .light-mode *));
 
+/* ── Brand ──
+   Accents from the Sia brand palette. Slime carries the accent role on dark
+   backgrounds; Guardian Olive takes over in light mode where Slime lacks
+   contrast. */
+
+:root {
+  --accent: #36d955; /* Slime */
+}
+.light-mode {
+  --accent: #1d2609; /* Sia Guardian Olive */
+}
+
+@theme {
+  --font-mono:
+    var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+pre,
+code,
+kbd,
+samp {
+  font-family:
+    var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* ── Hero code card: dual-theme shiki tokens ── */
+
+.hero-code pre {
+  margin: 0;
+  padding: 1rem;
+  min-height: 250px;
+  overflow-x: auto;
+  background: transparent;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: #e6edf3;
+}
+.light-mode .hero-code pre {
+  color: #1f2328;
+}
+.hero-code code span {
+  color: var(--shiki-dark);
+}
+.light-mode .hero-code code span {
+  color: var(--shiki-light);
+}
+
 @utility scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -45,7 +92,7 @@ h6 {
 }
 
 .prose :is(h1, h2, h3, h4) > a[href^="#"]:hover > svg {
-  color: #0099ff;
+  color: var(--accent);
 }
 
 /* ── Prose: dark mode (default) ── */
@@ -60,7 +107,7 @@ h6 {
   color: #e7e7e7;
 }
 .prose a {
-  color: #0099ff;
+  color: var(--accent);
   text-decoration: none;
 }
 .prose a:hover {
@@ -110,7 +157,10 @@ h6 {
   color: #1a1a1a;
 }
 .light-mode .prose a {
-  color: #0099ff;
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: #36d955; /* Slime underline keeps the accent visible */
+  text-decoration-thickness: 1.5px;
 }
 .light-mode .prose :is(blockquote) {
   border-color: #e0e0e0;

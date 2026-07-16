@@ -5,7 +5,9 @@ description: Get started building with Sia's decentralized, privacy-preserving s
 
 # Quickstart
 
-Sia is a decentralized storage network where all data is encrypted client-side, erasure-coded into redundant shards, and distributed across independent storage providers worldwide. An indexer coordinates uploads, downloads, and object management without ever seeing your data.
+Sia is a decentralized storage network where all data is encrypted client-side, erasure-coded into redundant shards, and distributed across independent storage providers worldwide. An indexer — hosted by [sia.storage](https://sia.storage) or [self-hosted](../core-concepts/trust-and-deployment.md) — coordinates uploads, downloads, and object management without ever seeing your data.
+
+Getting to a working app takes four steps: install an SDK, [connect a storage account](connect-to-an-indexer.md), [store an object](upload-an-object.md), and [download it back](download-an-object.md).
 
 ## Install the SDK
 
@@ -30,11 +32,11 @@ Sia is a decentralized storage network where all data is encrypted client-side, 
     npm install @siafoundation/sia-storage
     ```
 
-> The snippets below assume a connected `sdk` instance. If you haven't connected yet, start with [Connect to an Indexer](connect-to-an-indexer.md).
+> The snippets below assume a connected `sdk` instance. If you haven't connected yet, start with [Connect a Storage Account](connect-to-an-indexer.md).
 
-## Upload and Pin
+## Upload and pin
 
-Upload reads from any stream source, erasure-codes the data, and distributes encrypted shards across the network. Pinning persists the object record in the indexer so it becomes listable, syncable, and eligible for repair.
+Storing an object is two calls: **upload**, which encrypts the data and distributes it across the network, and **pin**, which saves the upload to the user's account so it can be listed, synced, and kept healthy. The returned Object ID is the object's permanent identifier — derived from its content, and used later to download it.
 
 === "Rust"
     ```rust
@@ -89,9 +91,9 @@ Upload reads from any stream source, erasure-codes the data, and distributes enc
     console.log('Object ID:', obj.id())
     ```
 
-## Download
+## Download it back
 
-Download locates the object's shards, retrieves them from storage providers, verifies integrity, and decrypts the data locally. It returns a reader that streams decrypted bytes into any destination.
+Download fetches the object's encrypted pieces from storage providers, verifies integrity, and decrypts the data locally. It returns a reader that streams decrypted bytes into any destination.
 
 === "Rust"
     ```rust

@@ -41,7 +41,11 @@ export function Tabs({
   const labels = labelsProp ? labelsProp.split(',') : [];
   const childArray = Children.toArray(children).filter(isValidElement);
   const isNested = useContext(NestedTabContext);
-  const globalActive = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+  const globalActive = useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    getSnapshot,
+  );
 
   // Use global selection if this tab group contains the globally selected label,
   // otherwise fall back to the first label. Nested tabs always use first label.
@@ -56,8 +60,8 @@ export function Tabs({
 
   return (
     <NestedTabContext.Provider value={true}>
-      <div className="tabs-root my-4 not-prose rounded-lg overflow-hidden border border-[#2d2d2d] light:border-[#d1d5db] bg-[#0d1117] light:bg-[#f6f8fa]">
-        <div className="flex border-b border-[#2d2d2d] light:border-[#d1d5db]">
+      <div className="tabs-root my-4 not-prose rounded-lg overflow-hidden border border-[#2d2d2d] light:border-[#e0e0e0] bg-[#0d1117] light:bg-[#f6f8fa]">
+        <div className="flex border-b border-[#2d2d2d] light:border-[#e0e0e0]">
           {labels.map((label) => (
             <button
               key={label}
@@ -65,7 +69,7 @@ export function Tabs({
               onClick={() => handleClick(label)}
               className={`px-3 py-1.5 text-[13px] font-medium transition-colors ${
                 active === label
-                  ? 'text-[#0099ff] border-b-2 border-[#0099ff]'
+                  ? 'text-(--accent) border-b-2 border-(--accent)'
                   : 'text-[#757575] hover:text-[#e7e7e7] light:hover:text-[#1a1a1a]'
               }`}
             >

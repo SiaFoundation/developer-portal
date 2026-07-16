@@ -1,18 +1,11 @@
 ---
-title: Upload an Object
-description: Upload and pin an object to the Sia network using the SDK.
+title: Store an Object
+description: Store an object in a user's account — upload it to the Sia network and pin it with the SDK.
 ---
 
-# Upload an Object
+# Store an Object
 
-Uploading data is the core action your app will perform on the Sia network. When you upload a file through the SDK, the process is made secure by design:
-
-  * All data is encrypted client-side before it leaves the device.
-  * Data is erasure-coded into multiple redundant shards.
-  * Each shard is uploaded to independent storage providers located [across the globe](https://siascan.com/map).
-  * The indexer stores encrypted object records and coordinates uploads, downloads, and object management. It never sees plaintext data.
-
-Encryption keeps data private even if intercepted. Erasure coding keeps it recoverable even if some hosts go offline.
+Storing an object is the core action your app will perform. It is two steps: **upload**, which sends the data to the network, and **pin**, which saves the upload to the user's account. The SDK encrypts everything on the device before it leaves — the [Understand what happened](#understand-what-happened) section after the example explains how.
 
 ## Prerequisites
 
@@ -20,7 +13,7 @@ Before continuing, make sure you have:
 
   * An [App Key](./connect-to-an-indexer.md) returned from a successful connection to an indexer.
 
-Once you have established a successful connection, you’re ready to upload your first object.
+Once you have established a successful connection, you’re ready to store your first object.
 
 ## Example
 
@@ -359,7 +352,7 @@ Once you have established a successful connection, you’re ready to upload your
     // Load the App Key from wherever you stored it during connect
     const appKeyHex = localStorage.getItem('appKey')
     if (!appKeyHex) {
-      throw new Error('No App Key stored. Run the Connect to an Indexer flow first.')
+      throw new Error('No App Key stored. Run the Connect a Storage Account flow first.')
     }
     const appKey = new AppKey(Uint8Array.fromHex(appKeyHex))
  
@@ -384,16 +377,32 @@ Once you have established a successful connection, you’re ready to upload your
     console.log(' - Object ID:', obj.id())
     ```
 
-## Deep Dive
-#### Objects & Metadata
+## Understand what happened
+
+What the SDK did with your data:
+
+#### How the upload was secured
+
+  * All data was encrypted client-side before it left the device.
+  * The encrypted data was [erasure-coded](../core-concepts/erasure-coding.md) into multiple redundant shards.
+  * Each shard was uploaded to an independent [storage provider](../core-concepts/storage-providers.md) located [across the globe](https://siascan.com/map).
+  * The indexer stored only the encrypted object record. It never sees plaintext data.
+
+Encryption keeps data private even if intercepted. Erasure coding keeps it recoverable even if some hosts go offline.
+
+#### Upload vs. pin
 
 Uploading returns an object handle you can work with immediately (for example, to pin it, share it, or download it later).
 
 In this quickstart flow, **upload and pin are separate steps**:
 
 * **Upload** sends shards to storage providers and builds the object’s layout.
-* **Pinning** persists the sealed object record in the indexer and pins the underlying slabs so the object becomes listable, syncable, and eligible for repair.
+* **Pinning** saves the upload to the user’s account: it persists the sealed object record in the indexer and pins the underlying slabs so the object becomes listable, syncable, and eligible for repair.
 
-The Object ID comes from the object’s slab layout, so you can read it directly after upload. Pinning encrypts and signs the object (a process called *sealing*) before sending it to the indexer — you don’t need to seal manually. See [Pinning](../core-concepts/pinning.md) and [Objects](../core-concepts/objects.md) for more.
+Pinning encrypts and signs the object (a process called *sealing*) before sending it to the indexer — you don’t need to seal manually. See [Pinning](../core-concepts/pinning.md) and [Objects](../core-concepts/objects.md) for more.
+
+#### The Object ID
+
+The Object ID is a permanent, 32-byte identifier derived from the object’s slab layout, so you can read it directly after upload — and you’ll use it to look the object up and download it later.
 
 Metadata is **application-defined** and **encrypted**. See the [Object Metadata](../recipes/object-metadata.md) recipe for details.

@@ -24,7 +24,7 @@ export function NextPrevLinks({
           <span className="text-[11px] text-[#757575] uppercase tracking-wider">
             Previous
           </span>
-          <span className="text-[14px] text-[#0099ff] group-hover:underline">
+          <span className="text-[14px] text-(--accent) group-hover:underline">
             &larr; {prev.title}
           </span>
         </Link>
@@ -39,7 +39,7 @@ export function NextPrevLinks({
           <span className="text-[11px] text-[#757575] uppercase tracking-wider">
             Next
           </span>
-          <span className="text-[14px] text-[#0099ff] group-hover:underline">
+          <span className="text-[14px] text-(--accent) group-hover:underline">
             {next.title} &rarr;
           </span>
         </Link>

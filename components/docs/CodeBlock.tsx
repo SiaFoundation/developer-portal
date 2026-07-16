@@ -26,16 +26,16 @@ export function CodeBlock({
   };
 
   return (
-    <div className="code-block not-prose relative group rounded-lg overflow-hidden my-4 bg-[#0d1117] light:bg-[#f6f8fa] border border-[#2d2d2d] light:border-[#d1d5db]">
+    <div className="code-block not-prose relative group rounded-lg overflow-hidden my-4 bg-[#0d1117] light:bg-[#f6f8fa] border border-[#2d2d2d] light:border-[#e0e0e0]">
       {language && (
-        <div className="code-lang flex items-center justify-between px-4 py-1.5 border-b border-[#2d2d2d] light:border-[#d1d5db]">
-          <span className="text-[11px] text-[#757575] light:text-[#6b7280] uppercase tracking-wider">
+        <div className="code-lang flex items-center justify-between px-4 py-1.5 border-b border-[#2d2d2d] light:border-[#e0e0e0]">
+          <span className="text-[11px] text-[#757575] light:text-[#374151] uppercase tracking-wider">
             {language}
           </span>
           <button
             type="button"
             onClick={handleCopy}
-            className="text-[11px] text-[#757575] light:text-[#6b7280] hover:text-[#e7e7e7] light:hover:text-[#1a1a1a] transition-colors opacity-0 group-hover:opacity-100"
+            className="text-[11px] text-[#757575] light:text-[#374151] hover:text-[#e7e7e7] light:hover:text-[#1a1a1a] transition-colors opacity-0 group-hover:opacity-100"
           >
             {copied ? 'Copied!' : 'Copy'}
           </button>

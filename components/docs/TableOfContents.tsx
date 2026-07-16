@@ -55,7 +55,7 @@ export function TableOfContents({ items }: { items: TOCItem[] }) {
               href={`#${item.id}`}
               className={`block text-[12px] py-0.5 transition-colors no-underline ${
                 activeId === item.id
-                  ? 'text-[#0099ff]'
+                  ? 'text-(--accent)'
                   : 'text-[#757575] light:text-[#999] hover:text-[#e7e7e7] light:hover:text-[#1a1a1a]'
               }`}
             >
