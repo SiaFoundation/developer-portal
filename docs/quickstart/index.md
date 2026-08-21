@@ -5,9 +5,9 @@ description: Get started building with Sia's decentralized, privacy-preserving s
 
 # Quickstart
 
-Sia is a decentralized storage network where all data is encrypted client-side, erasure-coded into redundant shards, and distributed across independent storage providers worldwide. An indexer — hosted by [sia.storage](https://sia.storage) or [self-hosted](../core-concepts/trust-and-deployment.md) — coordinates uploads, downloads, and object management without ever seeing your data.
+Sia is a decentralized storage network where all data is encrypted client-side, erasure-coded into redundant shards, and distributed across independent storage providers worldwide. An indexer — hosted by [sia.storage](https://sia.storage) or [self-hosted](../docs/core-concepts/trust-and-deployment.md) — coordinates uploads, downloads, and object management without ever seeing your data.
 
-Getting to a working app takes four steps: install an SDK, [connect a storage account](connect-to-an-indexer.md), [store an object](upload-an-object.md), and [download it back](download-an-object.md).
+Getting to a working app takes four steps: install an SDK, [connect a storage account](../docs/quickstart/connect-to-an-indexer.md), [store an object](../docs/quickstart/upload-an-object.md), and [download it back](../docs/quickstart/download-an-object.md).
 
 ## Install the SDK
 
@@ -32,7 +32,7 @@ Getting to a working app takes four steps: install an SDK, [connect a storage ac
     npm install @siafoundation/sia-storage
     ```
 
-> The snippets below assume a connected `sdk` instance. If you haven't connected yet, start with [Connect a Storage Account](connect-to-an-indexer.md).
+> The snippets below assume a connected `sdk` instance. If you haven't connected yet, start with [Connect a Storage Account](../docs/quickstart/connect-to-an-indexer.md).
 
 ## Upload and pin
 
