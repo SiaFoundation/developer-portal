@@ -97,5 +97,4 @@ if err := client.PruneSlabs(ctx, api.WithBefore(time.Now().Add(-30*time.Minute))
 }
 ```
 
-Rust, Python, Dart, and JavaScript `prune_slabs()` take no arguments and always use the
-indexer's default 72-hour cutoff.
+Rust and Python `prune_slabs()`, and Dart and JavaScript `pruneSlabs()`, take no arguments and always use the indexer's default 72-hour cutoff.
