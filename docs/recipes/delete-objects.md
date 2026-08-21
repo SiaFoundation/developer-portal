@@ -85,7 +85,11 @@ Unpinning a slab that's still referenced by another object fails outright — th
 Only the Go SDK exposes the prune cutoff directly:
 
 ```go
-import "go.sia.tech/indexd/api"
+import (
+    "time"
+
+    "go.sia.tech/indexd/api"
+)
 
 // Only prune slabs pinned more than 30 minutes ago instead of the default 72 hours.
 if err := client.PruneSlabs(ctx, api.WithBefore(time.Now().Add(-30*time.Minute))); err != nil {
