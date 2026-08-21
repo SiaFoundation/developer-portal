@@ -33,3 +33,7 @@ This is why progress for [uploads vs. downloads](../recipes/track-progress.md) u
 `UploadOptions` exposes `data_shards` and `parity_shards`. Higher parity gives more durability and more upload bandwidth; lower parity is cheaper and leaves a thinner margin. The SDK validates the combination, rejecting configurations whose recovery probability falls below a safe threshold or whose redundancy ratio is outside `[1.5×, 4×]`, so you can't accidentally choose a setting that compromises durability.
 
 The defaults are tuned for the typical case -- they do not need to be changed.
+
+## Upload resilience
+
+A shard upload doesn't hang forever if a storage provider stalls: the SDK retries a failed shard against a different host up to three times before giving up, with a default 1.5-minute timeout per attempt. Racing and host prioritization still favor faster providers once the upload has warmed up, so a slow host doesn't get retried at the expense of overall throughput.
