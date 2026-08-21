@@ -22,13 +22,21 @@ The **object ID** depends only on the content layout. If the data changes and th
 
 `indexd` never sees plaintext data or plaintext metadata. Before an object is sent to `indexd`, the SDK encrypts the data and metadata and produces a **sealed object** that contains:
 
-- the **encrypted master key** (`encryptedMasterKey`)
+- the **encrypted data key** (`encryptedDataKey`) — decrypts the object's slabs
 - the **slab layout** (`slabs`)
+- a **signature** over the object ID and the encrypted data key (`dataSignature`)
+- the **encrypted metadata key** (`encryptedMetadataKey`) — decrypts the metadata, present only if the object has metadata
 - the **encrypted metadata** (`encryptedMetadata`)
-- a **signature** over the object ID and encrypted fields
+- a **signature** over the object ID, encrypted metadata key, and encrypted metadata (`metadataSignature`)
 - **timestamps** (`createdAt`, `updatedAt`)
 
+Data and metadata are sealed under two independent keys with two independent signatures. That split is why updating an object's metadata never touches the data key — the SDK re-seals only the metadata half.
+
 `indexd` stores this sealed form keyed by the object ID under a specific account and app key. It doesn’t attach filenames, paths, content types, or other higher-level attributes to an object. If you need those, you store them yourself in the object’s metadata or in your own indexer.
+
+### Slab versions
+
+Each slab carries a `version` field. V0 slabs (the original format) encrypt the whole object under one key. V1 slabs derive each slab's encryption key from the object's data key combined with that slab's own key, so a single slab can be re-encrypted independently without reusing a key or touching the rest of the object's data.
 
 ## Differences from a file system
 
