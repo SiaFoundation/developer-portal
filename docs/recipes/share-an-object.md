@@ -12,6 +12,8 @@ Generate a time-limited URL that anyone can use to download an [object](../core-
 >
 > If you need permissioned sharing, build your own access layer on top of pinned objects.
 
+A malformed share URL is rejected before any network call: the SDK validates that the URL's encryption-key fragment is base64url-encoded and decodes to exactly 32 bytes, so a corrupted or hand-edited link fails immediately with a clear error instead of silently downloading garbage.
+
 ## Generate a share URL
 
 === "Rust"
