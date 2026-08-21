@@ -18,7 +18,7 @@ Each packed object still gets its own Object ID and can be [pinned](../core-conc
 
     let start = Instant::now();
 
-    let mut packed = sdk.upload_packed(UploadOptions::default())?;
+    let mut packed = sdk.upload_packed(PackedUploadOptions::default())?;
 
     for i in 0..10 {
         let data = format!("Contents of object {}.", i + 1);
