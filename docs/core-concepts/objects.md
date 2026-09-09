@@ -36,7 +36,7 @@ Data and metadata are sealed under two independent keys with two independent sig
 
 ### Slab versions
 
-Each slab carries a `version` field. V0 slabs (the original format) encrypt the whole object under one key. V1 slabs reuse that data key for every slab, but each slab has its own randomly generated `encryptionKey` used as the nonce — so a slab can be re-encrypted independently with a fresh nonce, without reusing a key/nonce pair.
+Each slab carries a `version` field. v0 slabs (the original format) encrypt all slabs with a single object-level data key. v1 slabs derive a unique per-slab key from that data key, so an individual slab can be re-encrypted independently without reusing a key/nonce pair.
 
 ## Differences from a file system
 
