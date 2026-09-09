@@ -26,8 +26,8 @@ The **object ID** depends only on the content layout. If the data changes and th
 - the **slab layout** (`slabs`)
 - a **signature** over the object ID and the encrypted data key (`dataSignature`)
 - the **encrypted metadata key** (`encryptedMetadataKey`) — decrypts the metadata, present only if the object has metadata
-- the **encrypted metadata** (`encryptedMetadata`)
-- a **signature** over the object ID, encrypted metadata key, and encrypted metadata (`metadataSignature`)
+- the **encrypted metadata** (`encryptedMetadata`) — present only if the object has metadata
+- a **signature** over the object ID, encrypted metadata key, and encrypted metadata (`metadataSignature`) — always present (signs empty fields when there's no metadata)
 - **timestamps** (`createdAt`, `updatedAt`)
 
 Data and metadata are sealed under two independent keys with two independent signatures. That split is why updating an object's metadata never touches the data key — the SDK re-seals only the metadata half.
@@ -36,7 +36,7 @@ Data and metadata are sealed under two independent keys with two independent sig
 
 ### Slab versions
 
-Each slab carries a `version` field. V0 slabs (the original format) encrypt the whole object under one key. V1 slabs derive each slab's encryption key from the object's data key combined with that slab's own key, so a single slab can be re-encrypted independently without reusing a key or touching the rest of the object's data.
+Each slab carries a `version` field. V0 slabs (the original format) encrypt the whole object under one key. V1 slabs reuse that data key for every slab, but each slab has its own randomly generated `encryptionKey` used as the nonce — so a slab can be re-encrypted independently with a fresh nonce, without reusing a key/nonce pair.
 
 ## Differences from a file system
 
