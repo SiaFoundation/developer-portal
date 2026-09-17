@@ -19,7 +19,7 @@ Delete is a **soft delete**: the [object](../core-concepts/objects.md) disappear
     sdk.delete_object(&object_id).await?;
     println!("Object deleted.");
 
-    // Remove slabs that are no longer referenced by any pinned object.
+    // Optional: catches slabs orphaned by interrupted uploads — not required here, see above.
     sdk.prune_slabs().await?;
     println!("Unused slabs pruned.");
     ```
@@ -35,7 +35,7 @@ Delete is a **soft delete**: the [object](../core-concepts/objects.md) disappear
     }
     fmt.Println("Object deleted.")
 
-    // Remove slabs that are no longer referenced by any pinned object.
+    // Optional: catches slabs orphaned by interrupted uploads — not required here, see above.
     if err := client.PruneSlabs(ctx); err != nil {
         panic(err)
     }
@@ -46,7 +46,7 @@ Delete is a **soft delete**: the [object](../core-concepts/objects.md) disappear
     await sdk.delete_object(object_id)
     print("Object deleted.")
 
-    # Remove slabs that are no longer referenced by any pinned object.
+    # Optional: catches slabs orphaned by interrupted uploads — not required here, see above.
     await sdk.prune_slabs()
     print("Unused slabs pruned.")
     ```
@@ -57,7 +57,7 @@ Delete is a **soft delete**: the [object](../core-concepts/objects.md) disappear
     await sdk.deleteObject(key: objectId);
     print('Object deleted.');
 
-    // Remove slabs that are no longer referenced by any pinned object.
+    // Optional: catches slabs orphaned by interrupted uploads — not required here, see above.
     await sdk.pruneSlabs();
     print('Unused slabs pruned.');
     ```
@@ -66,6 +66,7 @@ Delete is a **soft delete**: the [object](../core-concepts/objects.md) disappear
     await sdk.deleteObject(objectId)
     console.log('Object deleted.')
 
+    // Optional: catches slabs orphaned by interrupted uploads — not required here, see above.
     await sdk.pruneSlabs()
     console.log('Unused slabs pruned.')
     ```
@@ -74,6 +75,7 @@ Delete is a **soft delete**: the [object](../core-concepts/objects.md) disappear
     await sdk.deleteObject(objectId)
     console.log('Object deleted.')
 
+    // Optional: catches slabs orphaned by interrupted uploads — not required here, see above.
     await sdk.pruneSlabs()
     console.log('Unused slabs pruned.')
     ```
