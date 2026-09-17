@@ -25,9 +25,9 @@ The **object ID** depends only on the content layout. If the data changes and th
 - the **encrypted data key** (`encryptedDataKey`) — decrypts the object's slabs
 - the **slab layout** (`slabs`)
 - a **signature** over the object ID and the encrypted data key (`dataSignature`)
-- the **encrypted metadata key** (`encryptedMetadataKey`) — decrypts the metadata, present only if the object has metadata
-- the **encrypted metadata** (`encryptedMetadata`) — present only if the object has metadata
-- a **signature** over the object ID, encrypted metadata key, and encrypted metadata (`metadataSignature`) — always present (signs empty fields when there's no metadata)
+- the **encrypted metadata key** (`encryptedMetadataKey`) — decrypts the metadata; empty when the object has no metadata, and omitted from the JSON representation in that case
+- the **encrypted metadata** (`encryptedMetadata`) — empty (and likewise omitted from JSON) when the object has no metadata
+- a **signature** over the object ID, encrypted metadata key, and encrypted metadata (`metadataSignature`) — always computed and always present, signing over those two values even when they're empty
 - **timestamps** (`createdAt`, `updatedAt`)
 
 Data and metadata are sealed under two independent keys with two independent signatures. That split is why updating an object's metadata never touches the data key — the SDK re-seals only the metadata half.
@@ -36,7 +36,7 @@ Data and metadata are sealed under two independent keys with two independent sig
 
 ### Slab versions
 
-Each slab carries a `version` field. v0 slabs (the original format) encrypt all slabs with a single object-level data key. v1 slabs derive a unique per-slab key from that data key, so an individual slab can be re-encrypted independently without reusing a key/nonce pair.
+Each slab carries a `version` field. v0 slabs (the original format) encrypt the whole object under one key, reused unchanged across every slab with a fixed nonce. v1 slabs reuse that same object-level data key too, but each slab has its own randomly generated `encryptionKey` field, which is used directly as the encryption nonce — not combined into a new key, despite the name — so a slab can be re-encrypted independently with a fresh nonce, without ever reusing a key/nonce pair.
 
 ## Differences from a file system
 
