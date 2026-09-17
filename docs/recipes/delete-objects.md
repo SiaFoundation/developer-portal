@@ -5,7 +5,7 @@ description: Delete objects and prune their slabs to free storage.
 
 # Delete Objects
 
-Delete is a **soft delete**: the [object](../core-concepts/objects.md) disappears from your app's listings, and any slab it referenced is unpinned immediately if no other object still points to it. Slabs can be shared between objects, so a slab only gets freed once every object referencing it has been deleted.
+Delete is a **soft delete**: the [object](../core-concepts/objects.md) disappears from your app's listings, and any slab it referenced is unpinned immediately if no other object still points to it. Slabs can be shared between objects, so a slab only becomes eligible for host cleanup once every object referencing it has been deleted.
 
 `prune_slabs()` is a **reconciliation sweep**, not the primary cleanup path — deletion already releases unreferenced slabs on its own. Use it to catch slabs orphaned by interrupted uploads or other edge cases. It only considers slabs pinned more than 72 hours ago, so a slab orphaned moments ago is deliberately left alone — pruning too eagerly risks destroying data for an upload that's still in flight.
 
