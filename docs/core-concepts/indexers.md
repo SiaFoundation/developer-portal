@@ -64,10 +64,12 @@ Objects are sealed by the SDK before they reach the indexer. The SDK encrypts th
 
 * The **object ID**,
 * The **slab layout** (which slabs and storage providers hold the encrypted shards),
-* The **encrypted metadata** blob, and
+* The **encrypted data key** and **encrypted metadata key** — opaque ciphertext the indexer cannot decrypt; the plaintext keys never leave the client,
+* The **encrypted metadata** blob,
+* Two **signatures** over the sealed record, so the indexer can verify integrity without holding a key that could forge one, and
 * Timestamps.
 
-Indexers never see plaintext data or metadata.
+Indexers never see plaintext data, metadata, or the keys needed to decrypt either.
 
 Storage providers store encrypted **shards** only; they do not see object IDs, metadata, or any application-level information about the data they hold. The keys needed to decrypt data and metadata stay with the application (or user), not with the indexer or storage providers.
 
