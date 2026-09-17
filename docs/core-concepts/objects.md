@@ -22,13 +22,21 @@ The **object ID** depends only on the content layout. If the data changes and th
 
 `indexd` never sees plaintext data or plaintext metadata. Before an object is sent to `indexd`, the SDK encrypts the data and metadata and produces a **sealed object** that contains:
 
-- the **encrypted master key** (`encryptedMasterKey`)
+- the **encrypted data key** (`encryptedDataKey`) — decrypts the object's slabs
 - the **slab layout** (`slabs`)
-- the **encrypted metadata** (`encryptedMetadata`)
-- a **signature** over the object ID and encrypted fields
+- a **signature** over the object ID and the encrypted data key (`dataSignature`)
+- the **encrypted metadata key** (`encryptedMetadataKey`) — decrypts the metadata; empty when the object has no metadata, and omitted from the JSON representation in that case
+- the **encrypted metadata** (`encryptedMetadata`) — empty (and likewise omitted from JSON) when the object has no metadata
+- a **signature** over the object ID, encrypted metadata key, and encrypted metadata (`metadataSignature`) — always computed and always present, signing over those two values even when they're empty
 - **timestamps** (`createdAt`, `updatedAt`)
 
+Data and metadata are sealed under two independent keys with two independent signatures. That split is why updating an object's metadata never touches the data key — the SDK re-seals only the metadata half.
+
 `indexd` stores this sealed form keyed by the object ID under a specific account and app key. It doesn’t attach filenames, paths, content types, or other higher-level attributes to an object. If you need those, you store them yourself in the object’s metadata or in your own indexer.
+
+### Slab versions
+
+Each slab carries a `version` field. v0 slabs (the original format) encrypt the whole object under one key, reused unchanged across every slab with a fixed nonce. v1 slabs reuse that same object-level data key too, but each slab has its own randomly generated `encryptionKey` field, which is used directly as the encryption nonce — not combined into a new key, despite the name — so a slab can be re-encrypted independently with a fresh nonce, without ever reusing a key/nonce pair.
 
 ## Differences from a file system
 
