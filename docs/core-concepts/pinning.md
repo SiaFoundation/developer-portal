@@ -86,7 +86,8 @@ When you delete a pinned object:
 * The indexer marks it as deleted
 * It no longer appears in object listings
 * It stops generating events
-* The underlying shards on hosts may remain until contract expiry
+* Any slab the object referenced is unpinned immediately, unless another object still references it — see [Delete Objects](../recipes/delete-objects.md)
+* Storage space on *hosts* is freed by the indexer's background contract-maintenance process on its own schedule (roughly once a day per contract)
 
 The SDK currently treats “delete” and “unpin” as the same operation, removing the object from your app’s indexer state.
 
