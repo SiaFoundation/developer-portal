@@ -9,8 +9,6 @@ Delete is a **soft delete**: the [object](../core-concepts/objects.md) disappear
 
 `prune_slabs()` is a **reconciliation sweep**, not the primary cleanup path — deletion already releases unreferenced slabs on its own. Use it to catch slabs orphaned by interrupted uploads or other edge cases. It only considers slabs pinned more than 72 hours ago, so a slab orphaned moments ago is deliberately left alone — pruning too eagerly risks destroying data for an upload that's still in flight.
 
-Unpinning a slab that's still referenced by another object fails outright — the indexer rejects the request rather than silently freeing storage out from under the object still using it.
-
 === "Rust"
     ```rust
     use sia_storage::Hash256;
