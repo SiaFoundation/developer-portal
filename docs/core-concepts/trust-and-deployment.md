@@ -42,7 +42,7 @@ Because objects are sealed client-side, the trust model is the same in all three
 
 ## What can the indexer see?
 
-The indexer sees only what it needs to track and maintain objects: object IDs, slab layouts, encrypted metadata blobs, and timestamps. From that it can observe approximate object sizes, which registered app key owns which objects, and when objects are created or accessed.
+The indexer sees only what it needs to track and maintain objects: object IDs, slab layouts, the encrypted data/metadata keys and metadata blob (all opaque ciphertext it cannot decrypt), two integrity signatures, and timestamps. From that it can observe approximate object sizes, which registered app key owns which objects, and when objects are created or accessed.
 
 It **cannot** see plaintext data, the structure or fields of your metadata, or application-level concepts like filenames, folders, and tags. Storage providers see even less: encrypted shards only, with no object IDs or metadata at all. See [Indexers § Privacy boundary](./indexers.md#privacy-boundary) for details.
 
