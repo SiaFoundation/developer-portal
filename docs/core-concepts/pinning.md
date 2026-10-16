@@ -115,12 +115,6 @@ stateDiagram-v2
     DeletedByRecipient --> [*]
 ```
 
-These events are returned via:
-
-```plaintext
-sdk.objectEvents(cursor, limit)
-```
-
-This allows your app to synchronize its local state with the indexer efficiently and incrementally.
+Your app reads this stream with `objectEvents()` (`object_events()` in Rust and Python, `ObjectEvents()` in Go), passing a cursor to pick up where it left off. This allows your app to synchronize its local state with the indexer efficiently and incrementally. See [List & Sync Objects](../recipes/list-and-sync-objects.md).
 
 Without pinning, an object produces no events, cannot be listed, and cannot be synced.
