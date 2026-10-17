@@ -236,10 +236,12 @@ Listing objects means reading your own index, with no network call. Metadata is 
     import json
 
     for object_id, obj in index.items():
-        # Objects pinned without JSON metadata fall back to the defaults below.
+        # Metadata that isn't a JSON object falls back to the defaults below.
         try:
             meta = json.loads(obj.metadata())
         except ValueError:
+            meta = None
+        if not isinstance(meta, dict):
             meta = {}
         name = meta.get("File Name", "(unnamed)")
         mime = meta.get("mime", "application/octet-stream")
@@ -250,10 +252,11 @@ Listing objects means reading your own index, with no network call. Metadata is 
     import 'dart:convert';
 
     index.forEach((id, object) {
-      // Objects pinned without JSON metadata fall back to the defaults below.
+      // Metadata that isn't a JSON object falls back to the defaults below.
       var meta = <String, dynamic>{};
       try {
-        meta = jsonDecode(utf8.decode(object.metadata())) as Map<String, dynamic>;
+        final decoded = jsonDecode(utf8.decode(object.metadata()));
+        if (decoded is Map<String, dynamic>) meta = decoded;
       } on FormatException {
         // Not JSON; keep the defaults.
       }
@@ -267,10 +270,10 @@ Listing objects means reading your own index, with no network call. Metadata is 
     const decoder = new TextDecoder()
 
     for (const [id, obj] of index) {
-      // Objects pinned without JSON metadata fall back to the defaults below.
+      // Metadata that isn't a JSON object falls back to the defaults below.
       let meta = {}
       try {
-        meta = JSON.parse(decoder.decode(obj.metadata()))
+        meta = JSON.parse(decoder.decode(obj.metadata())) ?? {}
       } catch {
         // Not JSON; keep the defaults.
       }
@@ -284,10 +287,10 @@ Listing objects means reading your own index, with no network call. Metadata is 
     const decoder = new TextDecoder()
 
     for (const [id, obj] of index) {
-      // Objects pinned without JSON metadata fall back to the defaults below.
+      // Metadata that isn't a JSON object falls back to the defaults below.
       let meta = {}
       try {
-        meta = JSON.parse(decoder.decode(obj.metadata()))
+        meta = JSON.parse(decoder.decode(obj.metadata())) ?? {}
       } catch {
         // Not JSON; keep the defaults.
       }
