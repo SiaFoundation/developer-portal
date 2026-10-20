@@ -406,3 +406,5 @@ Pinning encrypts and signs the object (a process called *sealing*) before sendin
 The Object ID is a permanent, 32-byte identifier derived from the object’s slab layout, so you can read it directly after upload — and you’ll use it to look the object up and download it later.
 
 Metadata is **application-defined** and **encrypted**. See the [Object Metadata](../recipes/object-metadata.md) recipe for details.
+
+To decide which upload errors are worth retrying, see [Error Handling](../recipes/error-handling.md#upload-errors).

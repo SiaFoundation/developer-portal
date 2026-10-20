@@ -416,3 +416,5 @@ Approval can fail if:
 * The request expires before the user approves it
 * The user declines the request (the indexer will not approve it)
 * There is a network or connectivity issue while polling
+
+To recognize these failures in code and decide whether to retry or reconnect, see [Error Handling](../recipes/error-handling.md#connection-errors).
