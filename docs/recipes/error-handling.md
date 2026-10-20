@@ -20,7 +20,7 @@ This recipe sorts the errors from each phase of an app (connecting, uploading, a
 
 | SDK | What you match on |
 |---|---|
-| Rust | Typed enums: `BuilderError`, `UploadError`, `DownloadError` and `QueueError`, with `AppApiError` inside them for indexer errors |
+| Rust | Typed enums: `BuilderError`, `UploadError`, `DownloadError` and `QueueError`, with `AppApiError` inside builder and upload errors. Calls on the `Sdk` itself report indexer errors only as text. |
 | Go | Sentinel errors, with `errors.Is`. Some errors have no sentinel. |
 | Python | Exception classes such as `UploadError` and `DownloadError`. The cause is only in the message, `str(err)`. |
 | Dart | An exception whose message, `'$err'`, carries the cause |
@@ -39,12 +39,16 @@ These come from the builder while your app connects to the user's account (see [
 |---|---|---|---|---|
 | The user didn't approve before the request expired | `BuilderError::RequestExpired` | `ErrRequestExpired` | `request expired` | Reconnect: start a new connection request |
 | The user declined the request | `BuilderError::Client(AppApiError::UserRejected)` | `ErrUserRejected` | `user rejected connection request` | Give up: don't ask again automatically |
-| The indexer is unreachable or returned an error | `BuilderError::Client(..)` or `BuilderError::Transport(..)` | a network error (`net.Error`) | `client error` or `transport error` | Retry, and check the indexer URL |
+| The indexer is unreachable or returned an error | `BuilderError::Client(..)` or `BuilderError::Transport(..)` | a network error (`net.Error`) | `client error` or `transport error` | Retry with a new builder (see below), and check the indexer URL |
 | The recovery phrase is invalid | `BuilderError::Mnemonic(..)` | an error from `Register` | `failed to parse recovery phrase` | Fix input: ask the user to re-enter it |
 | The stored App Key isn't recognized: never registered, or revoked | `connected()` returns `Ok(None)` | `builder.SDK()` returns `ErrUnauthorized` | — (`connected()` returns `None` in Python, `null` in Dart and JavaScript) | Reconnect |
-| The App Key is revoked while the app is running | `Error::AppClient(AppApiError::Api(401, ..))` from an `Sdk` call | an error from the call | `responded with an error: 401` | Reconnect |
+| The App Key is revoked while the app is running | `Error::App` containing `Api(401,` from an `Sdk` call | an error from the call | `Api(401,` (not in Dart, whose errors don't include the HTTP status) | Reconnect |
 
 In Python, Dart, and JavaScript, `connected()` returns `None` or `null` for an App Key the indexer doesn't recognize.
+
+**Retry with a new builder.** A builder can't be used again after one of its calls fails. In Rust, `request_connection()`, `wait_for_approval()`, and `register()` consume the builder; only `connected()` doesn't. In Python, Dart, and JavaScript, a failed call leaves the builder unusable, and calling it again fails with a builder state error such as `invalid state`. In the browser, `connected()` is the one call that can be repeated. To retry, create a new `Builder`. If the failure came after `request_connection()`, the retry is a new approval request, so show the user the new approval URL.
+
+Calls on the `Sdk` itself, such as `object()` and `pin_object()`, report indexer errors only as text, for example `app error: Api(404, "object not found")`. That text is the SDK's debug output, which is even less stable than its error messages. In Dart, it doesn't include the HTTP status, so a revoked App Key can't be told apart from other indexer errors.
 
 Check the recovery phrase **before** calling `register()`: use `validate_recovery_phrase` in Rust and Python, `Sia.validateRecoveryPhrase` in Dart, or `validateRecoveryPhrase` in JavaScript. In Rust, `register()` consumes the builder, so a phrase rejected there means starting the approval flow over. The Go SDK has no validation function.
 
@@ -82,15 +86,20 @@ Check the recovery phrase **before** calling `register()`: use `validate_recover
     }
 
     /// Classifies errors from `Sdk` calls such as `object()` and `pin_object()`.
+    /// These report indexer errors only as text in `Error::App`, for example
+    /// `Api(404, "object not found\n")`, so this matches on that text.
     fn sdk_action(err: &Error) -> Action {
-        match err {
+        let Error::App(msg) = err else {
+            return Action::GiveUp;
+        };
+        if msg.contains("Api(401,") {
             // The App Key was revoked or expired.
-            Error::AppClient(AppApiError::Api(status, _)) if status.as_u16() == 401 => {
-                Action::Reconnect
-            }
-            // The indexer couldn't be reached.
-            Error::AppClient(AppApiError::Reqwest(_)) => Action::Retry,
-            _ => Action::GiveUp,
+            Action::Reconnect
+        } else if msg.contains("Reqwest(") || msg.contains("Api(5") {
+            // The indexer couldn't be reached, or had a server error.
+            Action::Retry
+        } else {
+            Action::GiveUp
         }
     }
     ```
@@ -155,11 +164,11 @@ Check the recovery phrase **before** calling `register()`: use `validate_recover
 
     def sdk_action(err: Exception) -> Action:
         """Classifies errors from Sdk calls such as object() and pin_object()."""
-        msg = str(err)
-        if "responded with an error: 401" in msg:
+        msg = str(err)  # for example 'app error: Api(404, "object not found\n")'
+        if "Api(401," in msg:
             return Action.RECONNECT  # the App Key was revoked or expired
-        if "http error" in msg:
-            return Action.RETRY  # the indexer couldn't be reached
+        if "Reqwest(" in msg or "Api(5" in msg:
+            return Action.RETRY  # the indexer couldn't be reached, or had a server error
         return Action.GIVE_UP
     ```
 === "Dart"
@@ -296,8 +305,13 @@ A failed upload returns no object. Slabs stored before the failure aren't refere
             UploadError::ApiError(AppApiError::Api(status, _)) if status.as_u16() == 401 => {
                 Action::Reconnect
             }
-            // The indexer couldn't be reached while slabs were being pinned.
-            UploadError::ApiError(_) => Action::Retry,
+            // The indexer couldn't be reached, or had a server error, while slabs
+            // were being pinned. The SDK has already retried; upload again later.
+            // Other indexer responses, such as 400 or 404, aren't worth retrying.
+            UploadError::ApiError(AppApiError::Reqwest(_)) => Action::Retry,
+            UploadError::ApiError(AppApiError::Api(status, _)) if status.is_server_error() => {
+                Action::Retry
+            }
             // Invalid options, a start_offset past the end of the object, or an
             // error reading the source.
             UploadError::InvalidOptions(_) | UploadError::OutOfRange(..) | UploadError::Io(_) => {
@@ -358,8 +372,8 @@ A failed upload returns no object. Slabs stored before the failure aren't refere
           msg.contains('timeout error')) {
         return Action.retry;
       }
-      // The App Key was revoked while slabs were being pinned.
-      if (msg.contains('responded with an error: 401')) return Action.reconnect;
+      // Dart's errors from the indexer don't include the HTTP status, so a
+      // revoked App Key can't be told apart from other indexer errors here.
       // Invalid data or parity shard counts.
       if (msg.contains('invalid options')) return Action.fixInput;
       return Action.giveUp;
@@ -684,6 +698,9 @@ Each attempt starts from scratch: a fresh source for an upload, and a new `downl
             return nil, err
         }
         defer rc.Close()
+        // Download doesn't take a context, so close the stream if ctx ends.
+        stop := context.AfterFunc(ctx, func() { rc.Close() })
+        defer stop()
         return io.ReadAll(rc)
     })
     if err != nil {
