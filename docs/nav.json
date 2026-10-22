@@ -18,7 +18,8 @@
       { "title": "Track Progress", "path": "recipes/track-progress.md" },
       { "title": "Object Metadata", "path": "recipes/object-metadata.md" },
       { "title": "Share an Object", "path": "recipes/share-an-object.md" },
-      { "title": "Delete Objects", "path": "recipes/delete-objects.md" }
+      { "title": "Delete Objects", "path": "recipes/delete-objects.md" },
+      { "title": "Error Handling", "path": "recipes/error-handling.md" }
     ]
   },
   {

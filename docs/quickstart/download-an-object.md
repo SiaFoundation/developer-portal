@@ -416,4 +416,4 @@ The object came back without the indexer or any storage provider ever seeing its
 
 Because objects are [erasure-coded](../core-concepts/erasure-coding.md), the SDK only needs a subset of each slab’s shards to reconstruct the data — under normal conditions it fetches just the data shards, so download bandwidth tracks the raw size and unreachable providers don’t block the download.
 
-From here, you can attach application-defined, encrypted metadata with the [Object Metadata](../recipes/object-metadata.md) recipe, [share an object](../recipes/share-an-object.md) with a link, or read how [indexers](../core-concepts/indexers.md) keep your data healthy.
+From here, you can attach application-defined, encrypted metadata with the [Object Metadata](../recipes/object-metadata.md) recipe, [share an object](../recipes/share-an-object.md) with a link, handle failed downloads with the [Error Handling](../recipes/error-handling.md#download-errors) recipe, or read how [indexers](../core-concepts/indexers.md) keep your data healthy.
