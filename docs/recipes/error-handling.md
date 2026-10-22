@@ -21,7 +21,7 @@ This recipe sorts the errors from each phase of an app (connecting, uploading, a
 | SDK | What you match on |
 |---|---|
 | Rust | Typed enums: `BuilderError`, `UploadError`, `DownloadError` and `QueueError`, with `AppApiError` inside builder and upload errors. Calls on the `Sdk` itself report indexer errors only as text. |
-| Go | Sentinel errors, with `errors.Is`. Some errors have no sentinel. |
+| Go | Sentinel errors, with `errors.Is`. Some errors have no sentinel. Indexer responses are `*app.HTTPError` from `go.sia.tech/indexd/api/app`, which has the HTTP status. |
 | Python | Exception classes such as `UploadError` and `DownloadError`. The cause is only in the message, `str(err)`. |
 | Dart | An exception whose message, `'$err'`, carries the cause |
 | JavaScript | A plain `Error`. The cause is only in `err.message`. |
@@ -39,14 +39,14 @@ These come from the builder while your app connects to the user's account (see [
 |---|---|---|---|---|
 | The user didn't approve before the request expired | `BuilderError::RequestExpired` | `ErrRequestExpired` | `request expired` | Reconnect: start a new connection request |
 | The user declined the request | `BuilderError::Client(AppApiError::UserRejected)` | `ErrUserRejected` | `user rejected connection request` | Give up: don't ask again automatically |
-| The indexer is unreachable or returned an error | `BuilderError::Client(..)` or `BuilderError::Transport(..)` | a network error (`net.Error`) | `client error` or `transport error` | Retry with a new builder (see below), and check the indexer URL |
+| The indexer is unreachable or returned an error | `BuilderError::Client(..)` or `BuilderError::Transport(..)` | a network error (`net.Error`), or `*app.HTTPError` with a 5xx `StatusCode` | `client error` or `transport error` | Retry with a new builder (see below), and check the indexer URL |
 | The recovery phrase is invalid | `BuilderError::Mnemonic(..)` | an error from `Register` | `failed to parse recovery phrase` | Fix input: ask the user to re-enter it |
 | The stored App Key isn't recognized: never registered, or revoked | `connected()` returns `Ok(None)` | `builder.SDK()` returns `ErrUnauthorized` | — (`connected()` returns `None` in Python, `null` in Dart and JavaScript) | Reconnect |
-| The App Key is revoked while the app is running | `Error::App` containing `Api(401,` from an `Sdk` call | an error from the call | `Api(401,` (not in Dart, whose errors don't include the HTTP status) | Reconnect |
+| The App Key is revoked while the app is running | `Error::App` containing `Api(401,` from an `Sdk` call | `*app.HTTPError` with `StatusCode` 401 (use `errors.As`) | `Api(401,` (not in Dart, whose errors don't include the HTTP status) | Reconnect |
 
 In Python, Dart, and JavaScript, `connected()` returns `None` or `null` for an App Key the indexer doesn't recognize.
 
-**Retry with a new builder.** A builder can't be used again after one of its calls fails. In Rust, `request_connection()`, `wait_for_approval()`, and `register()` consume the builder; only `connected()` doesn't. In Python, Dart, and JavaScript, a failed call leaves the builder unusable, and calling it again fails with a builder state error such as `invalid state`. In the browser, `connected()` is the one call that can be repeated. To retry, create a new `Builder`. If the failure came after `request_connection()`, the retry is a new approval request, so show the user the new approval URL.
+**Retry with a new builder.** A builder can't be used again after one of its calls fails. In Rust, `request_connection()`, `wait_for_approval()`, and `register()` consume the builder; only `connected()` doesn't. In Python, Dart, and JavaScript, a failed call leaves the builder unusable, and calling it again fails with a builder state error such as `invalid state`. In the browser, `connected()` is the one call that can be repeated. In Go, a builder is only used up by a call that succeeds, so a failed call can be repeated on the same builder. To retry, create a new `Builder`. If the failure came after `request_connection()`, the retry is a new approval request, so show the user the new approval URL. [Reconnect with retries](#reconnect-with-retries) shows the pattern.
 
 Calls on the `Sdk` itself, such as `object()` and `pin_object()`, report indexer errors only as text, for example `app error: Api(404, "object not found")`. That text is the SDK's debug output, which is even less stable than its error messages. In Dart, it doesn't include the HTTP status, so a revoked App Key can't be told apart from other indexer errors.
 
@@ -105,6 +105,21 @@ Check the recovery phrase **before** calling `register()`: use `validate_recover
     ```
 === "Go"
     ```go
+    import (
+        "bytes"
+        "context"
+        "errors"
+        "io"
+        "net"
+        "net/http"
+        "strings"
+        "time"
+
+        "go.sia.tech/core/types"
+        "go.sia.tech/indexd/api/app"
+        "go.sia.tech/siastorage"
+    )
+
     // Action is what to do after a call fails.
     type Action int
 
@@ -115,9 +130,31 @@ Check the recovery phrase **before** calling `register()`: use `validate_recover
         FixInput                // the input is wrong: fix it before trying again
     )
 
+    // indexerAction classifies errors from the indexer's API, which the SDK
+    // passes through from calls such as Upload, PinObject and Object. ok is false
+    // for errors that didn't come from the indexer.
+    func indexerAction(err error) (action Action, ok bool) {
+        var httpErr *app.HTTPError
+        var netErr net.Error
+        switch {
+        case errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded):
+            // Your own context ended the call. Check this first: a deadline
+            // also counts as a net.Error, but retrying it won't help.
+            return GiveUp, false
+        case errors.As(err, &httpErr) && httpErr.StatusCode == http.StatusUnauthorized:
+            return Reconnect, true // the App Key was revoked or expired
+        case errors.As(err, &httpErr) && httpErr.StatusCode >= http.StatusInternalServerError:
+            return Retry, true // a temporary problem on the indexer
+        case errors.As(err, &httpErr):
+            return GiveUp, true // the indexer rejected the request, such as a 400 or 404
+        case errors.As(err, &netErr):
+            return Retry, true // the indexer couldn't be reached
+        }
+        return GiveUp, false
+    }
+
     // connectionAction classifies errors from Builder methods.
     func connectionAction(err error) Action {
-        var netErr net.Error
         switch {
         case errors.Is(err, siastorage.ErrRequestExpired):
             return Reconnect // the user didn't approve in time: start a new request
@@ -125,11 +162,11 @@ Check the recovery phrase **before** calling `register()`: use `validate_recover
             return Reconnect // the App Key was never approved, or was revoked
         case errors.Is(err, siastorage.ErrUserRejected):
             return GiveUp // the user declined: don't ask again automatically
-        case errors.As(err, &netErr):
-            return Retry // the indexer is unreachable
-        default:
-            return GiveUp
         }
+        if action, ok := indexerAction(err); ok {
+            return action
+        }
+        return GiveUp
     }
     ```
 === "Python"
@@ -278,6 +315,7 @@ Check the recovery phrase **before** calling `register()`: use `validate_recover
 | Invalid erasure-coding options | `UploadError::InvalidOptions(..)` | an error from invalid `WithRedundancy` values (no sentinel) | `invalid options` | Fix input: check the data and parity shard counts |
 | `start_offset` is past the end of the object | `UploadError::OutOfRange(offset, size)` | — (no overwrite option) | `invalid range` (not in Dart, which has no `startOffset` option) | Fix input |
 | Reading your source failed | `UploadError::Io(..)` | your reader's error, wrapped (use `errors.Is`) | `i/o error` (JavaScript, and Python's `upload_path`). In Python and Dart, a failing source panics instead: see the note below. | Fix input: fix the source, then upload again |
+| Pinning a slab failed after the SDK's own retries | `UploadError::ApiError(..)` | `*app.HTTPError`, or a network error | `api error` | Retry on a network error or 5xx, Reconnect on 401 (Dart: network errors only), otherwise Give up |
 | You cancelled the upload | `UploadError::Cancelled` | `context.Canceled` | `upload cancelled` | Give up |
 
 There's no timeout error. When a storage provider stalls, the SDK moves its shard to another provider, and you only see an error if too many fail. That error is one of the retryable ones above.
@@ -330,11 +368,14 @@ A failed upload returns no object. Slabs stored before the failure aren't refere
             return Retry // hosts dropped out mid-upload: upload again from the start
         case strings.Contains(err.Error(), "not enough hosts available"):
             return Retry // too few hosts at the start (this error has no sentinel)
-        default:
-            // Includes context cancellation, invalid WithRedundancy values,
-            // and errors from your reader (match those with errors.Is).
-            return GiveUp
         }
+        // Pinning a slab failed. The SDK already retried a few times.
+        if action, ok := indexerAction(err); ok {
+            return action
+        }
+        // Includes context cancellation, invalid WithRedundancy values,
+        // and errors from your reader (match those with errors.Is).
+        return GiveUp
     }
     ```
 === "Python"
@@ -356,6 +397,8 @@ A failed upload returns no object. Slabs stored before the failure aren't refere
             return Action.RETRY  # too few storage providers: upload again from the start
         if "responded with an error: 401" in msg:
             return Action.RECONNECT  # the App Key was revoked while slabs were being pinned
+        if msg.startswith("api error: http error") or "responded with an error: 5" in msg:
+            return Action.RETRY  # the indexer was unreachable or had a server error while pinning
         if msg.startswith(("invalid options", "invalid range", "i/o error")):
             return Action.FIX_INPUT  # bad options or start_offset, or upload_path couldn't read the file
         return Action.GIVE_UP
@@ -372,8 +415,10 @@ A failed upload returns no object. Slabs stored before the failure aren't refere
           msg.contains('timeout error')) {
         return Action.retry;
       }
-      // Dart's errors from the indexer don't include the HTTP status, so a
-      // revoked App Key can't be told apart from other indexer errors here.
+      // The indexer couldn't be reached while slabs were being pinned. Dart's
+      // errors from the indexer don't include the HTTP status, so a revoked
+      // App Key or a server error can't be told apart from a rejection.
+      if (msg.contains('api error: http error')) return Action.retry;
       // Invalid data or parity shard counts.
       if (msg.contains('invalid options')) return Action.fixInput;
       return Action.giveUp;
@@ -391,6 +436,10 @@ A failed upload returns no object. Slabs stored before the failure aren't refere
       if (RETRY_UPLOAD.some((text) => msg.includes(text))) return Action.Retry
       // The App Key was revoked while slabs were being pinned.
       if (msg.includes('responded with an error: 401')) return Action.Reconnect
+      // The indexer was unreachable or had a server error while pinning.
+      if (msg.startsWith('api error: http error') || msg.includes('responded with an error: 5')) {
+        return Action.Retry
+      }
       // Bad options or startOffset, or the source stream failed.
       if (['invalid options', 'invalid range', 'i/o error'].some((text) => msg.startsWith(text))) {
         return Action.FixInput
@@ -410,6 +459,10 @@ A failed upload returns no object. Slabs stored before the failure aren't refere
       if (RETRY_UPLOAD.some((text) => msg.includes(text))) return Action.Retry
       // The App Key was revoked while slabs were being pinned.
       if (msg.includes('responded with an error: 401')) return Action.Reconnect
+      // The indexer was unreachable or had a server error while pinning.
+      if (msg.startsWith('api error: http error') || msg.includes('responded with an error: 5')) {
+        return Action.Retry
+      }
       // Bad options or startOffset, or the source stream failed.
       if (['invalid options', 'invalid range', 'i/o error'].some((text) => msg.startsWith(text))) {
         return Action.FixInput
@@ -646,13 +699,112 @@ Retry only when the classifier says **retry**, wait longer after each failure, a
     }
     ```
 
+## Reconnect with retries
+
+Reconnecting with a stored App Key is the most common place to retry a builder call, for example when the app starts while offline. Each attempt makes a new builder, because a builder can't be reused after a failed call (see [Connection errors](#connection-errors)). An App Key the indexer doesn't recognize isn't retried: it returns no SDK, and your app runs the [approval flow](../quickstart/connect-to-an-indexer.md) again.
+
+The approval flow works the same way. If `request_connection()` or `wait_for_approval()` fails with an error worth retrying, start again from a new builder and show the user the new approval URL. The old request can't be resumed.
+
+These samples use the indexer URL and app metadata from [Connect a Storage Account](../quickstart/connect-to-an-indexer.md).
+
+=== "Rust"
+    ```rust
+    use sia_storage::{AppKey, Builder, Sdk};
+
+    /// Connects with a stored App Key, retrying while the indexer is unreachable.
+    /// Returns `None` if the key isn't recognized, so the app needs to run the
+    /// approval flow again.
+    async fn reconnect(app_key: &AppKey) -> Result<Option<Sdk>, BuilderError> {
+        with_retry(5, Duration::from_secs(2), connection_action, move || async move {
+            // A builder can't be reused after a failed call, so make a new one
+            // for every attempt.
+            Builder::new(INDEXER_URL, APP_META)?.connected(app_key).await
+        })
+        .await
+    }
+    ```
+=== "Go"
+    ```go
+    // reconnect connects with a stored App Key, retrying while the indexer is
+    // unreachable. It returns ErrUnauthorized if the key isn't recognized, so the
+    // app needs to run the approval flow again.
+    func reconnect(ctx context.Context, appKey types.PrivateKey) (*siastorage.SDK, error) {
+        return withRetry(ctx, 5, 2*time.Second, connectionAction, func() (*siastorage.SDK, error) {
+            // Go's builder could be reused after a failed call, but a new one for
+            // every attempt works the same way in every SDK.
+            return siastorage.NewBuilder(indexerURL, appMeta).SDK(appKey)
+        })
+    }
+    ```
+=== "Python"
+    ```python
+    from sia_storage import Builder
+
+
+    async def reconnect(app_key):
+        """Connects with a stored App Key, retrying while the indexer is unreachable.
+        Returns None if the key isn't recognized, so the app needs to run the
+        approval flow again."""
+        async def connect():
+            # A builder can't be reused after a failed call, so make a new one
+            # for every attempt.
+            return await Builder(INDEXER_URL, meta).connected(app_key)
+
+        return await with_retry(connect, connection_action)
+    ```
+=== "Dart"
+    ```dart
+    /// Connects with a stored App Key, retrying while the indexer is unreachable.
+    /// Returns null if the key isn't recognized, so the app needs to run the
+    /// approval flow again.
+    Future<Sdk?> reconnect(AppKey appKey) {
+      return withRetry(() async {
+        // A builder can't be reused after a failed call, so make a new one for
+        // every attempt.
+        final builder = await Sia.builder(indexerUrl: indexerUrl, appMeta: appMeta);
+        return builder.connected(appKey: appKey);
+      }, connectionAction);
+    }
+    ```
+=== "JavaScript (Node)"
+    ```javascript
+    import { Builder } from '@siafoundation/sia-storage'
+
+    // Connects with a stored App Key, retrying while the indexer is unreachable.
+    // Resolves to no SDK (null or undefined) if the key isn't recognized, so the
+    // app needs to run the approval flow again.
+    async function reconnect(appKey) {
+      // A builder can't be reused after a failed call, so make a new one for
+      // every attempt.
+      return withRetry(() => new Builder(INDEXER_URL, appMeta).connected(appKey), connectionAction)
+    }
+    ```
+=== "JavaScript (Browser)"
+    ```javascript
+    import { Builder } from '@siafoundation/sia-storage'
+
+    // Connects with a stored App Key, retrying while the indexer is unreachable.
+    // Resolves to no SDK (null or undefined) if the key isn't recognized, so the
+    // app needs to run the approval flow again.
+    async function reconnect(appKey) {
+      // A builder can't be reused after a failed call, so make a new one for
+      // every attempt.
+      return withRetry(() => new Builder(INDEXER_URL, appMeta).connected(appKey), connectionAction)
+    }
+    ```
+
 ## Upload and download with retries
 
-Each attempt starts from scratch: a fresh source for an upload, and a new `download()` call for a download, because a failed attempt may have used up the old one. Pin the object once, after the upload succeeds.
+These samples assume a connected `sdk` from [Connect a Storage Account](../quickstart/connect-to-an-indexer.md) (in Go, `client` and a `ctx`), plus the `Action` type, the classifiers, and the retry helper from the sections above.
+
+Each attempt starts from scratch: a fresh source for an upload, and a new `download()` call for a download, because a failed attempt may have used up the old one. That's why the data to upload is kept in memory, where every attempt can read it again from the start. A stream or an open file can only be read once, so a retry would upload whatever was left. For a file on disk, use `upload_path()` in Python, or in Rust with the crate's `fs` feature, which opens the file again on every attempt. Pin the object once, after the upload succeeds.
 
 === "Rust"
     ```rust
     use sia_storage::{DownloadOptions, Object, UploadOptions};
+
+    // Keep the data in memory, so every attempt can read it from the start.
+    let data: Vec<u8> = b"Hello world!".to_vec();
 
     // Each attempt starts from scratch, because a failed attempt may have used
     // up its reader or download handle. The closures borrow `sdk`, `data` and `obj`.
@@ -678,6 +830,9 @@ Each attempt starts from scratch: a fresh source for an upload, and a new `downl
     ```
 === "Go"
     ```go
+    // Keep the data in memory, so every attempt can read it from the start.
+    data := []byte("Hello world!")
+
     // Each attempt starts from scratch, because a failed attempt may have
     // used up its reader or download stream.
     obj, err := withRetry(ctx, 5, 2*time.Second, uploadAction, func() (siastorage.Object, error) {
@@ -709,6 +864,12 @@ Each attempt starts from scratch: a fresh source for an upload, and a new `downl
     ```
 === "Python"
     ```python
+    from sia_storage import PinnedObject
+
+    # Bytes, not a file: a file is used up by the first attempt, so a retry
+    # would upload whatever was left.
+    data = b"Hello world!"
+
     # Each attempt starts from scratch, because a failed attempt may have
     # used up its reader or download.
     async def upload():
@@ -725,6 +886,13 @@ Each attempt starts from scratch: a fresh source for an upload, and a new `downl
     ```
 === "Dart"
     ```dart
+    import 'dart:convert';
+
+    import 'package:sia_storage/sia_storage.dart';
+
+    // Keep the data in memory, so every attempt can read it from the start.
+    final data = utf8.encode('Hello world!');
+
     // Each attempt starts from scratch, because a failed attempt may have
     // used up its source stream or download.
     final obj = await withRetry(
@@ -743,10 +911,15 @@ Each attempt starts from scratch: a fresh source for an upload, and a new `downl
     ```
 === "JavaScript (Node)"
     ```javascript
+    import { PinnedObject } from '@siafoundation/sia-storage'
+
+    // A Blob can be read again on every attempt; a stream can only be read once.
+    const data = new Blob(['Hello world!'])
+
     // Each attempt starts from scratch, because a failed attempt may have
     // used up its source stream or download.
     const obj = await withRetry(
-      () => sdk.upload(new PinnedObject(), new Blob([data]).stream()),
+      () => sdk.upload(new PinnedObject(), data.stream()),
       uploadAction,
     )
     await sdk.pinObject(obj)
@@ -763,10 +936,15 @@ Each attempt starts from scratch: a fresh source for an upload, and a new `downl
     ```
 === "JavaScript (Browser)"
     ```javascript
+    import { PinnedObject } from '@siafoundation/sia-storage'
+
+    // A Blob can be read again on every attempt; a stream can only be read once.
+    const data = new Blob(['Hello world!'])
+
     // Each attempt starts from scratch, because a failed attempt may have
     // used up its source stream or download.
     const obj = await withRetry(
-      () => sdk.upload(new PinnedObject(), new Blob([data]).stream()),
+      () => sdk.upload(new PinnedObject(), data.stream()),
       uploadAction,
     )
     await sdk.pinObject(obj)
