@@ -13,6 +13,7 @@
     "children": [
       { "title": "Upload Packing", "path": "recipes/upload-packing.md" },
       { "title": "Upload from a File", "path": "recipes/upload-from-file.md" },
+      { "title": "Resume an Upload", "path": "recipes/resume-upload.md" },
       { "title": "Resume a Download", "path": "recipes/resume-download.md" },
       { "title": "Download to a File", "path": "recipes/download-to-file.md" },
       { "title": "Track Progress", "path": "recipes/track-progress.md" },
