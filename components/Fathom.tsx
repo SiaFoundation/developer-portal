@@ -10,7 +10,10 @@ function FathomTracker() {
 
   useEffect(() => {
     if (process.env.NODE_ENV !== 'production') return;
-    Fathom.load('LOLUTYWQ', { auto: false });
+    Fathom.load('LOLUTYWQ', {
+      auto: false,
+      includedDomains: ['devs.sia.storage'],
+    });
   }, []);
 
   useEffect(() => {

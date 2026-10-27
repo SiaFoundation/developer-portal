@@ -1,0 +1,41 @@
+name: Preview cleanup
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  retire-preview:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      # Cloudflare has no command to delete a preview alias. It keeps the 1000
+      # most recent and drops the oldest, so a closed branch's preview keeps
+      # serving its last version until then.
+      - name: Mark the preview as closed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          MERGED: ${{ github.event.pull_request.merged }}
+        run: |
+          set -euo pipefail
+          if [ "$MERGED" = "true" ]; then
+            state="merged"
+          else
+            state="closed without merging"
+          fi
+          # The preview comment is the bot's last comment, the one --edit-last edits.
+          id=$(gh api --paginate "repos/$GH_REPO/issues/$PR/comments" \
+            --jq '.[] | select(.user.login == "github-actions[bot]") | .id' | tail -n 1)
+          if [ -z "$id" ]; then
+            echo "No preview comment to edit."
+            exit 0
+          fi
+          # A pull request closed a second time already has a notice, so it is replaced.
+          previous=$(gh api "repos/$GH_REPO/issues/comments/$id" --jq '.body' \
+            | sed '/^Preview closed: /,/^$/d')
+          notice="Preview closed: this pull request was $state. The link below still serves this branch's last version until Cloudflare recycles it."
+          gh pr comment "$PR" --edit-last --body "$(printf '%s\n\n%s' "$notice" "$previous")"

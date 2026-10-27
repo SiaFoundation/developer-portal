@@ -1,0 +1,76 @@
+name: Preview
+
+on:
+  pull_request:
+
+concurrency:
+  group: preview-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  WORKER: developer-portal
+
+jobs:
+  # One preview per branch, uploaded as a Worker version without deploying it.
+  # Its URL stays the same as the branch gets more commits.
+  preview:
+    # Secrets are not available to pull requests from forks.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22.23.4'
+
+      - run: npm install --global bun@1.4.4
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Name the preview
+        id: preview
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          set -euo pipefail
+          # An alias may hold only lowercase letters, numbers and dashes, and
+          # `<alias>-<worker>` has to fit in one 63-character DNS label.
+          alias=$(printf '%s' "$BRANCH" | tr '[:upper:]' '[:lower:]' \
+            | sed -E 's/[^a-z0-9-]+/-/g; s/-+/-/g; s/^-+//' | cut -c1-$((62 - ${#WORKER})) | sed -E 's/-+$//')
+          alias=${alias:-preview}
+          echo "alias=$alias" >> "$GITHUB_OUTPUT"
+          echo "url=https://$alias-$WORKER.sia-foundation.workers.dev" >> "$GITHUB_OUTPUT"
+
+      - name: Build
+        run: bunx opennextjs-cloudflare build
+
+      - name: Upload a preview version
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ALIAS: ${{ steps.preview.outputs.alias }}
+          URL: ${{ steps.preview.outputs.url }}
+        run: |
+          set -euo pipefail
+          bunx opennextjs-cloudflare upload --preview-alias "$ALIAS" | tee upload.log
+          grep -qF "$URL" upload.log || { echo "wrangler did not report $URL"; exit 1; }
+
+      # Editing keeps one comment per pull request. The first push has nothing to
+      # edit yet.
+      - name: Comment the preview link
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          URL: ${{ steps.preview.outputs.url }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr comment "$PR" --edit-last --body "Preview: $URL" \
+            || gh pr comment "$PR" --body "Preview: $URL"

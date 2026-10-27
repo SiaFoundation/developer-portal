@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { buildSearchIndex } from '@/lib/search-index';
 
+export const dynamic = 'force-static';
+
 // Cache the index at module level
 let cachedIndex: ReturnType<typeof buildSearchIndex> | null = null;
 
