@@ -38,6 +38,8 @@ const LINK_ICON = h(
   ],
 );
 
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   return getAllDocSlugs().map((slug) => ({ slug }));
 }

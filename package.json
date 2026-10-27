@@ -16,7 +16,7 @@
     "geist": "^1.7.2",
     "gray-matter": "4.0.3",
     "mermaid": "11.13.0",
-    "next": "16.2.6",
+    "next": "16.4.3",
     "next-mdx-remote": "6.0.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
@@ -28,10 +28,12 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.6",
+    "@opennextjs/cloudflare": "1.20.13",
     "@types/node": "22.19.15",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "tailwindcss": "4.2.1",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "wrangler": "4.152.0"
   }
 }
