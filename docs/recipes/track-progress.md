@@ -10,6 +10,7 @@ Both `UploadOptions` and `DownloadOptions` accept a per-shard callback. Each inv
 ## Upload
 
 The upload callback fires for every shard the SDK pushes — **data shards plus parity shards**. With the default [erasure coding](../core-concepts/erasure-coding.md) that's roughly 3× the raw input, so use `encoded_size(raw_size, data_shards, parity_shards)` as the denominator, not the raw size.
+In the Rust, Python, Dart and JavaScript SDKs, a shard can be reported twice: if the indexer rejects a slab because its upload took too long to pin, the SDK uploads the slab again. Without the cap in the examples below, the total can end above `encoded_size` and the percentage above 100%.
 
 === "Rust"
     ```rust
@@ -27,7 +28,7 @@ The upload callback fires for every shard the SDK pushes — **data shards plus 
     let cb = uploaded.clone();
     let opts = opts.on_shard_uploaded(move |p: ShardProgress| {
         let n = cb.fetch_add(p.shard_size as u64, Ordering::Relaxed) + p.shard_size as u64;
-        println!("uploaded {n} / {total} bytes ({:.1}%)", 100.0 * n as f64 / total as f64);
+        println!("uploaded {n} / {total} bytes ({:.1}%)", (100.0 * n as f64 / total as f64).min(100.0));
     });
 
     let obj = sdk.upload(Object::default(), file, opts).await?;
@@ -76,7 +77,7 @@ The upload callback fires for every shard the SDK pushes — **data shards plus 
         siastorage.WithUploadProgress(func(p siastorage.ShardProgress) {
             n := uploaded.Add(p.ShardSize)
             fmt.Printf("uploaded %d / %d bytes (%.1f%%)\n",
-                n, total, 100*float64(n)/float64(total))
+                n, total, min(100, 100*float64(n)/float64(total)))
         }),
     )
     if err != nil {
@@ -101,7 +102,7 @@ The upload callback fires for every shard the SDK pushes — **data shards plus 
     def on_shard(p):
         nonlocal uploaded
         uploaded += p.shard_size
-        print(f"uploaded {uploaded} / {total} bytes ({100 * uploaded / total:.1f}%)")
+        print(f"uploaded {uploaded} / {total} bytes ({min(100, 100 * uploaded / total):.1f}%)")
 
     opts = UploadOptions(
         data_shards=DATA_SHARDS,
@@ -141,7 +142,7 @@ The upload callback fires for every shard the SDK pushes — **data shards plus 
     // Subscribe before awaiting result to avoid missing early events
     upload.progress.listen((p) {
       uploaded += BigInt.from(p.shardSize);
-      final pct = (uploaded.toDouble() / total.toDouble() * 100).toStringAsFixed(1);
+      final pct = (uploaded.toDouble() / total.toDouble() * 100).clamp(0, 100).toStringAsFixed(1);
       print('uploaded $uploaded / $total bytes ($pct%)');
     });
 
@@ -150,61 +151,61 @@ The upload callback fires for every shard the SDK pushes — **data shards plus 
     ```
 === "JavaScript (Node)"
     ```javascript
-        import { encodedSize, PinnedObject } from '@siafoundation/sia-storage'
-        import { openAsBlob } from 'node:fs'
-        import { stat } from 'node:fs/promises'
+    import { encodedSize, PinnedObject } from '@siafoundation/sia-storage'
+    import { openAsBlob } from 'node:fs'
+    import { stat } from 'node:fs/promises'
 
-        const DATA_SHARDS = 10
-        const PARITY_SHARDS = 20
+    const DATA_SHARDS = 10
+    const PARITY_SHARDS = 20
 
-        const rawSize = BigInt((await stat('example.bin')).size)
-        const total = encodedSize(rawSize, DATA_SHARDS, PARITY_SHARDS)
+    const rawSize = BigInt((await stat('example.bin')).size)
+    const total = encodedSize(rawSize, DATA_SHARDS, PARITY_SHARDS)
 
-        let uploaded = 0n
-        const blob = await openAsBlob('example.bin')
+    let uploaded = 0n
+    const blob = await openAsBlob('example.bin')
 
-        const obj = await sdk.upload(new PinnedObject(), blob.stream(), {
-        dataShards: DATA_SHARDS,
-        parityShards: PARITY_SHARDS,
-        onShardUploaded: (p) => {
-            uploaded += BigInt(p.shardSize)
-            const pct = ((Number(uploaded) / Number(total)) * 100).toFixed(1)
-            console.log(`uploaded ${uploaded} / ${total} bytes (${pct}%)`)
-        },
-        })
+    const obj = await sdk.upload(new PinnedObject(), blob.stream(), {
+      dataShards: DATA_SHARDS,
+      parityShards: PARITY_SHARDS,
+      onShardUploaded: (p) => {
+        uploaded += BigInt(p.shardSize)
+        const pct = Math.min(100, (Number(uploaded) / Number(total)) * 100).toFixed(1)
+        console.log(`uploaded ${uploaded} / ${total} bytes (${pct}%)`)
+      },
+    })
 
-        await sdk.pinObject(obj)
+    await sdk.pinObject(obj)
     ```
 === "JavaScript (Browser)"
     ```javascript
-        import { encodedSize, PinnedObject } from '@siafoundation/sia-storage'
+    import { encodedSize, PinnedObject } from '@siafoundation/sia-storage'
 
-        const DATA_SHARDS = 10
-        const PARITY_SHARDS = 20
+    const DATA_SHARDS = 10
+    const PARITY_SHARDS = 20
 
-        // Get a File from an  element
-        const input = document.querySelector('input[type=file]')
-        const file = input.files[0]
+    // Get a File from an <input type="file"> element
+    const input = document.querySelector('input[type=file]')
+    const file = input.files[0]
 
-        const total = encodedSize(file.size, DATA_SHARDS, PARITY_SHARDS)
+    const total = encodedSize(file.size, DATA_SHARDS, PARITY_SHARDS)
 
-        let uploaded = 0
-        const obj = await sdk.upload(new PinnedObject(), file.stream(), {
-        dataShards: DATA_SHARDS,
-        parityShards: PARITY_SHARDS,
-        onShardUploaded: (p) => {
-            uploaded += p.shardSize
-            const pct = ((uploaded / total) * 100).toFixed(1)
-            console.log(`uploaded ${uploaded} / ${total} bytes (${pct}%)`)
-        },
-        })
+    let uploaded = 0
+    const obj = await sdk.upload(new PinnedObject(), file.stream(), {
+      dataShards: DATA_SHARDS,
+      parityShards: PARITY_SHARDS,
+      onShardUploaded: (p) => {
+        uploaded += p.shardSize
+        const pct = Math.min(100, (uploaded / total) * 100).toFixed(1)
+        console.log(`uploaded ${uploaded} / ${total} bytes (${pct}%)`)
+      },
+    })
 
-        await sdk.pinObject(obj)
+    await sdk.pinObject(obj)
     ```
 
 ## Download
 
-The download callback fires per recovered shard. Parity is only fetched if a data shard fails, so the byte total tracks the object's raw size. Use `obj.size()` for the denominator.
+The download callback fires for each shard the SDK uses to rebuild a chunk. The SDK requests more shards than it needs so it doesn't wait on slow hosts, but it reports only the ones it uses, so the byte total tracks the object's raw size. Use `obj.size()` for the denominator. Each shard read is rounded up, so without the cap in the examples below, the total ends slightly above `obj.size()` (264,320 bytes for a 262,144-byte object in testing) and the percentage slightly above 100%.
 
 === "Rust"
     ```rust
@@ -218,7 +219,7 @@ The download callback fires per recovered shard. Parity is only fetched if a dat
     let cb = downloaded.clone();
     let opts = DownloadOptions::default().on_shard_downloaded(move |p: ShardProgress| {
         let n = cb.fetch_add(p.shard_size as u64, Ordering::Relaxed) + p.shard_size as u64;
-        println!("downloaded {n} / {total} bytes ({:.1}%)", 100.0 * n as f64 / total as f64);
+        println!("downloaded {n} / {total} bytes ({:.1}%)", (100.0 * n as f64 / total as f64).min(100.0));
     });
 
     let mut reader = sdk.download(&obj, opts)?;
@@ -244,7 +245,7 @@ The download callback fires per recovered shard. Parity is only fetched if a dat
         siastorage.WithDownloadProgress(func(p siastorage.ShardProgress) {
             n := downloaded.Add(p.ShardSize)
             fmt.Printf("downloaded %d / %d bytes (%.1f%%)\n",
-                n, total, 100*float64(n)/float64(total))
+                n, total, min(100, 100*float64(n)/float64(total)))
         }),
     )
     if err != nil {
@@ -268,7 +269,7 @@ The download callback fires per recovered shard. Parity is only fetched if a dat
     def on_shard(p):
         nonlocal downloaded
         downloaded += p.shard_size
-        print(f"downloaded {downloaded} / {total} bytes ({100 * downloaded / total:.1f}%)")
+        print(f"downloaded {downloaded} / {total} bytes ({min(100, 100 * downloaded / total):.1f}%)")
 
     opts = DownloadOptions(shard_downloaded=on_shard)
 
@@ -287,7 +288,7 @@ The download callback fires per recovered shard. Parity is only fetched if a dat
     // Subscribe before reading data to avoid missing early events
     dl.progress.listen((p) {
       downloaded += BigInt.from(p.shardSize);
-      final pct = (downloaded.toDouble() / total.toDouble() * 100).toStringAsFixed(1);
+      final pct = (downloaded.toDouble() / total.toDouble() * 100).clamp(0, 100).toStringAsFixed(1);
       print('downloaded $downloaded / $total bytes ($pct%)');
     });
 
@@ -300,35 +301,35 @@ The download callback fires per recovered shard. Parity is only fetched if a dat
     ```
 === "JavaScript (Node)"
     ```javascript
-        const total = obj.size()
+    const total = obj.size()
 
-        let downloaded = 0n
-        const stream = sdk.download(obj, {
-        onShardDownloaded: (p) => {
-            downloaded += BigInt(p.shardSize)
-            const pct = ((Number(downloaded) / Number(total)) * 100).toFixed(1)
-            console.log(`downloaded ${downloaded} / ${total} bytes (${pct}%)`)
-        },
-        })
+    let downloaded = 0n
+    const stream = sdk.download(obj, {
+      onShardDownloaded: (p) => {
+        downloaded += BigInt(p.shardSize)
+        const pct = Math.min(100, (Number(downloaded) / Number(total)) * 100).toFixed(1)
+        console.log(`downloaded ${downloaded} / ${total} bytes (${pct}%)`)
+      },
+    })
 
-        // Drain the stream so the callbacks actually fire.
-        // Replace this with whatever destination you need (file, buffer, etc.).
-        await new Response(stream).arrayBuffer()
+    // Drain the stream so the callbacks actually fire.
+    // Replace this with whatever destination you need (file, buffer, etc.).
+    await new Response(stream).arrayBuffer()
     ```
 === "JavaScript (Browser)"
     ```javascript
-        const total = obj.size()
+    const total = obj.size()
 
-        let downloaded = 0
-        const stream = sdk.download(obj, {
-        onShardDownloaded: (p) => {
-            downloaded += p.shardSize
-            const pct = ((downloaded / total) * 100).toFixed(1)
-            console.log(`downloaded ${downloaded} / ${total} bytes (${pct}%)`)
-        },
-        })
+    let downloaded = 0
+    const stream = sdk.download(obj, {
+      onShardDownloaded: (p) => {
+        downloaded += p.shardSize
+        const pct = Math.min(100, (downloaded / total) * 100).toFixed(1)
+        console.log(`downloaded ${downloaded} / ${total} bytes (${pct}%)`)
+      },
+    })
 
-        // Drain the stream so the callbacks actually fire.
-        // Replace this with whatever destination you need (Blob, file, etc.).
-        await new Response(stream).arrayBuffer()
+    // Drain the stream so the callbacks actually fire.
+    // Replace this with whatever destination you need (Blob, file, etc.).
+    await new Response(stream).arrayBuffer()
     ```

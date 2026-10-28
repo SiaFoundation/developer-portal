@@ -8,9 +8,9 @@ description: Generate public, time-limited download URLs for Sia objects and dow
 Generate a time-limited URL that anyone can use to download an [object](../core-concepts/objects.md).
 
 > [!WARNING]
-> **Share URLs are public links.** A share URL grants access to **anyone who has it**. There is no way to restrict it to specific users or revoke it once shared. Even after the URL expires, anyone who accessed it could have [pinned](../core-concepts/pinning.md) the object into their own account.
+> **Share URLs are public links.** A share URL grants access to **anyone who has it**. It can't be restricted to specific users or revoked once shared. Even after the URL expires, anyone who accessed it could have [pinned](../core-concepts/pinning.md) the object into their own account.
 >
-> If you need permissioned sharing, build your own access layer on top of pinned objects.
+> To share a set of objects with access you can revoke, use a [sharing key](../core-concepts/indexers.md#access-controls) instead (Rust, Python, JavaScript and Dart SDKs).
 
 A malformed share URL is rejected before any network call: the SDK validates that the URL's encryption-key fragment is base64url-encoded and decodes to exactly 32 bytes, so a corrupted or hand-edited link fails immediately with a clear error instead of silently downloading garbage.
 
@@ -23,7 +23,7 @@ A malformed share URL is rejected before any network call: the SDK validates tha
     let obj = sdk.object(&object_id).await?;
 
     let expires = Utc::now() + Duration::hours(1);
-    let share_url = sdk.share_object(&obj, expires)?;
+    let share_url = sdk.object_share_url(&obj, expires)?;
 
     println!("Share URL: {share_url}");
     ```
@@ -44,7 +44,7 @@ A malformed share URL is rejected before any network call: the SDK validates tha
     obj = await sdk.object(object_id)
 
     expires = datetime.now(timezone.utc) + timedelta(hours=1)
-    share_url = sdk.share_object(obj, expires)
+    share_url = sdk.object_share_url(obj, expires)
 
     print("Share URL:", share_url)
     ```
@@ -55,7 +55,7 @@ A malformed share URL is rejected before any network call: the SDK validates tha
     final obj = await sdk.object(key: objectId);
 
     final expires = DateTime.now().add(const Duration(hours: 1));
-    final shareUrl = sdk.shareObject(object: obj, validUntil: expires);
+    final shareUrl = sdk.objectShareUrl(object: obj, validUntil: expires);
 
     print('Share URL: $shareUrl');
     ```
@@ -64,7 +64,7 @@ A malformed share URL is rejected before any network call: the SDK validates tha
     const obj = await sdk.object(objectId)
 
     const expires = new Date(Date.now() + 60 * 60 * 1000)
-    const shareUrl = sdk.shareObject(obj, expires)
+    const shareUrl = sdk.objectShareUrl(obj, expires)
 
     console.log('Share URL:', shareUrl)
     ```
@@ -73,7 +73,7 @@ A malformed share URL is rejected before any network call: the SDK validates tha
     const obj = await sdk.object(objectId)
 
     const expires = new Date(Date.now() + 60 * 60 * 1000)
-    const shareUrl = sdk.shareObject(obj, expires)
+    const shareUrl = sdk.objectShareUrl(obj, expires)
 
     console.log('Share URL:', shareUrl)
     ```
@@ -84,7 +84,7 @@ A malformed share URL is rejected before any network call: the SDK validates tha
     ```rust
     use sia_storage::DownloadOptions;
 
-    let shared_obj = sdk.shared_object(share_url).await?;
+    let shared_obj = sdk.object_from_share_url(share_url).await?;
 
     let mut reader = sdk.download(&shared_obj, DownloadOptions::default())?;
     let mut bytes = Vec::new();
@@ -108,7 +108,7 @@ A malformed share URL is rejected before any network call: the SDK validates tha
     ```
 === "Python"
     ```python
-    shared_obj = await sdk.shared_object(share_url)
+    shared_obj = await sdk.object_from_share_url(share_url)
 
     async with sdk.download(shared_obj) as d:
         buffer = await d.read_all()
@@ -121,7 +121,7 @@ A malformed share URL is rejected before any network call: the SDK validates tha
     import 'dart:typed_data';
     import 'package:sia_storage/sia_storage.dart';
 
-    final sharedObj = await sdk.sharedObject(sharedUrl: shareUrl);
+    final sharedObj = await sdk.objectFromShareUrl(shareUrl: shareUrl);
 
     final dl = sdk.download(object: sharedObj);
     final buffer = <int>[];
@@ -132,7 +132,7 @@ A malformed share URL is rejected before any network call: the SDK validates tha
     ```
 === "JavaScript (Node)"
     ```javascript
-    const sharedObj = await sdk.sharedObject(shareUrl)
+    const sharedObj = await sdk.objectFromShareUrl(shareUrl)
 
     const stream = sdk.download(sharedObj)
     const text = await new Response(stream).text()
@@ -140,7 +140,7 @@ A malformed share URL is rejected before any network call: the SDK validates tha
     ```
 === "JavaScript (Browser)"
     ```javascript
-    const sharedObj = await sdk.sharedObject(shareUrl)
+    const sharedObj = await sdk.objectFromShareUrl(shareUrl)
 
     const stream = sdk.download(sharedObj)
     const text = await new Response(stream).text()

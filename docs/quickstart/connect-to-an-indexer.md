@@ -26,7 +26,7 @@ The flow is short: your app requests a connection, the user approves it once, an
 
 === "Rust"
     ```rust
-    use sia_storage::{app_id, generate_recovery_phrase, AppKey, AppMetadata, Builder};
+    use sia_storage::{app_id, generate_recovery_phrase, AppMetadata, Builder};
     use std::io::{self, Write};
 
     const INDEXER_URL: &str = "https://sia.storage";
@@ -64,6 +64,12 @@ The flow is short: your app requests a connection, the user approves it once, an
         if recovery_phrase == "seed" {
             recovery_phrase = generate_recovery_phrase();
             println!("\nRecovery phrase:\n{recovery_phrase}\n");
+        }
+
+        // A returning user must enter the phrase they registered with, or
+        // register() creates a new, empty App Key.
+        if builder.reconnecting() && !builder.matches_existing_app_key(&recovery_phrase).await? {
+            return Err("this recovery phrase doesn't match your existing account".into());
         }
 
         // Register an SDK instance with your recovery phrase
@@ -205,6 +211,11 @@ The flow is short: your app requests a connection, the user approves it once, an
             recovery_phrase = generate_recovery_phrase()
             print("\nRecovery phrase:", recovery_phrase)
 
+        # A returning user must enter the phrase they registered with, or
+        # register() creates a new, empty App Key.
+        if builder.reconnecting() and not await builder.matches_existing_app_key(recovery_phrase):
+            raise Exception("\nThis recovery phrase doesn't match your existing account.")
+
         # Register an SDK instance with your recovery phrase.
         sdk = await builder.register(recovery_phrase)
 
@@ -260,11 +271,19 @@ The flow is short: your app requests a connection, the user approves it once, an
         print('\nRecovery phrase:\n$phrase\n');
       }
 
+      // A returning user must enter the phrase they registered with, or
+      // register() creates a new, empty App Key.
+      if (builder.reconnecting() &&
+          !await builder.matchesExistingAppKey(mnemonic: phrase)) {
+        stderr.writeln("This recovery phrase doesn't match your existing account.");
+        exit(1);
+      }
+
       // Register an SDK instance with your recovery phrase
       final sdk = await builder.register(mnemonic: phrase);
 
       // Export the App Key and store it securely for future launches
-      final appKeyBytes = sdk.appKey().export_();
+      final appKeyBytes = sdk.appKey().save();
       final appKeyHex = hex.encode(appKeyBytes);
 
       print('\nApp Connected!');
@@ -313,6 +332,13 @@ The flow is short: your app requests a connection, the user approves it once, an
       console.log('\nRecovery phrase:')
       console.log(phrase)
       console.log()
+    }
+
+    // A returning user must enter the phrase they registered with, or
+    // register() creates a new, empty App Key.
+    if (builder.reconnecting() && !(await builder.matchesExistingAppKey(phrase))) {
+      rl.close()
+      throw new Error("This recovery phrase doesn't match your existing account.")
     }
 
     // Register an SDK instance with your recovery phrase
@@ -365,6 +391,12 @@ The flow is short: your app requests a connection, the user approves it once, an
       console.log(phrase)
     }
  
+    // A returning user must enter the phrase they registered with, or
+    // register() creates a new, empty App Key.
+    if (builder.reconnecting() && !(await builder.matchesExistingAppKey(phrase))) {
+      throw new Error("This recovery phrase doesn't match your existing account.")
+    }
+
     // Register an SDK instance with your recovery phrase
     const sdk = await builder.register(phrase)
  
@@ -401,9 +433,9 @@ After approval, the SDK can connect without user interaction using the stored ap
 
 #### The recovery phrase and the App Key
 
-The App Key is deterministically derived from two inputs: the user's **BIP-39 recovery phrase** and your app's **32-byte App ID**. It is a public/private key pair — the public key is registered with the indexer during onboarding, and the private key is what your app stores securely and signs requests with from then on.
+The App Key is derived from three inputs: the user's **BIP-39 recovery phrase**, your app's **32-byte App ID**, and a **user secret** that the indexer returns when the user approves the connection. It is a public/private key pair — the public key is registered with the indexer during onboarding, and the private key is what your app stores securely and signs requests with from then on.
 
-Because the derivation is deterministic, a user who loses a device can re-derive the same App Key on a new one from their recovery phrase. And because the App ID is an input, different apps derive different keys — one app can never read another app's data, even for the same user.
+Because the derivation is deterministic, a user who loses a device gets the same App Key back on a new one by approving your app again on the same indexer account and entering the same recovery phrase. Because the App ID is an input, different apps derive different keys — one app can never read another app's data, even for the same user. And because the user secret comes from the indexer account, the same phrase gives a different App Key on a different indexer account.
 
 #### What the indexer does
 
@@ -416,3 +448,13 @@ Approval can fail if:
 * The request expires before the user approves it
 * The user declines the request (the indexer will not approve it)
 * There is a network or connectivity issue while polling
+
+#### Returning users
+
+Registering with a recovery phrase that doesn't match the user's existing account doesn't fail: it registers a new App Key with no objects. If a returning user types a different phrase by mistake, their objects seem to vanish. That's why the example checks two things after approval and before registering:
+
+* `reconnecting()` reports whether the user's account already has an App Key for your app.
+* `matches_existing_app_key(phrase)` (`matchesExistingAppKey` in JavaScript and Dart) reports whether a phrase derives that existing key.
+
+> [!NOTE]
+> The Go SDK doesn't have these checks yet, so the Go example registers whatever phrase the user enters.

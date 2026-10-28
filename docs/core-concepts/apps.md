@@ -9,7 +9,7 @@ In the Sia ecosystem, an ***App*** is the cryptographic identity of software act
 
 ## Sandboxed by design
 
-Each App has its own keypair, derived from the user's recovery phrase **and** the developer-chosen App ID. Different App IDs produce different keys, so two apps from the same user cannot see or modify each other's data — even though both are acting for the same person.
+Each App has its own keypair, derived from the user's recovery phrase, the developer-chosen App ID, and a secret tied to the user's indexer account. Different App IDs produce different keys, so two apps from the same user cannot see or modify each other's data — even though both are acting for the same person.
 
 This isolation is structural, enforced by the cryptographic key derivation. An object [pinned](./pinning.md) under App A's key is invisible to App B; revoking App B's access doesn't affect App A.
 
@@ -23,19 +23,19 @@ The App ID is a 32-byte identifier the developer chooses **once** and ships with
 
 ## App Key
 
-The App Key is the per-user signing key derived during onboarding from the recovery phrase and the App ID. It:
+The App Key is the per-user signing key derived during onboarding from the recovery phrase, the App ID, and the user secret the indexer returns on approval. It:
 
 - Is unique per (user, app) pair.
 - Is stored by your app (keychain, keystore, encrypted file, etc.).
 - Authenticates every subsequent request as that app, for that user.
 
-Only the corresponding public key is visible outside the app. If a user's device is lost, they can re-derive the App Key on a new device with their recovery phrase.
+Only the corresponding public key is visible outside the app. If a user's device is lost, they can get the same App Key on a new device by approving the app again on the same indexer account and entering their recovery phrase.
 
 ## Recovery phrase
 
-Onboarding asks the user for a BIP-39 recovery phrase (or generates one). The phrase is the user's master secret. Combined with the App ID, it derives the App Key.
+Onboarding asks the user for a BIP-39 recovery phrase (or generates one). The phrase is the user's master secret. Combined with the App ID and the indexer account's user secret, it derives the App Key. A different phrase derives a different App Key, so registering with the wrong phrase creates a new, empty identity rather than failing — see [Returning users](../quickstart/connect-to-an-indexer.md#returning-users).
 
-The app should never store or transmit the recovery phrase. After onboarding, only the derived App Key is needed for ongoing operation; the phrase itself is only used to re-derive the key on a new device.
+The app should never store or transmit the recovery phrase. After onboarding, only the derived App Key is needed for ongoing operation; the phrase itself is needed again only to get the same key on a new device, after the user approves the app again.
 
 ## User approval
 
