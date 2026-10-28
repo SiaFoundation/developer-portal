@@ -37,7 +37,7 @@ Each app derives an app key locally and registers its corresponding public key w
 
 When an application calls the indexer, it authenticates by signing requests with its app key. The indexer authorizes the request by verifying the signature and checking that the public key is registered. It will only list, return, or delete objects associated with that registered public key, and it never inspects metadata to decide who “should” see an object.
 
-Indexers can also support **share URLs** that allow anyone with the link to read a specific object. Fine-grained permissions (per-user ACLs, groups, roles, and so on) are intentionally out of scope and implemented entirely at the app layer.
+Indexers also support two kinds of read-only sharing. A **share URL** lets anyone with the link read one object until it expires. A **sharing key** grants read access to a set of objects the owner chooses; it can expire and can be revoked, the recipient needs no account, and reads are paid from the owner's account. Fine-grained permissions (per-user ACLs, groups, roles, and so on) are intentionally out of scope and implemented entirely at the app layer.
 
 ### Data health and repair
 

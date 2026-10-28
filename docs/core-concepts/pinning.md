@@ -104,8 +104,8 @@ stateDiagram-v2
     Uploaded: SDK upload()
     Uploaded --> Pinned: SDK pin_object()
 
-    Pinned --> Shared: sdk.share_object()
-    Shared --> Resolved: sdk.shared_object(url)
+    Pinned --> Shared: sdk.object_share_url()
+    Shared --> Resolved: sdk.object_from_share_url(url)
     Resolved --> PinnedByRecipient: sdk.pin_object()
 
     Pinned --> Deleted: sdk.delete_object() or unpin
