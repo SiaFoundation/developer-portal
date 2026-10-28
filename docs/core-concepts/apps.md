@@ -23,19 +23,21 @@ The App ID is a 32-byte identifier the developer chooses **once** and ships with
 
 ## App Key
 
-The App Key is the per-user signing key derived during onboarding from the recovery phrase and the App ID. It:
+The App Key is the per-user signing key derived during onboarding from the recovery phrase, the App ID, and a user secret returned by the indexer when the user approves the connection. It:
 
 - Is unique per (user, app) pair.
 - Is stored by your app (keychain, keystore, encrypted file, etc.).
 - Authenticates every subsequent request as that app, for that user.
 
-Only the corresponding public key is visible outside the app. If a user's device is lost, they can re-derive the App Key on a new device with their recovery phrase.
+Only the corresponding public key is visible outside the app. If a user's device is lost, they can derive the same App Key on a new device by obtaining a fresh approval from the same indexer account and using the recovery phrase, App ID, and newly returned user secret.
 
 ## Recovery phrase
 
-Onboarding asks the user for a BIP-39 recovery phrase (or generates one). The phrase is the user's master secret. Combined with the App ID, it derives the App Key.
+Onboarding asks the user for a BIP-39 recovery phrase (or generates one). The phrase is the user's master secret. Combined with the App ID and the user secret returned by the indexer after approval, it derives the App Key.
 
-The app should never store or transmit the recovery phrase. After onboarding, only the derived App Key is needed for ongoing operation; the phrase itself is only used to re-derive the key on a new device.
+The app should never store or transmit the recovery phrase. After onboarding, only the derived App Key is needed for ongoing operation. To derive the key on a new device, the user must approve the app again on the same indexer account so the SDK receives the user secret.
+
+From `sia_storage 0.12.0`, registering a different valid recovery phrase can create a new, empty App Key instead of failing. Before registering a phrase for a returning user, use the SDK's `matches_existing_app_key()` check where available (named `matchesExistingAppKey()` in JavaScript and Dart); do not treat approval alone as proof that the entered phrase matches existing data. The Go SDK does not currently expose an equivalent check.
 
 ## User approval
 

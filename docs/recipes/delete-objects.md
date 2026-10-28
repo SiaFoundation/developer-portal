@@ -60,7 +60,7 @@ Most apps never need to call this — deletion already frees a slab once nothing
 
 === "Rust"
     ```rust
-    sdk.prune_slabs().await?;
+    sdk.prune_slabs(None).await?;
     println!("Unused slabs pruned.");
     ```
 === "Go"
@@ -72,17 +72,17 @@ Most apps never need to call this — deletion already frees a slab once nothing
     ```
 === "Python"
     ```python
-    await sdk.prune_slabs()
+    await sdk.prune_slabs(None)
     print("Unused slabs pruned.")
     ```
 === "Dart"
     ```dart
-    await sdk.pruneSlabs();
+    await sdk.pruneSlabs({ before: null });
     print('Unused slabs pruned.');
     ```
 === "JavaScript (Node)"
     ```javascript
-    await sdk.pruneSlabs()
+    await sdk.pruneSlabs({ before: null })
     console.log('Unused slabs pruned.')
     ```
 === "JavaScript (Browser)"
@@ -93,7 +93,7 @@ Most apps never need to call this — deletion already frees a slab once nothing
 
 ## Overriding the prune cutoff
 
-Only the Go SDK exposes the prune cutoff directly:
+Every SDK accepts an optional prune cutoff; omitting it uses the indexer's default of 72 hours. For example, the Go SDK can use a 30-minute cutoff:
 
 > [!WARNING]
 > Lowering the cutoff below the default 72 hours increases the risk of pruning a slab whose upload hasn't finished yet. Only use a window this short if every upload is guaranteed to complete well within it — the 30-minute value below is illustrative, not a recommendation.
@@ -111,4 +111,4 @@ if err := client.PruneSlabs(ctx, api.WithBefore(time.Now().Add(-30*time.Minute))
 }
 ```
 
-Rust and Python `prune_slabs()`, and Dart and JavaScript `pruneSlabs()`, take no arguments and always use the indexer's default 72-hour cutoff.
+Rust accepts an optional cutoff argument. Pass `None` for the indexer's default 72-hour cutoff; Python, Dart, and JavaScript accept an options object with an optional `before` timestamp.

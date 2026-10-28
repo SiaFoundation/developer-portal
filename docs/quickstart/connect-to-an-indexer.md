@@ -401,9 +401,9 @@ After approval, the SDK can connect without user interaction using the stored ap
 
 #### The recovery phrase and the App Key
 
-The App Key is deterministically derived from two inputs: the user's **BIP-39 recovery phrase** and your app's **32-byte App ID**. It is a public/private key pair — the public key is registered with the indexer during onboarding, and the private key is what your app stores securely and signs requests with from then on.
+The App Key is derived from the user's **BIP-39 recovery phrase**, your app's **32-byte App ID**, and a **user secret returned by the indexer after approval**. It is a public/private key pair — the public key is registered with the indexer during onboarding, and the private key is what your app stores securely and signs requests with from then on.
 
-Because the derivation is deterministic, a user who loses a device can re-derive the same App Key on a new one from their recovery phrase. And because the App ID is an input, different apps derive different keys — one app can never read another app's data, even for the same user.
+To derive the same App Key on a new device, the user must approve the app again on the same indexer account so the SDK receives the user secret. Because the App ID is also an input, different apps derive different keys — one app can never read another app's data, even for the same user.
 
 #### What the indexer does
 

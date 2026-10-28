@@ -14,6 +14,7 @@ Each packed object still gets its own Object ID and can be [pinned](../core-conc
 === "Rust"
     ```rust
     use std::io::Cursor;
+    use sia_storage::PackedUploadOptions;
     use std::time::Instant;
 
     let start = Instant::now();
@@ -88,11 +89,13 @@ Each packed object still gets its own Object ID and can be [pinned](../core-conc
     ```
 === "Python"
     ```python
+    import json
     from datetime import datetime, timezone
+    from io import BytesIO
 
     start = datetime.now(timezone.utc)
 
-    packed = await sdk.upload_packed(UploadOptions())
+    packed = sdk.upload_packed(PackedUploadOptions())
 
     for i in range(10):
         data = f"Contents of object {i + 1}."

@@ -5,7 +5,7 @@ description: Stream upload and download progress as shards complete using a per-
 
 # Track Progress
 
-Both `UploadOptions` and `DownloadOptions` accept a per-shard callback. Each invocation receives a `ShardProgress`; sum `shard_size` across invocations for the running byte total.
+Both `UploadOptions` and `DownloadOptions` accept a per-shard callback. Each invocation receives a `ShardProgress`; sum `shard_size` across invocations for the running byte total. An upload callback may report a shard more than once if the slab containing it needs to be uploaded again, so the accumulated total can exceed the nominal encoded size.
 
 ## Upload
 
@@ -150,61 +150,61 @@ The upload callback fires for every shard the SDK pushes — **data shards plus 
     ```
 === "JavaScript (Node)"
     ```javascript
-        import { encodedSize, PinnedObject } from '@siafoundation/sia-storage'
-        import { openAsBlob } from 'node:fs'
-        import { stat } from 'node:fs/promises'
+    import { encodedSize, PinnedObject } from '@siafoundation/sia-storage'
+    import { openAsBlob } from 'node:fs'
+    import { stat } from 'node:fs/promises'
 
-        const DATA_SHARDS = 10
-        const PARITY_SHARDS = 20
+    const DATA_SHARDS = 10
+    const PARITY_SHARDS = 20
 
-        const rawSize = BigInt((await stat('example.bin')).size)
-        const total = encodedSize(rawSize, DATA_SHARDS, PARITY_SHARDS)
+    const rawSize = BigInt((await stat('example.bin')).size)
+    const total = encodedSize(rawSize, DATA_SHARDS, PARITY_SHARDS)
 
-        let uploaded = 0n
-        const blob = await openAsBlob('example.bin')
+    let uploaded = 0n
+    const blob = await openAsBlob('example.bin')
 
-        const obj = await sdk.upload(new PinnedObject(), blob.stream(), {
-        dataShards: DATA_SHARDS,
-        parityShards: PARITY_SHARDS,
-        onShardUploaded: (p) => {
-            uploaded += BigInt(p.shardSize)
-            const pct = ((Number(uploaded) / Number(total)) * 100).toFixed(1)
-            console.log(`uploaded ${uploaded} / ${total} bytes (${pct}%)`)
-        },
-        })
+    const obj = await sdk.upload(new PinnedObject(), blob.stream(), {
+      dataShards: DATA_SHARDS,
+      parityShards: PARITY_SHARDS,
+      onShardUploaded: (p) => {
+        uploaded += BigInt(p.shardSize)
+        const pct = ((Number(uploaded) / Number(total)) * 100).toFixed(1)
+        console.log(`uploaded ${uploaded} / ${total} bytes (${pct}%)`)
+      },
+    })
 
-        await sdk.pinObject(obj)
+    await sdk.pinObject(obj)
     ```
 === "JavaScript (Browser)"
     ```javascript
-        import { encodedSize, PinnedObject } from '@siafoundation/sia-storage'
+    import { encodedSize, PinnedObject } from '@siafoundation/sia-storage'
 
-        const DATA_SHARDS = 10
-        const PARITY_SHARDS = 20
+    const DATA_SHARDS = 10
+    const PARITY_SHARDS = 20
 
-        // Get a File from an  element
-        const input = document.querySelector('input[type=file]')
-        const file = input.files[0]
+    // Get a File from an <input type="file"> element
+    const input = document.querySelector('input[type=file]')
+    const file = input.files[0]
 
-        const total = encodedSize(file.size, DATA_SHARDS, PARITY_SHARDS)
+    const total = encodedSize(file.size, DATA_SHARDS, PARITY_SHARDS)
 
-        let uploaded = 0
-        const obj = await sdk.upload(new PinnedObject(), file.stream(), {
-        dataShards: DATA_SHARDS,
-        parityShards: PARITY_SHARDS,
-        onShardUploaded: (p) => {
-            uploaded += p.shardSize
-            const pct = ((uploaded / total) * 100).toFixed(1)
-            console.log(`uploaded ${uploaded} / ${total} bytes (${pct}%)`)
-        },
-        })
+    let uploaded = 0
+    const obj = await sdk.upload(new PinnedObject(), file.stream(), {
+      dataShards: DATA_SHARDS,
+      parityShards: PARITY_SHARDS,
+      onShardUploaded: (p) => {
+        uploaded += p.shardSize
+        const pct = ((uploaded / total) * 100).toFixed(1)
+        console.log(`uploaded ${uploaded} / ${total} bytes (${pct}%)`)
+      },
+    })
 
-        await sdk.pinObject(obj)
+    await sdk.pinObject(obj)
     ```
 
 ## Download
 
-The download callback fires per recovered shard. Parity is only fetched if a data shard fails, so the byte total tracks the object's raw size. Use `obj.size()` for the denominator.
+The download callback fires for each recovered shard. The SDK requests a few more shards than necessary in parallel and uses the first arrivals, so parity can be fetched even when no data shard has failed. Use an encoded-size estimate rather than the raw object size if you need a denominator that accounts for these extra shards.
 
 === "Rust"
     ```rust

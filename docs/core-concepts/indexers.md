@@ -33,11 +33,11 @@ Indexers **do not** know filenames, paths, tags, content types, versions, or any
 
 Indexers enforce access permissions based on the app’s registered public key.
 
-Each app derives an app key locally and registers its corresponding public key with the indexer during approval. That registered public key represents the app’s identity and authorization scope. When an app stores an object, the indexer associates the object ID with the public key that signed the request.
+After the user approves the app, the indexer returns a user secret that the SDK combines with the recovery phrase and App ID to derive the app key locally. The app registers its corresponding public key with the indexer. That registered public key represents the app’s identity and authorization scope. When an app stores an object, the indexer associates the object ID with the public key that signed the request.
 
 When an application calls the indexer, it authenticates by signing requests with its app key. The indexer authorizes the request by verifying the signature and checking that the public key is registered. It will only list, return, or delete objects associated with that registered public key, and it never inspects metadata to decide who “should” see an object.
 
-Indexers can also support **share URLs** that allow anyone with the link to read a specific object. Fine-grained permissions (per-user ACLs, groups, roles, and so on) are intentionally out of scope and implemented entirely at the app layer.
+Indexers can also support sharing keys that grant read-only access to a set of objects. The owner can remove an object from a sharing key or revoke the key; anyone holding the sharing key can read its objects until access is revoked. Fine-grained permissions (per-user ACLs, groups, roles, and so on) are still implemented at the app layer.
 
 ### Data health and repair
 

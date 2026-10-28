@@ -80,4 +80,4 @@ No. The SDK connects to any indexer, and you can run your own in production. Obj
 
 ## What is the recovery model?
 
-The user's BIP-39 recovery phrase is their master secret. Each app derives its App Key from the phrase plus the app's App ID, so a user who loses a device can re-derive the same App Key on a new one from the phrase alone. Your app never stores or transmits the phrase — it stores only the derived App Key. See [Apps](./apps.md) for the full identity model.
+The user's BIP-39 recovery phrase is their master secret. Each app derives its App Key from the phrase, the app's App ID, and a user secret returned by the indexer after approval. To derive the same key on a new device, the user must approve the app again on the same indexer account. Your app never stores or transmits the phrase — it stores only the derived App Key. See [Apps](./apps.md) for the full identity model.

@@ -24,7 +24,7 @@ For independent host failures at any reasonable rate, this is the difference bet
 
 ## Cost on the wire
 
-Erasure coding isn't free on upload. Pushing a slab to the network transfers `(N+M)/N` × the raw size (3× by default). Downloads, on the other hand, only fetch the N data shards under normal conditions; parity is requested only if a data shard is unreachable, so download bandwidth tracks the raw size.
+Erasure coding isn't free on upload. Pushing a slab to the network transfers `(N+M)/N` × the raw size (3× by default). Downloads need any N shards to reconstruct a slab. The SDK requests a few more than N in parallel and uses the first arrivals, so parity can be fetched even when no data shard has failed.
 
 This is why progress for [uploads vs. downloads](../recipes/track-progress.md) uses different denominators.
 
@@ -36,4 +36,4 @@ The defaults are tuned for the typical case -- they do not need to be changed.
 
 ## Upload resilience
 
-A shard upload doesn't hang forever if a storage provider stalls: the SDK retries a failed shard against a different host up to three times before giving up, with a default 1.5-minute timeout per attempt. Racing and host prioritization still favor faster providers once the upload has warmed up, so a slow host doesn't get retried at the expense of overall throughput.
+A shard upload doesn't hang forever if a storage provider stalls: the SDK retries a failed shard against a different host up to three times before giving up. It uses a stall timeout to detect a provider that stops making progress rather than a fixed timeout for every attempt. Racing and host prioritization still favor faster providers once the upload has warmed up, so a slow host doesn't get retried at the expense of overall throughput.
