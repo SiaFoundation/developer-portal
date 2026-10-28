@@ -18,6 +18,7 @@
       { "title": "Download to a File", "path": "recipes/download-to-file.md" },
       { "title": "Track Progress", "path": "recipes/track-progress.md" },
       { "title": "Object Metadata", "path": "recipes/object-metadata.md" },
+      { "title": "List & Sync Objects", "path": "recipes/list-and-sync-objects.md" },
       { "title": "Share an Object", "path": "recipes/share-an-object.md" },
       { "title": "Delete Objects", "path": "recipes/delete-objects.md" }
     ]
