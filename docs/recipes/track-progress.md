@@ -5,7 +5,7 @@ description: Stream upload and download progress as shards complete using a per-
 
 # Track Progress
 
-Both `UploadOptions` and `DownloadOptions` accept a per-shard callback. Each invocation receives a `ShardProgress`; sum `shard_size` across invocations for the running byte total.
+Both `UploadOptions` and `DownloadOptions` accept a per-shard callback. Each invocation receives a `ShardProgress`; sum `shard_size` across invocations for the running byte total. In the Rust, Go and Python SDKs the callback can run on several threads at once, so those examples hold a lock while they add to the total and print it. Otherwise lines can print out of order, and in Python an update can be lost.
 
 ## Upload
 
@@ -14,8 +14,7 @@ In the Rust, Python, Dart and JavaScript SDKs, a shard can be reported twice: if
 
 === "Rust"
     ```rust
-    use std::sync::Arc;
-    use std::sync::atomic::{AtomicU64, Ordering};
+    use std::sync::{Arc, Mutex};
     use sia_storage::{Object, ShardProgress, UploadOptions, encoded_size};
 
     let file = tokio::fs::File::open("example.bin").await?;
@@ -24,11 +23,13 @@ In the Rust, Python, Dart and JavaScript SDKs, a shard can be reported twice: if
     let opts = UploadOptions::default();
     let total = encoded_size(raw_size, opts.data_shards, opts.parity_shards);
 
-    let uploaded = Arc::new(AtomicU64::new(0));
+    let uploaded = Arc::new(Mutex::new(0u64));
     let cb = uploaded.clone();
     let opts = opts.on_shard_uploaded(move |p: ShardProgress| {
-        let n = cb.fetch_add(p.shard_size as u64, Ordering::Relaxed) + p.shard_size as u64;
-        println!("uploaded {n} / {total} bytes ({:.1}%)", (100.0 * n as f64 / total as f64).min(100.0));
+        // Hold the lock while printing so the lines come out in order.
+        let mut n = cb.lock().unwrap();
+        *n += p.shard_size as u64;
+        println!("uploaded {n} / {total} bytes ({:.1}%)", (100.0 * *n as f64 / total as f64).min(100.0));
     });
 
     let obj = sdk.upload(Object::default(), file, opts).await?;
@@ -39,7 +40,7 @@ In the Rust, Python, Dart and JavaScript SDKs, a shard can be reported twice: if
     import (
         "fmt"
         "os"
-        "sync/atomic"
+        "sync"
 
         proto4 "go.sia.tech/core/rhp/v4"
         "go.sia.tech/siastorage"
@@ -68,16 +69,20 @@ In the Rust, Python, Dart and JavaScript SDKs, a shard can be reported twice: if
     numSlabs := (rawSize + dataPerSlab - 1) / dataPerSlab
     total := numSlabs * uint64(dataShards+parityShards) * uint64(proto4.SectorSize)
 
-    // The callback may be invoked concurrently, so accumulate atomically.
-    var uploaded atomic.Uint64
+    // The callback may be invoked concurrently. The mutex keeps the total
+    // and the printed lines in order.
+    var mu sync.Mutex
+    var uploaded uint64
 
     obj := siastorage.NewEmptyObject()
     err = client.Upload(ctx, &obj, file,
         siastorage.WithRedundancy(dataShards, parityShards),
         siastorage.WithUploadProgress(func(p siastorage.ShardProgress) {
-            n := uploaded.Add(p.ShardSize)
+            mu.Lock()
+            defer mu.Unlock()
+            uploaded += p.ShardSize
             fmt.Printf("uploaded %d / %d bytes (%.1f%%)\n",
-                n, total, min(100, 100*float64(n)/float64(total)))
+                uploaded, total, min(100, 100*float64(uploaded)/float64(total)))
         }),
     )
     if err != nil {
@@ -91,6 +96,7 @@ In the Rust, Python, Dart and JavaScript SDKs, a shard can be reported twice: if
 === "Python"
     ```python
     import os
+    import threading
     from sia_storage import PinnedObject, UploadOptions, encoded_size
 
     DATA_SHARDS, PARITY_SHARDS = 10, 20  # SDK defaults
@@ -98,11 +104,14 @@ In the Rust, Python, Dart and JavaScript SDKs, a shard can be reported twice: if
     raw_size = os.path.getsize("example.bin")
     total = encoded_size(raw_size, DATA_SHARDS, PARITY_SHARDS)
 
+    # The SDK calls on_shard from its own threads, possibly several at once.
+    lock = threading.Lock()
     uploaded = 0
     def on_shard(p):
         nonlocal uploaded
-        uploaded += p.shard_size
-        print(f"uploaded {uploaded} / {total} bytes ({min(100, 100 * uploaded / total):.1f}%)")
+        with lock:
+            uploaded += p.shard_size
+            print(f"uploaded {uploaded} / {total} bytes ({min(100, 100 * uploaded / total):.1f}%)")
 
     opts = UploadOptions(
         data_shards=DATA_SHARDS,
@@ -209,17 +218,18 @@ The download callback fires for each shard the SDK uses to rebuild a chunk. The 
 
 === "Rust"
     ```rust
-    use std::sync::Arc;
-    use std::sync::atomic::{AtomicU64, Ordering};
+    use std::sync::{Arc, Mutex};
     use sia_storage::{DownloadOptions, ShardProgress};
 
     let total = obj.size();
 
-    let downloaded = Arc::new(AtomicU64::new(0));
+    let downloaded = Arc::new(Mutex::new(0u64));
     let cb = downloaded.clone();
     let opts = DownloadOptions::default().on_shard_downloaded(move |p: ShardProgress| {
-        let n = cb.fetch_add(p.shard_size as u64, Ordering::Relaxed) + p.shard_size as u64;
-        println!("downloaded {n} / {total} bytes ({:.1}%)", (100.0 * n as f64 / total as f64).min(100.0));
+        // Hold the lock while printing so the lines come out in order.
+        let mut n = cb.lock().unwrap();
+        *n += p.shard_size as u64;
+        println!("downloaded {n} / {total} bytes ({:.1}%)", (100.0 * *n as f64 / total as f64).min(100.0));
     });
 
     let mut reader = sdk.download(&obj, opts)?;
@@ -231,21 +241,25 @@ The download callback fires for each shard the SDK uses to rebuild a chunk. The 
     import (
         "fmt"
         "io"
-        "sync/atomic"
+        "sync"
 
         "go.sia.tech/siastorage"
     )
 
     total := obj.Size()
 
-    // The callback may be invoked concurrently, so accumulate atomically.
-    var downloaded atomic.Uint64
+    // The callback may be invoked concurrently. The mutex keeps the total
+    // and the printed lines in order.
+    var mu sync.Mutex
+    var downloaded uint64
 
     rc, err := client.Download(obj,
         siastorage.WithDownloadProgress(func(p siastorage.ShardProgress) {
-            n := downloaded.Add(p.ShardSize)
+            mu.Lock()
+            defer mu.Unlock()
+            downloaded += p.ShardSize
             fmt.Printf("downloaded %d / %d bytes (%.1f%%)\n",
-                n, total, min(100, 100*float64(n)/float64(total)))
+                downloaded, total, min(100, 100*float64(downloaded)/float64(total)))
         }),
     )
     if err != nil {
@@ -261,15 +275,19 @@ The download callback fires for each shard the SDK uses to rebuild a chunk. The 
     ```
 === "Python"
     ```python
+    import threading
     from sia_storage import DownloadOptions
 
     total = obj.size()
 
+    # The SDK calls on_shard from its own threads, possibly several at once.
+    lock = threading.Lock()
     downloaded = 0
     def on_shard(p):
         nonlocal downloaded
-        downloaded += p.shard_size
-        print(f"downloaded {downloaded} / {total} bytes ({min(100, 100 * downloaded / total):.1f}%)")
+        with lock:
+            downloaded += p.shard_size
+            print(f"downloaded {downloaded} / {total} bytes ({min(100, 100 * downloaded / total):.1f}%)")
 
     opts = DownloadOptions(shard_downloaded=on_shard)
 
