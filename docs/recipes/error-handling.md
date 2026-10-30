@@ -137,9 +137,9 @@ Check the recovery phrase **before** calling `register()`: use `validate_recover
         var httpErr *app.HTTPError
         var netErr net.Error
         switch {
-        case errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded):
-            // Your own context ended the call. Check this first: a deadline
-            // also counts as a net.Error, but retrying it won't help.
+        case errors.Is(err, context.Canceled):
+            // Deadline errors may be HTTP-client timeouts; withRetry checks
+            // its own context before retrying them.
             return GiveUp, false
         case errors.As(err, &httpErr) && httpErr.StatusCode == http.StatusUnauthorized:
             return Reconnect, true // the App Key was revoked or expired
