@@ -19,6 +19,10 @@ Getting to a working app takes four steps: install an SDK, [connect a storage ac
     ```sh
     go get go.sia.tech/siastorage@latest
     ```
+
+    The Go SDK calls the Rust SDK through cgo, so it needs Go 1.27 or later and a C compiler, and it
+    doesn't build with `CGO_ENABLED=0`. It runs on macOS, Linux and Windows, on amd64 and arm64.
+    On Linux it needs glibc, so it doesn't build in a musl-based image such as Alpine.
 === "Python"
     ```sh
     pip install sia-storage
@@ -50,8 +54,8 @@ Storing an object is two calls: **upload**, which encrypts the data and distribu
     ```
 === "Go"
     ```go
-    obj := siastorage.NewEmptyObject()
-    if err := client.Upload(ctx, &obj, strings.NewReader("hello, world!")); err != nil {
+    obj, err := client.Upload(ctx, siastorage.NewEmptyObject(), strings.NewReader("hello, world!"))
+    if err != nil {
         panic(err)
     }
     if err := client.PinObject(ctx, obj); err != nil {
@@ -106,7 +110,7 @@ Download fetches the object's encrypted pieces from storage providers, verifies 
     ```
 === "Go"
     ```go
-    rc, err := client.Download(obj)
+    rc, err := client.Download(ctx, obj)
     if err != nil {
         panic(err)
     }

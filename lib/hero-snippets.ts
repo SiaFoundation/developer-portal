@@ -25,8 +25,8 @@ println!("Object ID: {}", obj.id());`,
     file: 'store.go',
     lang: 'go',
     code: `// with a connected SDK client
-obj := siastorage.NewEmptyObject()
-if err := client.Upload(ctx, &obj, strings.NewReader("hello, sia!")); err != nil {
+obj, err := client.Upload(ctx, siastorage.NewEmptyObject(), strings.NewReader("hello, sia!"))
+if err != nil {
     panic(err)
 }
 if err := client.PinObject(ctx, obj); err != nil {

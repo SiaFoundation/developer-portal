@@ -99,6 +99,7 @@ Once ready, you can download the object into memory, into a file, or into anothe
         "bytes"
         "context"
         "encoding/hex"
+        "errors"
         "fmt"
         "os"
         "strings"
@@ -124,18 +125,23 @@ Once ready, you can download the object into memory, into a file, or into anothe
 
     func main() {
         ctx := context.Background()
+        stdin := bufio.NewReader(os.Stdin)
 
         // Create a builder to manage SDK access.
-        builder := siastorage.NewBuilder(indexerURL, siastorage.AppMetadata{
-            ID:          appID,
+        builder, err := siastorage.NewBuilder(indexerURL, siastorage.AppMetadata{
+            AppID:       appID,
             Name:        "My App",
             Description: "Demo application",
             ServiceURL:  "https://example.com",
         })
+        if err != nil {
+            panic(err)
+        }
+        defer builder.Close()
 
         // Ask the user for the App Key printed by connect-to-an-indexer.
         fmt.Print("Enter your App Key (hex): ")
-        appKeyHex, err := bufio.NewReader(os.Stdin).ReadString('\n')
+        appKeyHex, err := stdin.ReadString('\n')
         if err != nil {
             panic(err)
         }
@@ -149,9 +155,11 @@ Once ready, you can download the object into memory, into a file, or into anothe
             panic("app key must be 32 bytes (64 hex chars)")
         }
 
-        // Create an SDK instance with the stored App Key.
-        client, err := builder.SDK(types.NewPrivateKeyFromSeed(appKeySeed))
-        if err != nil {
+        // Reconnect using the stored App Key.
+        client, err := builder.Connect(ctx, types.NewPrivateKeyFromSeed(appKeySeed))
+        if errors.Is(err, siastorage.ErrUnauthorized) {
+            panic("App Key is not connected to this app on this indexer. Run connect-to-an-indexer first.")
+        } else if err != nil {
             panic(err)
         }
         defer client.Close()
@@ -160,7 +168,7 @@ Once ready, you can download the object into memory, into a file, or into anothe
 
         // Ask the user for the Object ID to download.
         fmt.Print("Enter the Object ID to download: ")
-        objectIDText, err := bufio.NewReader(os.Stdin).ReadString('\n')
+        objectIDText, err := stdin.ReadString('\n')
         if err != nil {
             panic(err)
         }
@@ -178,7 +186,7 @@ Once ready, you can download the object into memory, into a file, or into anothe
         }
 
         // Download returns an io.ReadCloser; always close it to release resources.
-        rc, err := client.Download(obj)
+        rc, err := client.Download(ctx, obj)
         if err != nil {
             panic(err)
         }

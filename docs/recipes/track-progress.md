@@ -5,12 +5,12 @@ description: Stream upload and download progress as shards complete using a per-
 
 # Track Progress
 
-Both `UploadOptions` and `DownloadOptions` accept a per-shard callback. Each invocation receives a `ShardProgress`; sum `shard_size` across invocations for the running byte total. In the Rust, Go and Python SDKs the callback can run on several threads at once, so those examples hold a lock while they add to the total and print it. Otherwise lines can print out of order, and in Python an update can be lost.
+Both `UploadOptions` and `DownloadOptions` accept a per-shard callback. Each invocation receives a `ShardProgress`; sum `shard_size` across invocations for the running byte total. In the Rust and Python SDKs the callback can run on several threads at once, so those examples hold a lock while they add to the total and print it. Otherwise lines can print out of order, and in Python an update can be lost. The Go SDK calls the callback from one goroutine per transfer and passes the running total in `Transferred`. It drops events when the callback falls behind, so the Go examples print `Transferred` instead of summing `ShardSize`.
 
 ## Upload
 
 The upload callback fires for every shard the SDK pushes — **data shards plus parity shards**. With the default [erasure coding](../core-concepts/erasure-coding.md) that's roughly 3× the raw input, so use `encoded_size(raw_size, data_shards, parity_shards)` as the denominator, not the raw size.
-In the Rust, Python, Dart and JavaScript SDKs, a shard can be reported twice: if the indexer rejects a slab because its upload took too long to pin, the SDK uploads the slab again. Without the cap in the examples below, the total can end above `encoded_size` and the percentage above 100%.
+In every SDK, a shard can be reported twice: if the indexer rejects a slab because its upload took too long to pin, the SDK uploads the slab again. Without the cap in the examples below, the total can end above `encoded_size` and the percentage above 100%.
 
 === "Rust"
     ```rust
@@ -40,9 +40,7 @@ In the Rust, Python, Dart and JavaScript SDKs, a shard can be reported twice: if
     import (
         "fmt"
         "os"
-        "sync"
 
-        proto4 "go.sia.tech/core/rhp/v4"
         "go.sia.tech/siastorage"
     )
 
@@ -61,28 +59,18 @@ In the Rust, Python, Dart and JavaScript SDKs, a shard can be reported twice: if
     if err != nil {
         panic(err)
     }
-    rawSize := uint64(info.Size())
+    total, err := siastorage.EncodedSize(uint64(info.Size()), dataShards, parityShards)
+    if err != nil {
+        panic(err)
+    }
 
-    // The Go SDK has no encodedSize helper, so compute the encoded total the
-    // way the SDK does: round the data up to whole slabs, then add parity.
-    dataPerSlab := uint64(dataShards) * uint64(proto4.SectorSize)
-    numSlabs := (rawSize + dataPerSlab - 1) / dataPerSlab
-    total := numSlabs * uint64(dataShards+parityShards) * uint64(proto4.SectorSize)
-
-    // The callback may be invoked concurrently. The mutex keeps the total
-    // and the printed lines in order.
-    var mu sync.Mutex
-    var uploaded uint64
-
-    obj := siastorage.NewEmptyObject()
-    err = client.Upload(ctx, &obj, file,
+    // The callback runs on one goroutine, so it needs no lock. Transferred is
+    // the running total, which stays right even if the SDK drops an event.
+    obj, err := client.Upload(ctx, siastorage.NewEmptyObject(), file,
         siastorage.WithRedundancy(dataShards, parityShards),
         siastorage.WithUploadProgress(func(p siastorage.ShardProgress) {
-            mu.Lock()
-            defer mu.Unlock()
-            uploaded += p.ShardSize
             fmt.Printf("uploaded %d / %d bytes (%.1f%%)\n",
-                uploaded, total, min(100, 100*float64(uploaded)/float64(total)))
+                p.Transferred, total, min(100, 100*float64(p.Transferred)/float64(total)))
         }),
     )
     if err != nil {
@@ -241,25 +229,18 @@ The download callback fires for each shard the SDK uses to rebuild a chunk. The 
     import (
         "fmt"
         "io"
-        "sync"
 
         "go.sia.tech/siastorage"
     )
 
     total := obj.Size()
 
-    // The callback may be invoked concurrently. The mutex keeps the total
-    // and the printed lines in order.
-    var mu sync.Mutex
-    var downloaded uint64
-
-    rc, err := client.Download(obj,
+    // The callback runs on one goroutine, so it needs no lock. Transferred is
+    // the running total, which stays right even if the SDK drops an event.
+    rc, err := client.Download(ctx, obj,
         siastorage.WithDownloadProgress(func(p siastorage.ShardProgress) {
-            mu.Lock()
-            defer mu.Unlock()
-            downloaded += p.ShardSize
             fmt.Printf("downloaded %d / %d bytes (%.1f%%)\n",
-                downloaded, total, min(100, 100*float64(downloaded)/float64(total)))
+                p.Transferred, total, min(100, 100*float64(p.Transferred)/float64(total)))
         }),
     )
     if err != nil {

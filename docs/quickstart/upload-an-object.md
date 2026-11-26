@@ -89,6 +89,7 @@ Once you have established a successful connection, you’re ready to store your 
         "bufio"
         "context"
         "encoding/hex"
+        "errors"
         "fmt"
         "os"
         "strings"
@@ -116,12 +117,16 @@ Once you have established a successful connection, you’re ready to store your 
         ctx := context.Background()
 
         // Create a builder to manage SDK access.
-        builder := siastorage.NewBuilder(indexerURL, siastorage.AppMetadata{
-            ID:          appID,
+        builder, err := siastorage.NewBuilder(indexerURL, siastorage.AppMetadata{
+            AppID:       appID,
             Name:        "My App",
             Description: "Demo application",
             ServiceURL:  "https://example.com",
         })
+        if err != nil {
+            panic(err)
+        }
+        defer builder.Close()
 
         // Ask the user for the App Key printed by connect-to-an-indexer.
         fmt.Print("Enter your App Key (hex): ")
@@ -139,9 +144,11 @@ Once you have established a successful connection, you’re ready to store your 
             panic("app key must be 32 bytes (64 hex chars)")
         }
 
-        // Create an SDK instance with the stored App Key.
-        client, err := builder.SDK(types.NewPrivateKeyFromSeed(appKeySeed))
-        if err != nil {
+        // Reconnect using the stored App Key.
+        client, err := builder.Connect(ctx, types.NewPrivateKeyFromSeed(appKeySeed))
+        if errors.Is(err, siastorage.ErrUnauthorized) {
+            panic("App Key is not connected to this app on this indexer. Run connect-to-an-indexer first.")
+        } else if err != nil {
             panic(err)
         }
         defer client.Close()
@@ -151,8 +158,8 @@ Once you have established a successful connection, you’re ready to store your 
         // Upload "Hello world!" from an in-memory reader.
         fmt.Println("\nStarting upload...")
 
-        obj := siastorage.NewEmptyObject()
-        if err := client.Upload(ctx, &obj, strings.NewReader("Hello world!")); err != nil {
+        obj, err := client.Upload(ctx, siastorage.NewEmptyObject(), strings.NewReader("Hello world!"))
+        if err != nil {
             panic(err)
         }
 

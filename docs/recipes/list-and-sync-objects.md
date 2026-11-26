@@ -64,7 +64,7 @@ This record keeps the size and the `File Name` and `mime` fields from [Object Me
 
     // toRecord builds a record from an object's metadata. Metadata that isn't a
     // JSON object leaves the name and MIME type empty.
-    func toRecord(obj siastorage.Object) record {
+    func toRecord(obj *siastorage.Object) record {
         var meta map[string]string
         _ = json.Unmarshal(obj.Metadata(), &meta)
         return record{Name: meta["File Name"], MIME: meta["mime"], Size: obj.Size()}
@@ -197,7 +197,6 @@ This function reads every event after `cursor`, applies each one to `index`, and
         "context"
 
         "go.sia.tech/core/types"
-        "go.sia.tech/indexd/slabs"
         "go.sia.tech/siastorage"
     )
 
@@ -205,9 +204,9 @@ This function reads every event after `cursor`, applies each one to `index`, and
     const pageSize = 500
 
     // syncIndex applies every event after cursor to index and returns the
-    // cursor to resume from next time. Pass slabs.Cursor{} to start from
-    // the beginning.
-    func syncIndex(ctx context.Context, client *siastorage.SDK, index map[types.Hash256]record, cursor slabs.Cursor) (slabs.Cursor, error) {
+    // cursor to resume from next time. Pass siastorage.EventCursor{} to start
+    // from the beginning.
+    func syncIndex(ctx context.Context, client *siastorage.SDK, index map[types.Hash256]record, cursor siastorage.EventCursor) (siastorage.EventCursor, error) {
         for {
             events, err := client.ObjectEvents(ctx, cursor, pageSize)
             if err != nil {
@@ -216,11 +215,11 @@ This function reads every event after `cursor`, applies each one to `index`, and
 
             for _, event := range events {
                 if event.Deleted {
-                    delete(index, event.Key)
+                    delete(index, event.ID)
                 } else if event.Object != nil {
-                    index[event.Key] = toRecord(*event.Object)
+                    index[event.ID] = toRecord(event.Object)
                 }
-                cursor = slabs.Cursor{After: event.UpdatedAt, Key: event.Key}
+                cursor = event.Cursor()
             }
 
             if len(events) < pageSize {
@@ -439,13 +438,13 @@ The saved state belongs to one indexer and one App Key, so it records the indexe
     type savedIndex struct {
         Indexer string                   `json:"indexer"`
         AppKey  string                   `json:"appKey"`
-        Cursor  slabs.Cursor             `json:"cursor"`
+        Cursor  siastorage.EventCursor   `json:"cursor"`
         Records map[types.Hash256]record `json:"records"`
     }
 
     // saveIndex writes the index and cursor to path in one step, so they
     // always match.
-    func saveIndex(path, indexer, appKey string, index map[types.Hash256]record, cursor slabs.Cursor) error {
+    func saveIndex(path, indexer, appKey string, index map[types.Hash256]record, cursor siastorage.EventCursor) error {
         buf, err := json.Marshal(savedIndex{Indexer: indexer, AppKey: appKey, Cursor: cursor, Records: index})
         if err != nil {
             return err
@@ -459,14 +458,14 @@ The saved state belongs to one indexer and one App Key, so it records the indexe
     // loadIndex reads the index and cursor saved for this indexer and App Key.
     // It returns an empty index and cursor if there's no saved state, or if it
     // belongs to a different indexer or App Key, so the next sync rebuilds.
-    func loadIndex(path, indexer, appKey string) (map[types.Hash256]record, slabs.Cursor) {
+    func loadIndex(path, indexer, appKey string) (map[types.Hash256]record, siastorage.EventCursor) {
         var saved savedIndex
         buf, err := os.ReadFile(path)
         if err == nil && json.Unmarshal(buf, &saved) == nil &&
             saved.Indexer == indexer && saved.AppKey == appKey && saved.Records != nil {
             return saved.Records, saved.Cursor
         }
-        return make(map[types.Hash256]record), slabs.Cursor{}
+        return make(map[types.Hash256]record), siastorage.EventCursor{}
     }
     ```
 === "Python"

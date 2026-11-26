@@ -29,8 +29,13 @@ A malformed share URL is rejected before any network call: the SDK validates tha
     ```
 === "Go"
     ```go
+    obj, err := client.Object(ctx, objectID)
+    if err != nil {
+        panic(err)
+    }
+
     expires := time.Now().Add(time.Hour)
-    shareURL, err := client.CreateSharedObjectURL(ctx, objectID, expires)
+    shareURL, err := client.ObjectShareURL(obj, expires)
     if err != nil {
         panic(err)
     }
@@ -93,7 +98,12 @@ A malformed share URL is rejected before any network call: the SDK validates tha
     ```
 === "Go"
     ```go
-    rc, err := client.DownloadSharedObject(ctx, shareURL)
+    sharedObj, err := client.ObjectFromShareURL(ctx, shareURL)
+    if err != nil {
+        panic(err)
+    }
+
+    rc, err := client.Download(ctx, sharedObj)
     if err != nil {
         panic(err)
     }
