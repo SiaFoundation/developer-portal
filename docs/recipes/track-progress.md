@@ -5,7 +5,7 @@ description: Stream upload and download progress as shards complete using a per-
 
 # Track Progress
 
-Both `UploadOptions` and `DownloadOptions` accept a per-shard callback. Each invocation receives a `ShardProgress`; sum `shard_size` across invocations for the running byte total. In the Rust and Python SDKs the callback can run on several threads at once, so those examples hold a lock while they add to the total and print it. Otherwise lines can print out of order, and in Python an update can be lost. The Go SDK calls the callback from one goroutine per transfer and passes the running total in `Transferred`. It drops events when the callback falls behind, so the Go examples print `Transferred` instead of summing `ShardSize`.
+Both `UploadOptions` and `DownloadOptions` accept a per-shard callback. Each invocation receives a `ShardProgress`; sum `shard_size` across invocations for the running byte total. In the Rust and Python SDKs the callback can run on several threads at once, so those examples hold a lock while they add to the total and print it. Otherwise lines can print out of order, and in Python an update can be lost. The Go SDK calls the callback from one goroutine per transfer and passes the running total in `Transferred`. It drops events when the callback falls behind, and events can arrive slightly out of order, so the Go examples print the largest `Transferred` seen so far instead of summing `ShardSize`.
 
 ## Upload
 
@@ -65,12 +65,15 @@ In every SDK, a shard can be reported twice: if the indexer rejects a slab becau
     }
 
     // The callback runs on one goroutine, so it needs no lock. Transferred is
-    // the running total, which stays right even if the SDK drops an event.
+    // the running total, but events can arrive slightly out of order, so keep
+    // the largest value seen.
+    var uploaded uint64
     obj, err := client.Upload(ctx, siastorage.NewEmptyObject(), file,
         siastorage.WithRedundancy(dataShards, parityShards),
         siastorage.WithUploadProgress(func(p siastorage.ShardProgress) {
+            uploaded = max(uploaded, p.Transferred)
             fmt.Printf("uploaded %d / %d bytes (%.1f%%)\n",
-                p.Transferred, total, min(100, 100*float64(p.Transferred)/float64(total)))
+                uploaded, total, min(100, 100*float64(uploaded)/float64(total)))
         }),
     )
     if err != nil {
@@ -236,11 +239,14 @@ The download callback fires for each shard the SDK uses to rebuild a chunk. The 
     total := obj.Size()
 
     // The callback runs on one goroutine, so it needs no lock. Transferred is
-    // the running total, which stays right even if the SDK drops an event.
+    // the running total, but events can arrive slightly out of order, so keep
+    // the largest value seen.
+    var downloaded uint64
     rc, err := client.Download(ctx, obj,
         siastorage.WithDownloadProgress(func(p siastorage.ShardProgress) {
+            downloaded = max(downloaded, p.Transferred)
             fmt.Printf("downloaded %d / %d bytes (%.1f%%)\n",
-                p.Transferred, total, min(100, 100*float64(p.Transferred)/float64(total)))
+                downloaded, total, min(100, 100*float64(downloaded)/float64(total)))
         }),
     )
     if err != nil {
