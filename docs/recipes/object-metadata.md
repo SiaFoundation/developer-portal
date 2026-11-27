@@ -20,12 +20,12 @@ description: Attach or update encrypted application-defined metadata on Sia obje
     ```
 === "Go"
     ```go
-    obj := siastorage.NewEmptyObject()
-    if err := client.Upload(ctx, &obj, reader); err != nil {
+    obj, err := client.Upload(ctx, siastorage.NewEmptyObject(), reader)
+    if err != nil {
         panic(err)
     }
 
-    obj.UpdateMetadata([]byte(`{"File Name":"photo.jpg","mime":"image/jpeg"}`))
+    obj = obj.WithMetadata([]byte(`{"File Name":"photo.jpg","mime":"image/jpeg"}`))
 
     if err := client.PinObject(ctx, obj); err != nil {
         panic(err)
@@ -99,10 +99,9 @@ description: Attach or update encrypted application-defined metadata on Sia obje
         panic(err)
     }
 
-    obj.UpdateMetadata([]byte(`{"File Name":"renamed.jpg","mime":"image/jpeg"}`))
+    obj = obj.WithMetadata([]byte(`{"File Name":"renamed.jpg","mime":"image/jpeg"}`))
 
-    // Re-pin to persist the updated metadata to the indexer.
-    if err := client.PinObject(ctx, obj); err != nil {
+    if err := client.UpdateObjectMetadata(ctx, obj); err != nil {
         panic(err)
     }
     ```

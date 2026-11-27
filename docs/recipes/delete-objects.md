@@ -65,7 +65,7 @@ Most apps never need to call this — deletion already frees a slab once nothing
     ```
 === "Go"
     ```go
-    if err := client.PruneSlabs(ctx); err != nil {
+    if err := client.PruneSlabs(ctx, time.Time{}); err != nil {
         panic(err)
     }
     fmt.Println("Unused slabs pruned.")
@@ -93,7 +93,7 @@ Most apps never need to call this — deletion already frees a slab once nothing
 
 ## Overriding the prune cutoff
 
-Every SDK takes an optional cutoff. Pass a time to prune only slabs pinned before it. Leave it out (pass `None` in Rust) to use the indexer's default of 72 hours.
+Every SDK takes an optional cutoff. Pass a time to prune only slabs pinned before it. Leave it out (pass `None` in Rust, or a zero `time.Time{}` in Go) to use the indexer's default of 72 hours.
 
 > [!WARNING]
 > Lowering the cutoff below the default 72 hours increases the risk of pruning a slab whose upload hasn't finished yet. Only use a window this short if every upload is guaranteed to complete well within it — the 30-minute value below is illustrative, not a recommendation.
@@ -108,14 +108,10 @@ Every SDK takes an optional cutoff. Pass a time to prune only slabs pinned befor
     ```
 === "Go"
     ```go
-    import (
-        "time"
-
-        "go.sia.tech/indexd/api"
-    )
+    import "time"
 
     // Only prune slabs pinned more than 30 minutes ago instead of the default 72 hours.
-    if err := client.PruneSlabs(ctx, api.WithBefore(time.Now().Add(-30*time.Minute))); err != nil {
+    if err := client.PruneSlabs(ctx, time.Now().Add(-30*time.Minute)); err != nil {
         panic(err)
     }
     ```

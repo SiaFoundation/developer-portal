@@ -119,12 +119,16 @@ The flow is short: your app requests a connection, the user approves it once, an
         ctx := context.Background()
     
         // Create a builder to manage the connection flow.
-        builder := siastorage.NewBuilder(indexerURL, siastorage.AppMetadata{
-            ID:          appID,
+        builder, err := siastorage.NewBuilder(indexerURL, siastorage.AppMetadata{
+            AppID:       appID,
             Name:        "My App",
             Description: "Demo application",
             ServiceURL:  "https://example.com",
         })
+        if err != nil {
+            panic(err)
+        }
+        defer builder.Close()
     
         // Request app connection and get the approval URL.
         responseURL, err := builder.RequestConnection(ctx)
@@ -151,6 +155,22 @@ The flow is short: your app requests a connection, the user approves it once, an
         if recoveryPhrase == "seed" {
             recoveryPhrase = siastorage.NewSeedPhrase()
             fmt.Printf("\nRecovery phrase:\n%s\n\n", recoveryPhrase)
+        }
+    
+        // A returning user must enter the phrase they registered with, or
+        // Register creates a new, empty App Key.
+        reconnecting, err := builder.Reconnecting()
+        if err != nil {
+            panic(err)
+        }
+        if reconnecting {
+            matches, err := builder.MatchesExistingAppKey(ctx, recoveryPhrase)
+            if err != nil {
+                panic(err)
+            }
+            if !matches {
+                panic("this recovery phrase doesn't match your existing account")
+            }
         }
     
         // Register an SDK instance with your recovery phrase.
@@ -453,8 +473,5 @@ Approval can fail if:
 
 Registering with a recovery phrase that doesn't match the user's existing account doesn't fail: it registers a new App Key with no objects. If a returning user types a different phrase by mistake, their objects seem to vanish. That's why the example checks two things after approval and before registering:
 
-* `reconnecting()` reports whether the user's account already has an App Key for your app.
-* `matches_existing_app_key(phrase)` (`matchesExistingAppKey` in JavaScript and Dart) reports whether a phrase derives that existing key.
-
-> [!NOTE]
-> The Go SDK doesn't have these checks yet, so the Go example registers whatever phrase the user enters.
+* `reconnecting()` (`Reconnecting()` in Go) reports whether the user's account already has an App Key for your app.
+* `matches_existing_app_key(phrase)` (`matchesExistingAppKey` in JavaScript and Dart, `MatchesExistingAppKey` in Go) reports whether a phrase derives that existing key.

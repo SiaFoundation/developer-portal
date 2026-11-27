@@ -48,7 +48,7 @@ Each packed object still gets its own Object ID and can be [pinned](../core-conc
     ```go
     start := time.Now()
 
-    packed, err := client.UploadPacked()
+    packed, err := client.UploadPacked(ctx)
     if err != nil {
         panic(err)
     }
@@ -58,7 +58,7 @@ Each packed object still gets its own Object ID and can be [pinned](../core-conc
         data := fmt.Sprintf("Contents of object %d.", i+1)
         reader := bytes.NewReader([]byte(data))
 
-        size, err := packed.Add(ctx, reader)
+        size, err := packed.Add(reader)
         if err != nil {
             panic(err)
         }
@@ -67,13 +67,13 @@ Each packed object still gets its own Object ID and can be [pinned](../core-conc
         fmt.Printf("Object %d added: %d bytes (%d remaining)\n", i+1, size, rem)
     }
 
-    objects, err := packed.Finalize(ctx)
+    objects, err := packed.Finalize()
     if err != nil {
         panic(err)
     }
 
     for i := range objects {
-        objects[i].UpdateMetadata([]byte(fmt.Sprintf(`{"File Name":"packed-%d.txt"}`, i+1)))
+        objects[i] = objects[i].WithMetadata([]byte(fmt.Sprintf(`{"File Name":"packed-%d.txt"}`, i+1)))
 
         if err := client.PinObject(ctx, objects[i]); err != nil {
             panic(err)

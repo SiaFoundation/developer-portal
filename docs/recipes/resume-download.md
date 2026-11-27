@@ -64,7 +64,7 @@ Measure how many bytes you already have, reopen the destination in append mode, 
 
     // Request only the bytes we don't already have.
     remaining := obj.Size() - resumeAt
-    rc, err := client.Download(obj, siastorage.WithDownloadRange(resumeAt, remaining))
+    rc, err := client.Download(ctx, obj, siastorage.WithDownloadRange(resumeAt, remaining))
     if err != nil {
         panic(err)
     }

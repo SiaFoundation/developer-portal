@@ -108,7 +108,8 @@ Use the exact same, unchanged source file on every attempt. Keep a separate chec
         resumeAt := obj.Size()
         length := min(partSize, int64(sourceSize-resumeAt))
         reader := io.NewSectionReader(file, int64(resumeAt), length)
-        if err := client.Upload(ctx, &obj, reader); err != nil {
+        obj, err = client.Upload(ctx, obj, reader)
+        if err != nil {
             panic(err)
         }
         if obj.Size() != resumeAt+uint64(length) {

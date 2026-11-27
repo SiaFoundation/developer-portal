@@ -24,7 +24,7 @@ Stream decrypted bytes directly to disk instead of buffering in memory.
     defer file.Close()
 
     // Download returns an io.ReadCloser; always close it to release resources.
-    rc, err := client.Download(obj)
+    rc, err := client.Download(ctx, obj)
     if err != nil {
         panic(err)
     }

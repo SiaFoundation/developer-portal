@@ -27,12 +27,12 @@ Stream directly from disk instead of loading the entire object into memory.
     }
     defer file.Close()
 
-    obj := siastorage.NewEmptyObject()
-    if err := client.Upload(ctx, &obj, file); err != nil {
+    obj, err := client.Upload(ctx, siastorage.NewEmptyObject(), file)
+    if err != nil {
         panic(err)
     }
 
-    obj.UpdateMetadata([]byte(`{"File Name":"example.txt"}`))
+    obj = obj.WithMetadata([]byte(`{"File Name":"example.txt"}`))
 
     if err := client.PinObject(ctx, obj); err != nil {
         panic(err)
